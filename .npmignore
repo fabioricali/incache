@@ -1,0 +1,8 @@
+node_modules/
+coverage/
+extra/
+test/
+.travis.yml
+api.md
+version-to-tag.sh
+webpack.config.js
