@@ -1,6 +1,6 @@
 <div align="center">
 <br/><br/>
-<img width="268" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?1" title="flak"/>
+<img width="268" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?1" title="incache"/>
 <br/><br/>
 Share singleton via global object, yes you can!
 <br/><br/>
