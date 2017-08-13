@@ -55,7 +55,7 @@ let _onUpdated = () => {
  * @example
  * incache.set('my key', 'my value');
  * incache.set('my object', {a: 1, b: 2});
- * incache.set('my boolean', true);
+ * incache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
  */
 incache.set = (key, value, opts = {}) => {
     let record = {
@@ -119,10 +119,15 @@ incache.bulkSet = (records) => {
  * incache.get('my key');
  */
 incache.get = (key, onlyValue = true) => {
-    return incache.has(key) ?
-        onlyValue ?
-            storage[key].value : storage[key]
-        : null;
+    if (incache.has(key)) {
+        if (incache.expired(key)) {
+            incache.remove(key, false);
+            return null;
+        }
+        return onlyValue ? storage[key].value : storage[key];
+    } else {
+        return null;
+    }
 };
 
 /**
@@ -160,12 +165,18 @@ incache.bulkRemove = (keys) => {
 incache.all = () => {
     let records = [];
 
-    for (let key in storage)
-        if (storage.hasOwnProperty(key))
-            records.push({
-                key: key,
-                value: storage[key].value
-            });
+    for (let key in storage) {
+        if (storage.hasOwnProperty(key)) {
+            if(incache.expired(key)) {
+                incache.remove(key, false);
+            } else {
+                records.push({
+                    key: key,
+                    value: storage[key].value
+                });
+            }
+        }
+    }
 
     return records;
 };

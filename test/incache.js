@@ -2,7 +2,7 @@ const incache = require('../src/incache');
 const be = require('bejs');
 
 describe('incache', function () {
-
+    this.timeout(5000);
     describe('set', function () {
         it('should be return true', ()=>{
             incache.set('myKey', 'myValue');
@@ -10,14 +10,14 @@ describe('incache', function () {
             console.log(result);
             be.err.equal(result, 'myValue');
         });
-        it('with expiry, should be return true', ()=>{
+        it('with expiry, should be return true', (done)=>{
             incache.set('myKeyExpiry', 'myValue', {
                 life: 1
             });
-            let result = incache.get('myKeyExpiry', false);
-            console.log(result);
             setTimeout(()=>{
-                be.err.true(incache.expired('myKeyExpiry'));
+                let result = incache.get('myKeyExpiry', false);
+                console.log(result);
+                be.err(done).null(result);
             }, 1000);
         });
         it('should be equal', ()=>{
@@ -111,7 +111,7 @@ describe('incache', function () {
     });
 
     describe('all', function () {
-        it('should be return an array', ()=>{
+        it('should be return an array of 5 items', ()=>{
             incache.clear();
             incache.set('myKey1', 'myValue1');
             incache.set('myKey2', 'myValue2');
@@ -122,6 +122,22 @@ describe('incache', function () {
             console.log(result);
             be.err.array(result);
             be.err.equal(result.length, 5);
+        });
+        it('with expired, should be return an array of 4 items', (done)=>{
+            incache.clear();
+            incache.set('myKey1', 'myValue1');
+            incache.set('myKey2', 'myValue2');
+            incache.set('myKey3', 'myValue3');
+            incache.set('myKey4', 'myValue4', {life: 1});
+            incache.set('myKey5', 'myValue5');
+            setTimeout(()=>{
+                result = incache.all();
+                console.log(result);
+                be.err.array(result);
+                be.err.equal(result.length, 4);
+                done();
+            }, 1500);
+
         });
     });
 
@@ -225,4 +241,18 @@ describe('incache', function () {
         });
     });
 
+    describe('expired', function () {
+        it('with expiry, should be return true', (done)=>{
+            incache.set('myKeyExpiry1', 'myValue', {
+                life: 1
+            });
+            setTimeout(()=>{
+                be.err.true(incache.expired('myKeyExpiry1'));
+                done();
+            }, 2000);
+        });
+        it('key not found, should be return false', ()=>{
+            be.err.false(incache.expired('myKeyExpiry10'));
+        });
+    });
 });

@@ -32,6 +32,9 @@ store.remove('my key');
 
 // Clear
 store.clear();
+
+// Expires after 2 seconds
+incache.set('my string', 'hello world', {life: 2});
 ```
 
 ### Events

@@ -4,12 +4,13 @@
 **Kind**: global namespace  
 
 * [incache](#incache) : <code>object</code>
-    * [.set(key, value, [silent])](#incache.set) ⇒ <code>Object</code>
+    * [.set(key, value, [opts])](#incache.set) ⇒ <code>Object</code>
     * [.bulkSet(records)](#incache.bulkSet)
     * [.get(key, [onlyValue])](#incache.get) ⇒ <code>any</code> \| <code>null</code>
     * [.remove(key, [silent])](#incache.remove)
     * [.bulkRemove(keys)](#incache.bulkRemove)
     * [.all()](#incache.all) ⇒ <code>Array</code>
+    * [.expired(key)](#incache.expired) ⇒ <code>boolean</code>
     * [.clear()](#incache.clear)
     * [.has(key)](#incache.has) ⇒ <code>boolean</code>
     * [.onRemoved(callback)](#incache.onRemoved)
@@ -21,7 +22,7 @@
 
 <a name="incache.set"></a>
 
-### incache.set(key, value, [silent]) ⇒ <code>Object</code>
+### incache.set(key, value, [opts]) ⇒ <code>Object</code>
 Set/update record
 
 **Kind**: static method of [<code>incache</code>](#incache)  
@@ -37,7 +38,13 @@ Set/update record
     </tr><tr>
     <td>value</td><td><code>any</code></td><td></td><td></td>
     </tr><tr>
-    <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+    <td>[opts]</td><td><code>Object</code></td><td></td><td><p>options object</p>
+</td>
+    </tr><tr>
+    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+</td>
+    </tr><tr>
+    <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>seconds of life. If 0 not expire.</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -148,6 +155,24 @@ incache.bulkRemove(['key1', 'key2', 'key3']);
 Fetch all records
 
 **Kind**: static method of [<code>incache</code>](#incache)  
+<a name="incache.expired"></a>
+
+### incache.expired(key) ⇒ <code>boolean</code>
+Check if record is expired
+
+**Kind**: static method of [<code>incache</code>](#incache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>any</code></td>
+    </tr>  </tbody>
+</table>
+
 <a name="incache.clear"></a>
 
 ### incache.clear()

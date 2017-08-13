@@ -95,7 +95,17 @@ var incache = {};
  * @type {string}
  * @ignore
  */
-var globalKey = '___incache___storage___global___key';
+var GLOBAL_KEY = '___incache___storage___global___key___';
+
+/**
+ * Default options
+ * @type {{silent: boolean, life: number}}
+ * @ignore
+ */
+var DEFAULT_OPTS = {
+    silent: false,
+    life: 0
+};
 
 /**
  * Root object
@@ -103,13 +113,13 @@ var globalKey = '___incache___storage___global___key';
  */
 var root = (typeof process === 'undefined' ? 'undefined' : _typeof(process)) === 'object' && typeof process.pid !== 'undefined' ? global : window;
 
-if (!root[globalKey]) root[globalKey] = {};
+if (!root[GLOBAL_KEY]) root[GLOBAL_KEY] = {};
 
 /**
  * Short storage
  * @ignore
  */
-var storage = root[globalKey];
+var storage = root[GLOBAL_KEY];
 
 var _onRemoved = function _onRemoved() {};
 var _onCreated = function _onCreated() {};
@@ -119,28 +129,39 @@ var _onUpdated = function _onUpdated() {};
  * Set/update record
  * @param key {any}
  * @param value {any}
- * @param [silent=false] {boolean} if true no event will be triggered
+ * @param [opts] {Object} options object
+ * @param [opts.silent=false] {boolean} if true no event will be triggered
+ * @param [opts.life=0] {number} seconds of life. If 0 not expire.
  * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
  * @example
  * incache.set('my key', 'my value');
  * incache.set('my object', {a: 1, b: 2});
  * incache.set('my boolean', true);
  */
-incache.set = function (key, value, silent) {
+incache.set = function (key, value) {
+    var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
     var record = {
         isNew: true,
         createdOn: null,
         updatedOn: null,
+        expiresOn: null,
         value: value
     };
+
+    opts = helper.defaults(opts, DEFAULT_OPTS);
+
+    if (opts.life && helper.is(opts.life, 'number')) {
+        record.expiresOn = helper.addSecondsToNow(opts.life);
+    }
 
     if (incache.has(key)) {
         record.isNew = false;
         record.updatedOn = new Date();
-        if (!silent) _onUpdated.call(undefined, key, record);
+        if (!opts.silent) _onUpdated.call(undefined, key, record);
     } else {
         record.createdOn = new Date();
-        if (!silent) _onCreated.call(undefined, key, record);
+        if (!opts.silent) _onCreated.call(undefined, key, record);
     }
 
     storage[key] = record;
@@ -164,7 +185,7 @@ incache.bulkSet = function (records) {
 
     for (var i = 0; i < records.length; i++) {
         if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
-        incache.set(records[i].key, records[i].value, true);
+        incache.set(records[i].key, records[i].value, { silent: true });
     }
 };
 
@@ -179,7 +200,15 @@ incache.bulkSet = function (records) {
 incache.get = function (key) {
     var onlyValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-    return incache.has(key) ? onlyValue ? storage[key].value : storage[key] : null;
+    if (incache.has(key)) {
+        if (incache.expired(key)) {
+            incache.remove(key, false);
+            return null;
+        }
+        return onlyValue ? storage[key].value : storage[key];
+    } else {
+        return null;
+    }
 };
 
 /**
@@ -218,11 +247,34 @@ incache.all = function () {
     var records = [];
 
     for (var key in storage) {
-        if (storage.hasOwnProperty(key)) records.push({
-            key: key,
-            value: storage[key].value
-        });
-    }return records;
+        if (storage.hasOwnProperty(key)) {
+            if (incache.expired(key)) {
+                incache.remove(key, false);
+            } else {
+                records.push({
+                    key: key,
+                    value: storage[key].value
+                });
+            }
+        }
+    }
+
+    return records;
+};
+
+/**
+ * Check if record is expired
+ * @param key {any}
+ * @returns {boolean}
+ */
+incache.expired = function (key) {
+    if (storage[key] && storage[key].expiresOn) {
+        var now = new Date();
+        var expiry = new Date(storage[key].expiresOn);
+        return now > expiry;
+    } else {
+        return false;
+    }
 };
 
 /**
@@ -233,7 +285,7 @@ incache.clear = function () {
      * Reset object
      * @ignore
      */
-    storage = root[globalKey] = {};
+    storage = root[GLOBAL_KEY] = {};
 };
 
 /**
@@ -307,7 +359,7 @@ incache.onUpdated = function (callback) {
  * Expose module
  */
 module.exports = incache;
-module.exports._global_key = globalKey;
+module.exports._global_key = GLOBAL_KEY;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(3)))
 
 /***/ }),
@@ -572,6 +624,16 @@ helper.defaults = function (opts, defaultOpts) {
         }
     }
     return opts;
+};
+
+/**
+ * Adds seconds to current date
+ * @param seconds {number} number of seconds to add
+ * @returns {Date}
+ */
+helper.addSecondsToNow = function (seconds) {
+    var now = new Date();
+    return new Date(now.setSeconds(now.getSeconds() + seconds));
 };
 
 module.exports = helper;

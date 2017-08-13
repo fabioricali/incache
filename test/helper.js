@@ -37,4 +37,10 @@ describe('helper', function () {
         });
     });
 
+    describe('addSecondsToNow', function () {
+        it('should be return true', () => {
+            let result = helper.addSecondsToNow(2);
+            be.err.true(result > new Date());
+        });
+    });
 });
