@@ -31,4 +31,14 @@ helper.defaults = (opts, defaultOpts) => {
     return opts;
 };
 
+/**
+ * Adds seconds to current date
+ * @param seconds {number} number of seconds to add
+ * @returns {Date}
+ */
+helper.addSecondsToNow = (seconds) => {
+    let now = new Date();
+    return new Date(now.setSeconds(now.getSeconds() + seconds));
+};
+
 module.exports = helper;

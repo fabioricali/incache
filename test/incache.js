@@ -10,6 +10,16 @@ describe('incache', function () {
             console.log(result);
             be.err.equal(result, 'myValue');
         });
+        it('with expiry, should be return true', ()=>{
+            incache.set('myKeyExpiry', 'myValue', {
+                life: 1
+            });
+            let result = incache.get('myKeyExpiry', false);
+            console.log(result);
+            setTimeout(()=>{
+                be.err.true(incache.expired('myKeyExpiry'));
+            }, 1000);
+        });
         it('should be equal', ()=>{
             let result;
             result = incache.set('myKeyA', 'myValue');

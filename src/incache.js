@@ -10,7 +10,17 @@ const incache = {};
  * @type {string}
  * @ignore
  */
-const globalKey = '___incache___storage___global___key';
+const GLOBAL_KEY = '___incache___storage___global___key___';
+
+/**
+ * Default options
+ * @type {{silent: boolean, life: number}}
+ * @ignore
+ */
+const DEFAULT_OPTS = {
+    silent: false,
+    life: 0
+};
 
 /**
  * Root object
@@ -18,14 +28,14 @@ const globalKey = '___incache___storage___global___key';
  */
 const root = typeof process === 'object' && typeof process.pid !== 'undefined' ? global : window;
 
-if (!root[globalKey])
-    root[globalKey] = {};
+if (!root[GLOBAL_KEY])
+    root[GLOBAL_KEY] = {};
 
 /**
  * Short storage
  * @ignore
  */
-let storage = root[globalKey];
+let storage = root[GLOBAL_KEY];
 
 let _onRemoved = () => {
 };
@@ -38,29 +48,38 @@ let _onUpdated = () => {
  * Set/update record
  * @param key {any}
  * @param value {any}
- * @param [silent=false] {boolean} if true no event will be triggered
+ * @param [opts] {Object} options object
+ * @param [opts.silent=false] {boolean} if true no event will be triggered
+ * @param [opts.life=0] {number} seconds of life. If 0 not expire.
  * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
  * @example
  * incache.set('my key', 'my value');
  * incache.set('my object', {a: 1, b: 2});
  * incache.set('my boolean', true);
  */
-incache.set = (key, value, silent) => {
+incache.set = (key, value, opts = {}) => {
     let record = {
         isNew: true,
         createdOn: null,
         updatedOn: null,
+        expiresOn: null,
         value: value
     };
+
+    opts = helper.defaults(opts, DEFAULT_OPTS);
+
+    if (opts.life && helper.is(opts.life, 'number')) {
+        record.expiresOn = helper.addSecondsToNow(opts.life);
+    }
 
     if (incache.has(key)) {
         record.isNew = false;
         record.updatedOn = new Date();
-        if(!silent)
+        if (!opts.silent)
             _onUpdated.call(this, key, record);
     } else {
         record.createdOn = new Date();
-        if(!silent)
+        if (!opts.silent)
             _onCreated.call(this, key, record);
     }
 
@@ -87,7 +106,7 @@ incache.bulkSet = (records) => {
     for (let i = 0; i < records.length; i++) {
         if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined'))
             throw new Error('key and value properties are required');
-        incache.set(records[i].key, records[i].value, true);
+        incache.set(records[i].key, records[i].value, {silent: true});
     }
 };
 
@@ -115,7 +134,7 @@ incache.get = (key, onlyValue = true) => {
  */
 incache.remove = (key, silent = false) => {
     delete storage[key];
-    if(!silent)
+    if (!silent)
         _onRemoved.call(this, key);
 };
 
@@ -152,6 +171,21 @@ incache.all = () => {
 };
 
 /**
+ * Check if record is expired
+ * @param key {any}
+ * @returns {boolean}
+ */
+incache.expired = (key) => {
+    if (storage[key] && storage[key].expiresOn) {
+        let now = new Date();
+        let expiry = new Date(storage[key].expiresOn);
+        return now > expiry;
+    } else {
+        return false;
+    }
+};
+
+/**
  * Remove all records
  */
 incache.clear = () => {
@@ -159,7 +193,7 @@ incache.clear = () => {
      * Reset object
      * @ignore
      */
-    storage = root[globalKey] = {};
+    storage = root[GLOBAL_KEY] = {};
 };
 
 /**
@@ -233,4 +267,4 @@ incache.onUpdated = (callback) => {
  * Expose module
  */
 module.exports = incache;
-module.exports._global_key = globalKey;
+module.exports._global_key = GLOBAL_KEY;
