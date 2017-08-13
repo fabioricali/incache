@@ -121,7 +121,7 @@ incache.bulkSet = (records) => {
 incache.get = (key, onlyValue = true) => {
     if (incache.has(key)) {
         if (incache.expired(key)) {
-            incache.remove(key, false);
+            incache.remove(key, true);
             return null;
         }
         return onlyValue ? storage[key].value : storage[key];
@@ -168,7 +168,7 @@ incache.all = () => {
     for (let key in storage) {
         if (storage.hasOwnProperty(key)) {
             if(incache.expired(key)) {
-                incache.remove(key, false);
+                incache.remove(key, true);
             } else {
                 records.push({
                     key: key,
