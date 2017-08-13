@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 1.0.1  
+// [AIV]  InCache Build version: 2.0.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -202,7 +202,7 @@ incache.get = function (key) {
 
     if (incache.has(key)) {
         if (incache.expired(key)) {
-            incache.remove(key, false);
+            incache.remove(key, true);
             return null;
         }
         return onlyValue ? storage[key].value : storage[key];
@@ -249,7 +249,7 @@ incache.all = function () {
     for (var key in storage) {
         if (storage.hasOwnProperty(key)) {
             if (incache.expired(key)) {
-                incache.remove(key, false);
+                incache.remove(key, true);
             } else {
                 records.push({
                     key: key,

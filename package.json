@@ -1,6 +1,6 @@
 {
     "name": "incache",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "description": "Share singleton via global object, yes you can!",
     "main": "index.js",
     "scripts": {
