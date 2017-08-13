@@ -51,7 +51,7 @@ Set/update record
 
 **Example**  
 ```js
-incache.set('my key', 'my value');incache.set('my object', {a: 1, b: 2});incache.set('my boolean', true);
+incache.set('my key', 'my value');incache.set('my object', {a: 1, b: 2});incache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
 ```
 <a name="incache.bulkSet"></a>
 

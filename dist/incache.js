@@ -136,7 +136,7 @@ var _onUpdated = function _onUpdated() {};
  * @example
  * incache.set('my key', 'my value');
  * incache.set('my object', {a: 1, b: 2});
- * incache.set('my boolean', true);
+ * incache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
  */
 incache.set = function (key, value) {
     var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
