@@ -36,6 +36,7 @@ describe('incache-save', function () {
         });
         it('should be equal', ()=>{
             let result;
+            incache.remove('myKeyA');
             result = incache.set('myKeyA', 'myValue');
             be.err.true(result.isNew);
             result = incache.set('myKeyA', 'myValueUpdate');
