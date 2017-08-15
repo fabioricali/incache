@@ -1,6 +1,11 @@
 const incache = require('../src/incache');
 const be = require('bejs');
 
+incache.config({
+    save: false,
+    filePath: './test/.incache'
+});
+
 describe('incache', function () {
     this.timeout(5000);
     describe('set', function () {

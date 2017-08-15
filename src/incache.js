@@ -12,8 +12,7 @@ const disk = {
         let {config, data} = root[GLOBAL_KEY];
         if (config.save) {
             let content = JSON.stringify(data);
-            fs.writeFile(config.filePath, content, () => {
-            });
+            fs.writeFileSync(config.filePath, content);
         }
     },
     read: () => {
@@ -21,7 +20,11 @@ const disk = {
         let config = root[GLOBAL_KEY].config;
         if (fs.existsSync(config.filePath)) {
             let content = fs.readFileSync(config.filePath);
-            storage = root[GLOBAL_KEY].data = JSON.parse(content);
+            try {
+                storage = root[GLOBAL_KEY].data = JSON.parse(content);
+            } catch (e) {
+                storage = root[GLOBAL_KEY].data = {};
+            }
         }
     }
 };
@@ -62,7 +65,7 @@ const root = helper.isServer() ? global : window;
 if (!root[GLOBAL_KEY]) {
     root[GLOBAL_KEY] = {
         data: {},
-        config: {}
+        config: DEFAULT_CONFIG
     };
 }
 
@@ -83,17 +86,15 @@ let _onUpdated = () => {
  * Set configuration
  * @param opts {Object} configuration object
  * @param opts.save=true {boolean} if true saves cache in disk
- * @param opts.filePath=".incache" {string} cache file path
+ * @param opts.filePath=".incache-save" {string} cache file path
  */
 incache.config = (opts = {}) => {
     root[GLOBAL_KEY].config = helper.defaults(opts, DEFAULT_CONFIG);
+    disk.read();
 };
 
 // call config
 incache.config();
-
-// read cache from disk
-disk.read();
 
 /**
  * Set/update record
