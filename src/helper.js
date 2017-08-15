@@ -41,4 +41,12 @@ helper.addSecondsToNow = (seconds) => {
     return new Date(now.setSeconds(now.getSeconds() + seconds));
 };
 
+/**
+ * Check if is Node environment
+ * @returns {boolean}
+ */
+helper.isServer = () => {
+    return typeof process === 'object' && typeof process.pid !== 'undefined';
+};
+
 module.exports = helper;

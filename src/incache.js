@@ -1,4 +1,30 @@
 const helper = require('./helper');
+const fs = require('fs');
+
+/**
+ * Write cache on disk
+ * @type {{write: (function()), read: (function())}}
+ * @ignore
+ */
+const disk = {
+    write: () => {
+        if (!helper.isServer()) return;
+        let {config, data} = root[GLOBAL_KEY];
+        if (config.save) {
+            let content = JSON.stringify(data);
+            fs.writeFile(config.filePath, content, () => {
+            });
+        }
+    },
+    read: () => {
+        if (!helper.isServer()) return;
+        let config = root[GLOBAL_KEY].config;
+        if (fs.existsSync(config.filePath)) {
+            let content = fs.readFileSync(config.filePath);
+            storage = root[GLOBAL_KEY].data = JSON.parse(content);
+        }
+    }
+};
 
 /**
  * @namespace incache
@@ -22,20 +48,29 @@ const DEFAULT_OPTS = {
     life: 0
 };
 
+const DEFAULT_CONFIG = {
+    save: true,
+    filePath: '.incache'
+};
+
 /**
  * Root object
  * @ignore
  */
-const root = typeof process === 'object' && typeof process.pid !== 'undefined' ? global : window;
+const root = helper.isServer() ? global : window;
 
-if (!root[GLOBAL_KEY])
-    root[GLOBAL_KEY] = {};
+if (!root[GLOBAL_KEY]) {
+    root[GLOBAL_KEY] = {
+        data: {},
+        config: {}
+    };
+}
 
 /**
  * Short storage
  * @ignore
  */
-let storage = root[GLOBAL_KEY];
+let storage = root[GLOBAL_KEY].data;
 
 let _onRemoved = () => {
 };
@@ -43,6 +78,22 @@ let _onCreated = () => {
 };
 let _onUpdated = () => {
 };
+
+/**
+ * Set configuration
+ * @param opts {Object} configuration object
+ * @param opts.save=true {boolean} if true saves cache in disk
+ * @param opts.filePath=".incache" {string} cache file path
+ */
+incache.config = (opts = {}) => {
+    root[GLOBAL_KEY].config = helper.defaults(opts, DEFAULT_CONFIG);
+};
+
+// call config
+incache.config();
+
+// read cache from disk
+disk.read();
 
 /**
  * Set/update record
@@ -85,6 +136,10 @@ incache.set = (key, value, opts = {}) => {
 
     storage[key] = record;
 
+    // If bulk operation is called, the best way is write on end.
+    if (!opts.fromBulk)
+        disk.write();
+
     return record;
 };
 
@@ -106,8 +161,10 @@ incache.bulkSet = (records) => {
     for (let i = 0; i < records.length; i++) {
         if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined'))
             throw new Error('key and value properties are required');
-        incache.set(records[i].key, records[i].value, {silent: true});
+        incache.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
     }
+
+    disk.write();
 };
 
 /**
@@ -134,13 +191,18 @@ incache.get = (key, onlyValue = true) => {
  * Delete a record
  * @param key {any}
  * @param [silent=false] {boolean} if true no event will be triggered
+ * @param [opts] {Object} optional arguments
  * @example
  * incache.remove('my key');
  */
-incache.remove = (key, silent = false) => {
+incache.remove = (key, silent = false, opts = {}) => {
     delete storage[key];
     if (!silent)
         _onRemoved.call(this, key);
+
+    // If bulk operation is called, the best way is write on end.
+    if (!opts.fromBulk)
+        disk.write();
 };
 
 /**
@@ -154,8 +216,10 @@ incache.bulkRemove = (keys) => {
         throw new Error('keys must be an array of keys');
 
     for (let i = 0; i < keys.length; i++) {
-        incache.remove(keys[i], true);
+        incache.remove(keys[i], true, {fromBulk: true});
     }
+
+    disk.write();
 };
 
 /**
@@ -167,7 +231,7 @@ incache.all = () => {
 
     for (let key in storage) {
         if (storage.hasOwnProperty(key)) {
-            if(incache.expired(key)) {
+            if (incache.expired(key)) {
                 incache.remove(key, true);
             } else {
                 records.push({
@@ -204,7 +268,9 @@ incache.clear = () => {
      * Reset object
      * @ignore
      */
-    storage = root[GLOBAL_KEY] = {};
+    storage = root[GLOBAL_KEY].data = {};
+
+    disk.write();
 };
 
 /**

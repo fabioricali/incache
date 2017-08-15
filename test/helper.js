@@ -43,4 +43,10 @@ describe('helper', function () {
             be.err.true(result > new Date());
         });
     });
+
+    describe('isServer', function () {
+        it('should be return true', () => {
+            be.err.true(helper.isServer());
+        });
+    });
 });

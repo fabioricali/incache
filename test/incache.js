@@ -28,7 +28,7 @@ describe('incache', function () {
             be.err.false(result.isNew);
             result = incache.get('myKeyA');
             console.log(result);
-            be.err.equal(global[incache._global_key]['myKeyA'].value, result);
+            be.err.equal(global[incache._global_key].data['myKeyA'].value, result);
         });
     });
 
@@ -155,7 +155,7 @@ describe('incache', function () {
             incache.clear();
             result = incache.all();
             console.log(result);
-            be.err.empty(global[incache._global_key]);
+            be.err.empty(global[incache._global_key].data);
             be.err.array(result);
             be.err.equal(result.length, 0);
         });

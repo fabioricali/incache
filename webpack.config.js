@@ -31,13 +31,17 @@ module.exports = {
             },
         }],
     },
+    node: {
+        fs: 'empty'
+    },
     plugins: [
         new webpack.optimize.UglifyJsPlugin({
             mangle: true,
             comments: false,
             compress: {
-                warnings:false
-            }, include: /\.min\.js$/ }),
+                warnings: false
+            }, include: /\.min\.js$/
+        }),
         new WebpackAutoInject({
             PACKAGE_JSON_PATH: './package.json',
             components: {
