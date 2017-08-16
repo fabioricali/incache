@@ -1,6 +1,8 @@
 const incache = require('../src/incache');
 const be = require('bejs');
 
+console.log(incache);
+
 incache.setConfig({
     save: false,
     filePath: './test/.incache'
