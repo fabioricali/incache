@@ -4,10 +4,12 @@
 **Kind**: global namespace  
 
 * [incache](#incache) : <code>object</code>
+    * [.setConfig(opts)](#incache.setConfig)
+    * [.getConfig()](#incache.getConfig) ⇒ <code>\*</code>
     * [.set(key, value, [opts])](#incache.set) ⇒ <code>Object</code>
     * [.bulkSet(records)](#incache.bulkSet)
     * [.get(key, [onlyValue])](#incache.get) ⇒ <code>any</code> \| <code>null</code>
-    * [.remove(key, [silent])](#incache.remove)
+    * [.remove(key, [silent], [opts])](#incache.remove)
     * [.bulkRemove(keys)](#incache.bulkRemove)
     * [.all()](#incache.all) ⇒ <code>Array</code>
     * [.expired(key)](#incache.expired) ⇒ <code>boolean</code>
@@ -20,6 +22,40 @@
     * [.onUpdated(callback)](#incache.onUpdated)
         * [~updatedCallback](#incache.onUpdated..updatedCallback) : <code>function</code>
 
+<a name="incache.setConfig"></a>
+
+### incache.setConfig(opts)
+Set configuration
+
+**Kind**: static method of [<code>incache</code>](#incache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>opts</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
+</td>
+    </tr><tr>
+    <td>opts.save</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
+</td>
+    </tr><tr>
+    <td>opts.filePath</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
+</td>
+    </tr><tr>
+    <td>opts.storeName</td><td><code>string</code></td><td></td><td><p>store name</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="incache.getConfig"></a>
+
+### incache.getConfig() ⇒ <code>\*</code>
+Get configuration
+
+**Kind**: static method of [<code>incache</code>](#incache)  
 <a name="incache.set"></a>
 
 ### incache.set(key, value, [opts]) ⇒ <code>Object</code>
@@ -103,7 +139,7 @@ incache.get('my key');
 ```
 <a name="incache.remove"></a>
 
-### incache.remove(key, [silent])
+### incache.remove(key, [silent], [opts])
 Delete a record
 
 **Kind**: static method of [<code>incache</code>](#incache)  
@@ -118,6 +154,9 @@ Delete a record
     <td>key</td><td><code>any</code></td><td></td><td></td>
     </tr><tr>
     <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+</td>
+    </tr><tr>
+    <td>[opts]</td><td><code>Object</code></td><td></td><td><p>optional arguments</p>
 </td>
     </tr>  </tbody>
 </table>
