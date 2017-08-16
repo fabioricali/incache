@@ -4,7 +4,7 @@
 **Kind**: global namespace  
 
 * [incache](#incache) : <code>object</code>
-    * [.setConfig(opts)](#incache.setConfig)
+    * [.setConfig([opts])](#incache.setConfig)
     * [.getConfig()](#incache.getConfig) ⇒ <code>\*</code>
     * [.set(key, value, [opts])](#incache.set) ⇒ <code>Object</code>
     * [.bulkSet(records)](#incache.bulkSet)
@@ -24,7 +24,7 @@
 
 <a name="incache.setConfig"></a>
 
-### incache.setConfig(opts)
+### incache.setConfig([opts])
 Set configuration
 
 **Kind**: static method of [<code>incache</code>](#incache)  
@@ -36,16 +36,16 @@ Set configuration
   </thead>
   <tbody>
 <tr>
-    <td>opts</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
+    <td>[opts]</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
 </td>
     </tr><tr>
-    <td>opts.save</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
 </td>
     </tr><tr>
-    <td>opts.filePath</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
+    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
 </td>
     </tr><tr>
-    <td>opts.storeName</td><td><code>string</code></td><td></td><td><p>store name</p>
+    <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
 </td>
     </tr>  </tbody>
 </table>

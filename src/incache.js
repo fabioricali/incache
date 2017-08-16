@@ -83,10 +83,10 @@ let _onUpdated = () => {
 
 /**
  * Set configuration
- * @param opts {Object} configuration object
- * @param opts.save=true {boolean} if true saves cache in disk
- * @param opts.filePath=.incache {string} cache file path
- * @param opts.storeName {string} store name
+ * @param [opts] {Object} configuration object
+ * @param [opts.save=true] {boolean} if true saves cache in disk
+ * @param [opts.filePath=.incache] {string} cache file path
+ * @param [opts.storeName] {string} store name
  */
 incache.setConfig = (opts = {}) => {
     if(opts.storeName)
