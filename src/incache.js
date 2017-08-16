@@ -54,6 +54,7 @@ const DEFAULT_OPTS = {
 /**
  * Incache default configuration
  * @type {{save: boolean, filePath: string}}
+ * @ignore
  */
 const DEFAULT_CONFIG = {
     storeName: '',
@@ -82,9 +83,10 @@ let _onUpdated = () => {
 
 /**
  * Set configuration
- * @param opts {Object} configuration object
- * @param opts.save=true {boolean} if true saves cache in disk
- * @param opts.filePath=".incache-save" {string} cache file path
+ * @param [opts] {Object} configuration object
+ * @param [opts.save=true] {boolean} if true saves cache in disk
+ * @param [opts.filePath=.incache] {string} cache file path
+ * @param [opts.storeName] {string} store name
  */
 incache.setConfig = (opts = {}) => {
     if(opts.storeName)
