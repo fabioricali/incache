@@ -1,5 +1,6 @@
 const incache = require('../src/incache');
 const be = require('bejs');
+const assert = require('assert');
 
 incache.config({
     save: false,
