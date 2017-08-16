@@ -1,8 +1,7 @@
 const incache = require('../src/incache');
 const be = require('bejs');
-const assert = require('assert');
 
-incache.config({
+incache.setConfig({
     save: false,
     filePath: './test/.incache'
 });
@@ -24,17 +23,19 @@ describe('incache', function () {
                 let result = incache.get('myKeyExpiry', false);
                 console.log(result);
                 be.err(done).null(result);
-            }, 1000);
+            }, 1200);
         });
         it('should be equal', ()=>{
             let result;
-            result = incache.set('myKeyA', 'myValue');
+            result = incache.set('myKeyAX', 'myValue');
+            console.log('=================================>',incache.getConfig());
+            console.log('=================================>',result);
             be.err.true(result.isNew);
-            result = incache.set('myKeyA', 'myValueUpdate');
+            result = incache.set('myKeyAX', 'myValueUpdate');
             be.err.false(result.isNew);
-            result = incache.get('myKeyA');
-            console.log(result);
-            be.err.equal(global[incache._global_key].data['myKeyA'].value, result);
+            result = incache.get('myKeyAX');
+            //console.log(result);
+            be.err.equal(global[incache._global_key].data['myKeyAX'].value, result);
         });
     });
 

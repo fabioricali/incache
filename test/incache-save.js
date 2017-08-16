@@ -1,7 +1,7 @@
 const incache = require('../src/incache');
 const be = require('bejs');
 
-incache.config({
+incache.setConfig({
     save: true,
     filePath: './test/.incache-save'
 });
@@ -32,18 +32,18 @@ describe('incache-save', function () {
                 let result = incache.get('myKeyExpiry', false);
                 console.log(result);
                 be.err(done).null(result);
-            }, 1000);
+            }, 1200);
         });
         it('should be equal', ()=>{
             let result;
-            incache.remove('myKeyA');
-            result = incache.set('myKeyA', 'myValue');
+            incache.remove('myKeyAB');
+            result = incache.set('myKeyAB', 'myValue');
             be.err.true(result.isNew);
-            result = incache.set('myKeyA', 'myValueUpdate');
+            result = incache.set('myKeyAB', 'myValueUpdate');
             be.err.false(result.isNew);
-            result = incache.get('myKeyA');
+            result = incache.get('myKeyAB');
             console.log(result);
-            be.err.equal(global[incache._global_key].data['myKeyA'].value, result);
+            be.err.equal(global[incache._global_key].data['myKeyAB'].value, result);
         });
     });
 });

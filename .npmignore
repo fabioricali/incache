@@ -5,4 +5,4 @@ test/
 .travis.yml
 api.md
 version-to-tag.sh
-webpack.config.js
+webpack.setConfig.js

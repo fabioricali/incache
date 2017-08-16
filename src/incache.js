@@ -18,7 +18,7 @@ const disk = {
     read: () => {
         if (!helper.isServer()) return;
         let config = root[GLOBAL_KEY].config;
-        if (fs.existsSync(config.filePath)) {
+        if (config.save && fs.existsSync(config.filePath)) {
             let content = fs.readFileSync(config.filePath);
             try {
                 storage = root[GLOBAL_KEY].data = JSON.parse(content);
@@ -39,10 +39,10 @@ const incache = {};
  * @type {string}
  * @ignore
  */
-const GLOBAL_KEY = '___incache___storage___global___key___';
+let GLOBAL_KEY = '___incache___storage___global___key___';
 
 /**
- * Default options
+ * Record default options
  * @type {{silent: boolean, life: number}}
  * @ignore
  */
@@ -51,7 +51,12 @@ const DEFAULT_OPTS = {
     life: 0
 };
 
+/**
+ * Incache default configuration
+ * @type {{save: boolean, filePath: string}}
+ */
 const DEFAULT_CONFIG = {
+    storeName: '',
     save: true,
     filePath: '.incache'
 };
@@ -62,18 +67,11 @@ const DEFAULT_CONFIG = {
  */
 const root = helper.isServer() ? global : window;
 
-if (!root[GLOBAL_KEY]) {
-    root[GLOBAL_KEY] = {
-        data: {},
-        config: DEFAULT_CONFIG
-    };
-}
-
 /**
  * Short storage
  * @ignore
  */
-let storage = root[GLOBAL_KEY].data;
+let storage;
 
 let _onRemoved = () => {
 };
@@ -88,13 +86,31 @@ let _onUpdated = () => {
  * @param opts.save=true {boolean} if true saves cache in disk
  * @param opts.filePath=".incache-save" {string} cache file path
  */
-incache.config = (opts = {}) => {
+incache.setConfig = (opts = {}) => {
+    if(opts.storeName)
+        GLOBAL_KEY += opts.storeName;
+
+    if (!root[GLOBAL_KEY]) {
+        root[GLOBAL_KEY] = {
+            data: {},
+            setConfig: DEFAULT_CONFIG
+        };
+    }
     root[GLOBAL_KEY].config = helper.defaults(opts, DEFAULT_CONFIG);
+    storage = root[GLOBAL_KEY].data;
     disk.read();
 };
 
-// call config
-incache.config();
+// call setConfig
+incache.setConfig();
+
+/**
+ * Get configuration
+ * @returns {*}
+ */
+incache.getConfig = () => {
+    return root[GLOBAL_KEY].config;
+};
 
 /**
  * Set/update record
