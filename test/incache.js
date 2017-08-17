@@ -117,7 +117,7 @@ describe('cache', function () {
         it('should be return false', (done)=>{
             cache.onUpdated((key, record)=>{
                 console.log('updated', record);
-                done();
+                if(key === 'myKeyBBB') done();
             });
             cache.set('myKeyBBB', 'myValue');
             cache.set('myKeyBBB', 'myValue 2');
@@ -267,6 +267,127 @@ describe('cache', function () {
         });
         it('key not found, should be return false', ()=>{
             be.err.false(cache.expired('myKeyExpiry10'));
+        });
+    });
+
+    describe('addTo', function () {
+        it('should be return a record', (done)=>{
+            cache.set('myAddTo', ['hello', 'world']);
+            let result = cache.addTo('myAddTo', 'ciao');
+            console.log(result);
+            be.err(done).inArray('ciao', result.value);
+        });
+        it('should be return error', (done)=>{
+            try {
+                cache.set('myAddTo', 'hello');
+                cache.addTo('myAddTo', 'world');
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
+
+        });
+    });
+
+    describe('prependTo', function () {
+        it('should be return a record', ()=>{
+            cache.set('myPrependTo', ['hello', 'world']);
+            let result = cache.prependTo('myPrependTo', 'ciao');
+            console.log(result);
+            be.err.equal(result.value.indexOf('ciao'), 0);
+        });
+        it('should be return error', (done)=>{
+            try {
+                cache.set('myPrependTo', 'hello');
+                cache.prependTo('myPrependTo', 'world');
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
+
+        });
+    });
+
+    describe('removeFrom', function () {
+        it('should be remove array of object', ()=>{
+            cache.set('myRemoveFrom', [{a: 1, b: 2, c: 3}, {a: 1, d: 4}, {b: 2}]);
+            cache.removeFrom('myRemoveFrom', {b: 2});
+            let result = cache.get('myRemoveFrom');
+            console.log(result);
+            be.err.equal(result.length, 1);
+            be.err.equal(result[0], {a: 1, d: 4});
+        });
+        it('should be remove array of string', ()=>{
+            cache.set('myRemoveFrom', ['hello', 'world', 'hello']);
+            cache.removeFrom('myRemoveFrom', 'hello');
+            let result = cache.get('myRemoveFrom');
+            console.log(result);
+            be.err.equal(result.length, 1);
+            be.err.equal(result[0], 'world');
+        });
+        it('undefined where, should be return error', (done)=>{
+            try {
+                cache.set('myRemoveFrom', 'hello world');
+                cache.removeFrom('myRemoveFrom');
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
+        });
+        it('should be return error', (done)=>{
+            try {
+                cache.set('myRemoveFrom', 'hello world');
+                cache.removeFrom('myRemoveFrom', 'world');
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
+        });
+    });
+
+    describe('updateIn', function () {
+        it('should be update', ()=>{
+            cache.set('myUpdateIn', [{a: 1, b: 2, c: 3}, {a: 1, d: 4}, {b: 2}]);
+            cache.updateIn('myUpdateIn', {test: 1}, {b: 2});
+            let result = cache.get('myUpdateIn');
+            console.log(result);
+            be.err.equal(result[0], {test: 1});
+            be.err.equal(result[2], {test: 1});
+        });
+        it('should be remove array of string', ()=>{
+            cache.set('myUpdateIn', ['hello', 'world', 'hello']);
+            cache.updateIn('myUpdateIn', 'ciao', 'hello');
+            let result = cache.get('myUpdateIn');
+            console.log(result);
+            be.err.equal(result[0], 'ciao');
+            be.err.equal(result[2], 'ciao');
+        });
+        it('undefined value, should be return error', (done)=>{
+            try {
+                cache.set('myUpdateIn', 'hello world');
+                cache.updateIn('myUpdateIn');
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
+        });
+        it('undefined where, should be return error', (done)=>{
+            try {
+                cache.set('myUpdateIn', 'hello world');
+                cache.updateIn('myUpdateIn', 'ciao');
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
+        });
+        it('should be return error', (done)=>{
+            try {
+                cache.set('myUpdateIn', 'hello world');
+                cache.updateIn('myUpdateIn', 'world', 'hello');
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
         });
     });
 });

@@ -25,7 +25,7 @@ class InCache {
          * @ignore
          */
         this.root = helper.isServer() ? global : window;
-        
+
         /**
          * Record default options
          * @type {{silent: boolean, life: number}}
@@ -50,10 +50,15 @@ class InCache {
         this.setConfig(opts);
     }
 
-    _onRemoved(){}
-    _onCreated(){}
-    _onUpdated(){}
-    
+    _onRemoved() {
+    }
+
+    _onCreated() {
+    }
+
+    _onUpdated() {
+    }
+
     _write() {
         if (!helper.isServer()) return;
         let {config, data} = this._memory;
@@ -75,7 +80,7 @@ class InCache {
             }
         }
     }
-    
+
     /**
      * Set configuration
      * @param [opts] {Object} configuration object
@@ -83,8 +88,8 @@ class InCache {
      * @param [opts.filePath=.InCache] {string} cache file path
      * @param [opts.storeName] {string} store name
      */
-    setConfig(opts = {}){
-        if(opts.storeName)
+    setConfig(opts = {}) {
+        if (opts.storeName)
             this.GLOBAL_KEY += opts.storeName;
 
         if (!this.root[this.GLOBAL_KEY]) {
@@ -101,12 +106,12 @@ class InCache {
 
         this._read();
     }
-    
+
     /**
      * Get configuration
      * @returns {*}
      */
-    getConfig(){
+    getConfig() {
         return this._memory.config;
     }
 
@@ -123,7 +128,7 @@ class InCache {
      * InCache.set('my object', {a: 1, b: 2});
      * InCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
      */
-    set(key, value, opts = {}){
+    set(key, value, opts = {}) {
         let record = {
             isNew: true,
             createdOn: null,
@@ -169,7 +174,7 @@ class InCache {
      *      {key: 'my key 4', value: 'my value 4'}
      * ]);
      */
-    bulkSet(records){
+    bulkSet(records) {
         if (!helper.is(records, 'array'))
             throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
 
@@ -190,7 +195,7 @@ class InCache {
      * @example
      * InCache.get('my key');
      */
-    get(key, onlyValue = true){
+    get(key, onlyValue = true) {
         if (this.has(key)) {
             if (this.expired(key)) {
                 this.remove(key, true);
@@ -210,7 +215,7 @@ class InCache {
      * @example
      * InCache.remove('my key');
      */
-    remove(key, silent = false, opts = {}){
+    remove(key, silent = false, opts = {}) {
         delete this.storage[key];
         if (!silent)
             this._onRemoved.call(this, key);
@@ -221,12 +226,131 @@ class InCache {
     }
 
     /**
+     * Given a key that has value like an array adds value to end of array
+     * @param key {any}
+     * @param value {any}
+     * @returns {*}
+     */
+    addTo(key, value) {
+        if (!this.has(key)) return null;
+        let record = this.get(key);
+
+        if (!helper.is(record, 'array'))
+            throw new Error('object must be an array');
+
+        record.push(value);
+
+        return this.set(key, record);
+    }
+
+    /**
+     * Given a key that has value like an array adds value to beginning of array
+     * @param key {any}
+     * @param value {any}
+     * @returns {*}
+     */
+    prependTo(key, value) {
+        if (!this.has(key)) return null;
+        let record = this.get(key);
+
+        if (!helper.is(record, 'array'))
+            throw new Error('object must be an array');
+
+        record.unshift(value);
+
+        return this.set(key, record);
+    }
+
+
+    /**
+     * Given a key that has value like an array updates key(s) if `where` is satisfied
+     * @param key {any}
+     * @param value {any}
+     * @param where {any}
+     */
+    updateIn(key, value, where) {
+        if (!this.has(key)) return null;
+
+        if (helper.is(value, 'undefined'))
+            throw new Error('value cannot be undefined');
+
+        if (helper.is(where, 'undefined'))
+            throw new Error('where cannot be undefined');
+
+        let recordValue = this.get(key);
+
+        if (!helper.is(recordValue, 'array'))
+            throw new Error('value must be an array');
+
+        let updated = false;
+        for (let i in recordValue) {
+            if (recordValue.hasOwnProperty(i)) {
+                let result = [];
+                for (let prop in where) {
+                    if (where.hasOwnProperty(prop))
+                        if (helper.is(where, 'object'))
+                            result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);
+                        else
+                            result.push(recordValue[i] === where);
+                }
+
+                if (result.length && result.indexOf(false) === -1) {
+                    updated = true;
+                    recordValue[i] = value;
+                }
+            }
+        }
+
+        if (updated) {
+            this.set(key, recordValue);
+        }
+    }
+
+    /**
+     * Given a key that has value like an array removes key(s) if `where` is satisfied
+     * @param key {any}
+     * @param where {any}
+     */
+    removeFrom(key, where) {
+        if (!this.has(key)) return null;
+
+        if (helper.is(where, 'undefined'))
+            throw new Error('where cannot be undefined');
+
+        let recordValue = this.get(key);
+
+        if (!helper.is(recordValue, 'array'))
+            throw new Error('value must be an array');
+
+        let recordLengthBefore = recordValue.length;
+        for (let i in recordValue) {
+            if (recordValue.hasOwnProperty(i)) {
+                let result = [];
+                for (let prop in where) {
+                    if (where.hasOwnProperty(prop))
+                        if (helper.is(where, 'object'))
+                            result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);
+                        else
+                            result.push(recordValue[i] === where);
+                }
+
+                if (result.length && result.indexOf(false) === -1)
+                    recordValue.splice(i, 1);
+            }
+        }
+
+        if (recordLengthBefore !== recordValue.length) {
+            this.set(key, recordValue);
+        }
+    }
+
+    /**
      * Delete multiple records
      * @param keys {array} an array of keys
      * @example
      * InCache.bulkRemove(['key1', 'key2', 'key3']);
      */
-    bulkRemove(keys){
+    bulkRemove(keys) {
         if (!helper.is(keys, 'array'))
             throw new Error('keys must be an array of keys');
 
@@ -241,7 +365,7 @@ class InCache {
      * Fetch all records
      * @returns {Array}
      */
-    all(){
+    all() {
         let records = [];
 
         for (let key in this.storage) {
@@ -265,7 +389,7 @@ class InCache {
      * @param key {any}
      * @returns {boolean}
      */
-    expired(key){
+    expired(key) {
         if (this.storage[key] && this.storage[key].expiresOn) {
             let now = new Date();
             let expiry = new Date(this.storage[key].expiresOn);
@@ -278,7 +402,7 @@ class InCache {
     /**
      * Remove all records
      */
-    clear(){
+    clear() {
         /**
          * Reset object
          * @ignore
@@ -295,7 +419,7 @@ class InCache {
      * @example
      * InCache.has('my key');
      */
-    has(key){
+    has(key) {
         return this.storage.hasOwnProperty(key);
     }
 
@@ -307,7 +431,7 @@ class InCache {
  *      console.log('removed', key);
  * });
      */
-    onRemoved(callback){
+    onRemoved(callback) {
         this._onRemoved = callback;
     }
 
@@ -325,7 +449,7 @@ class InCache {
  *      console.log('created', key, record);
  * });
      */
-    onCreated(callback){
+    onCreated(callback) {
         this._onCreated = callback;
     }
 
@@ -344,7 +468,7 @@ class InCache {
      *      console.log('updated', key, record);
      * });
      */
-    onUpdated(callback){
+    onUpdated(callback) {
         this._onUpdated = callback;
     }
 
