@@ -1,19 +1,17 @@
 const helper = require('./helper');
 const fs = require('fs');
-/**
- * Global key
- * @type {string}
- * @ignore
- */
-let GLOBAL_KEY = '___incache___storage___global___key___';
 
 class InCache {
     
     constructor(opts) {
 
-        /*if (!(this instanceof InCache)) {
-            return new InCache(opts);
-        }*/
+        /**
+         * Global key
+         * @type {string}
+         * @ignore
+         */
+
+        this.GLOBAL_KEY = '___InCache___storage___global___key___';
 
         /**
          * Root object
@@ -39,14 +37,22 @@ class InCache {
         this.DEFAULT_CONFIG = {
             storeName: '',
             save: true,
-            filePath: '.incache'
+            filePath: '.InCache'
         };
-        
-        /**
-         * Short storage
-         * @ignore
-         */
-        this.storage = '';
+
+        if(opts.storeName)
+            this.GLOBAL_KEY += opts.storeName;
+
+        if (!this.root[this.GLOBAL_KEY]) {
+            this.root[this.GLOBAL_KEY] = {
+                data: {},
+                setConfig: this.DEFAULT_CONFIG
+            };
+        }
+        this.root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
+        this.storage = this.root[this.GLOBAL_KEY].data;
+
+        this._read();
     }
 
     _onRemoved(){}
@@ -55,7 +61,7 @@ class InCache {
     
     _write() {
         if (!helper.isServer()) return;
-        let {config, data} = this.root[GLOBAL_KEY];
+        let {config, data} = this.root[this.GLOBAL_KEY];
         if (config.save) {
             let content = JSON.stringify(data);
             fs.writeFileSync(config.filePath, content);
@@ -64,13 +70,13 @@ class InCache {
 
     _read() {
         if (!helper.isServer()) return;
-        let config = this.root[GLOBAL_KEY].config;
+        let config = this.root[this.GLOBAL_KEY].config;
         if (config.save && fs.existsSync(config.filePath)) {
             let content = fs.readFileSync(config.filePath);
             try {
-                this.storage = this.root[GLOBAL_KEY].data = JSON.parse(content);
+                this.storage = this.root[this.GLOBAL_KEY].data = JSON.parse(content);
             } catch (e) {
-                this.storage = this.root[GLOBAL_KEY].data = {};
+                this.storage = this.root[this.GLOBAL_KEY].data = {};
             }
         }
     }
@@ -79,22 +85,11 @@ class InCache {
      * Set configuration
      * @param [opts] {Object} configuration object
      * @param [opts.save=true] {boolean} if true saves cache in disk
-     * @param [opts.filePath=.incache] {string} cache file path
+     * @param [opts.filePath=.InCache] {string} cache file path
      * @param [opts.storeName] {string} store name
      */
     setConfig(opts = {}){
-        if(opts.storeName)
-            GLOBAL_KEY += opts.storeName;
 
-        if (!this.root[GLOBAL_KEY]) {
-            this.root[GLOBAL_KEY] = {
-                data: {},
-                setConfig: this.DEFAULT_CONFIG
-            };
-        }
-        this.root[GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
-        this.storage = this.root[GLOBAL_KEY].data;
-        this._read();
     }
     
     /**
@@ -102,7 +97,7 @@ class InCache {
      * @returns {*}
      */
     getConfig(){
-        return this.root[GLOBAL_KEY].config;
+        return this.root[this.GLOBAL_KEY].config;
     }
 
     /**
@@ -114,9 +109,9 @@ class InCache {
      * @param [opts.life=0] {number} seconds of life. If 0 not expire.
      * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
      * @example
-     * incache.set('my key', 'my value');
-     * incache.set('my object', {a: 1, b: 2});
-     * incache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
+     * InCache.set('my key', 'my value');
+     * InCache.set('my object', {a: 1, b: 2});
+     * InCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
      */
     set(key, value, opts = {}){
         let record = {
@@ -157,7 +152,7 @@ class InCache {
      * Set/update multiple records. This method not trigger any event.
      * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
      * @example
-     * incache.bulkSet([
+     * InCache.bulkSet([
      *      {key: 'my key 1', value: 'my value 1'},
      *      {key: 'my key 2', value: 'my value 2'},
      *      {key: 'my key 3', value: 'my value 3'},
@@ -180,10 +175,10 @@ class InCache {
     /**
      * Get record by key
      * @param key {any}
-     * @param [onlyValue=true] {boolean} if false get incache record
+     * @param [onlyValue=true] {boolean} if false get InCache record
      * @returns {any|null}
      * @example
-     * incache.get('my key');
+     * InCache.get('my key');
      */
     get(key, onlyValue = true){
         if (this.has(key)) {
@@ -203,7 +198,7 @@ class InCache {
      * @param [silent=false] {boolean} if true no event will be triggered
      * @param [opts] {Object} optional arguments
      * @example
-     * incache.remove('my key');
+     * InCache.remove('my key');
      */
     remove(key, silent = false, opts = {}){
         delete this.storage[key];
@@ -219,7 +214,7 @@ class InCache {
      * Delete multiple records
      * @param keys {array} an array of keys
      * @example
-     * incache.bulkRemove(['key1', 'key2', 'key3']);
+     * InCache.bulkRemove(['key1', 'key2', 'key3']);
      */
     bulkRemove(keys){
         if (!helper.is(keys, 'array'))
@@ -278,7 +273,7 @@ class InCache {
          * Reset object
          * @ignore
          */
-        this.storage = this.root[GLOBAL_KEY].data = {};
+        this.storage = this.root[this.GLOBAL_KEY].data = {};
 
         this._write();
     }
@@ -288,7 +283,7 @@ class InCache {
      * @param key {any}
      * @returns {boolean}
      * @example
-     * incache.has('my key');
+     * InCache.has('my key');
      */
     has(key){
         return this.storage.hasOwnProperty(key);
@@ -296,9 +291,9 @@ class InCache {
 
     /**
      * Triggered when a record has been deleted
-     * @param callback {incache.onRemoved~removedCallback} callback function
+     * @param callback {InCache.onRemoved~removedCallback} callback function
      * @example
-     * incache.onRemoved((key)=>{
+     * InCache.onRemoved((key)=>{
  *      console.log('removed', key);
  * });
      */
@@ -308,15 +303,15 @@ class InCache {
 
     /**
      * onRemoved callback
-     * @callback incache.onRemoved~removedCallback
+     * @callback InCache.onRemoved~removedCallback
      * @param key {string} key of record removed
      */
 
     /**
      * Triggered when a record has been created
-     * @param callback {incache.onCreated~createdCallback} callback function
+     * @param callback {InCache.onCreated~createdCallback} callback function
      * @example
-     * incache.onCreated((key, record)=>{
+     * InCache.onCreated((key, record)=>{
  *      console.log('created', key, record);
  * });
      */
@@ -326,16 +321,16 @@ class InCache {
 
     /**
      * onCreated callback
-     * @callback incache.onCreated~createdCallback
+     * @callback InCache.onCreated~createdCallback
      * @param key {string} key of record created
      * @param record {Object} record object
      */
 
     /**
      * Triggered when a record has been updated
-     * @param callback {incache.onUpdated~updatedCallback} callback function
+     * @param callback {InCache.onUpdated~updatedCallback} callback function
      * @example
-     * incache.onUpdated((key, record)=>{
+     * InCache.onUpdated((key, record)=>{
      *      console.log('updated', key, record);
      * });
      */
@@ -345,7 +340,7 @@ class InCache {
 
     /**
      * onUpdated callback
-     * @callback incache.onUpdated~updatedCallback
+     * @callback InCache.onUpdated~updatedCallback
      * @param key {string} key of record updated
      * @param record {Object} record object
      */
@@ -355,5 +350,4 @@ class InCache {
 /**
  * Expose module
  */
-module.exports = new InCache();
-module.exports._global_key = GLOBAL_KEY;
+module.exports = InCache;
