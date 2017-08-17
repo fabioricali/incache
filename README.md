@@ -19,7 +19,8 @@ npm install incache --save
 
 ## Example
 ```javascript
-const store = require('incache');
+const InCache = require('incache');
+const store = new InCache();
 
 // Create a record with key 'my key'
 store.set('my key', 'my value');
