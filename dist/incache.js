@@ -341,6 +341,120 @@ var InCache = function () {
         }
 
         /**
+         * Given a key that has value like an array adds value to end of array
+         * @param key {any}
+         * @param value {any}
+         * @returns {*}
+         */
+
+    }, {
+        key: 'addTo',
+        value: function addTo(key, value) {
+            if (!this.has(key)) return null;
+            var record = this.get(key);
+
+            if (!helper.is(record, 'array')) throw new Error('object must be an array');
+
+            record.push(value);
+
+            return this.set(key, record);
+        }
+
+        /**
+         * Given a key that has value like an array adds value to beginning of array
+         * @param key {any}
+         * @param value {any}
+         * @returns {*}
+         */
+
+    }, {
+        key: 'prependTo',
+        value: function prependTo(key, value) {
+            if (!this.has(key)) return null;
+            var record = this.get(key);
+
+            if (!helper.is(record, 'array')) throw new Error('object must be an array');
+
+            record.unshift(value);
+
+            return this.set(key, record);
+        }
+
+        /**
+         * Given a key that has value like an array updates key(s) if `where` is satisfied
+         * @param key {any}
+         * @param value {any}
+         * @param where {any}
+         */
+
+    }, {
+        key: 'updateIn',
+        value: function updateIn(key, value, where) {
+            if (!this.has(key)) return null;
+
+            if (helper.is(value, 'undefined')) throw new Error('value cannot be undefined');
+
+            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
+
+            var recordValue = this.get(key);
+
+            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
+
+            var updated = false;
+            for (var i in recordValue) {
+                if (recordValue.hasOwnProperty(i)) {
+                    var result = [];
+                    for (var prop in where) {
+                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
+                    }
+
+                    if (result.length && result.indexOf(false) === -1) {
+                        updated = true;
+                        recordValue[i] = value;
+                    }
+                }
+            }
+
+            if (updated) {
+                this.set(key, recordValue);
+            }
+        }
+
+        /**
+         * Given a key that has value like an array removes key(s) if `where` is satisfied
+         * @param key {any}
+         * @param where {any}
+         */
+
+    }, {
+        key: 'removeFrom',
+        value: function removeFrom(key, where) {
+            if (!this.has(key)) return null;
+
+            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
+
+            var recordValue = this.get(key);
+
+            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
+
+            var recordLengthBefore = recordValue.length;
+            for (var i in recordValue) {
+                if (recordValue.hasOwnProperty(i)) {
+                    var result = [];
+                    for (var prop in where) {
+                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
+                    }
+
+                    if (result.length && result.indexOf(false) === -1) recordValue.splice(i, 1);
+                }
+            }
+
+            if (recordLengthBefore !== recordValue.length) {
+                this.set(key, recordValue);
+            }
+        }
+
+        /**
          * Delete multiple records
          * @param keys {array} an array of keys
          * @example
