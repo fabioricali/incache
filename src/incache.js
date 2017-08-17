@@ -2,8 +2,15 @@ const helper = require('./helper');
 const fs = require('fs');
 
 class InCache {
-    
-    constructor(opts) {
+    /**
+     * Set configuration
+     * @param [opts] {Object} configuration object
+     * @param [opts.save=true] {boolean} if true saves cache in disk
+     * @param [opts.filePath=.InCache] {string} cache file path
+     * @param [opts.storeName] {string} store name
+     * @constructor
+     */
+    constructor(opts = {}) {
 
         /**
          * Global key
@@ -40,19 +47,7 @@ class InCache {
             filePath: '.InCache'
         };
 
-        if(opts.storeName)
-            this.GLOBAL_KEY += opts.storeName;
-
-        if (!this.root[this.GLOBAL_KEY]) {
-            this.root[this.GLOBAL_KEY] = {
-                data: {},
-                setConfig: this.DEFAULT_CONFIG
-            };
-        }
-        this.root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
-        this.storage = this.root[this.GLOBAL_KEY].data;
-
-        this._read();
+        this.setConfig(opts);
     }
 
     _onRemoved(){}
@@ -61,7 +56,7 @@ class InCache {
     
     _write() {
         if (!helper.isServer()) return;
-        let {config, data} = this.root[this.GLOBAL_KEY];
+        let {config, data} = this._memory;
         if (config.save) {
             let content = JSON.stringify(data);
             fs.writeFileSync(config.filePath, content);
@@ -70,13 +65,13 @@ class InCache {
 
     _read() {
         if (!helper.isServer()) return;
-        let config = this.root[this.GLOBAL_KEY].config;
+        let config = this._memory.config;
         if (config.save && fs.existsSync(config.filePath)) {
             let content = fs.readFileSync(config.filePath);
             try {
-                this.storage = this.root[this.GLOBAL_KEY].data = JSON.parse(content);
+                this.storage = this._memory.data = JSON.parse(content);
             } catch (e) {
-                this.storage = this.root[this.GLOBAL_KEY].data = {};
+                this.storage = this._memory.data = {};
             }
         }
     }
@@ -89,7 +84,22 @@ class InCache {
      * @param [opts.storeName] {string} store name
      */
     setConfig(opts = {}){
+        if(opts.storeName)
+            this.GLOBAL_KEY += opts.storeName;
 
+        if (!this.root[this.GLOBAL_KEY]) {
+            this.root[this.GLOBAL_KEY] = {
+                data: {},
+                setConfig: this.DEFAULT_CONFIG
+            };
+        }
+        this.root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
+
+        this._memory = this.root[this.GLOBAL_KEY];
+
+        this.storage = this._memory.data;
+
+        this._read();
     }
     
     /**
@@ -97,7 +107,7 @@ class InCache {
      * @returns {*}
      */
     getConfig(){
-        return this.root[this.GLOBAL_KEY].config;
+        return this._memory.config;
     }
 
     /**
@@ -273,7 +283,7 @@ class InCache {
          * Reset object
          * @ignore
          */
-        this.storage = this.root[this.GLOBAL_KEY].data = {};
+        this.storage = this._memory.data = {};
 
         this._write();
     }

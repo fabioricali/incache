@@ -79,291 +79,532 @@ module.exports = __webpack_require__(1);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process, global) {
+/* WEBPACK VAR INJECTION */(function(global) {
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var helper = __webpack_require__(4);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/**
- * @namespace incache
- */
-var incache = {};
+var helper = __webpack_require__(3);
+var fs = __webpack_require__(5);
 
-/**
- * Global key
- * @type {string}
- * @ignore
- */
-var GLOBAL_KEY = '___incache___storage___global___key___';
+var InCache = function () {
+    /**
+     * Set configuration
+     * @param [opts] {Object} configuration object
+     * @param [opts.save=true] {boolean} if true saves cache in disk
+     * @param [opts.filePath=.InCache] {string} cache file path
+     * @param [opts.storeName] {string} store name
+     * @constructor
+     */
+    function InCache() {
+        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-/**
- * Default options
- * @type {{silent: boolean, life: number}}
- * @ignore
- */
-var DEFAULT_OPTS = {
-    silent: false,
-    life: 0
-};
+        _classCallCheck(this, InCache);
 
-/**
- * Root object
- * @ignore
- */
-var root = (typeof process === 'undefined' ? 'undefined' : _typeof(process)) === 'object' && typeof process.pid !== 'undefined' ? global : window;
+        /**
+         * Global key
+         * @type {string}
+         * @ignore
+         */
 
-if (!root[GLOBAL_KEY]) root[GLOBAL_KEY] = {};
+        this.GLOBAL_KEY = '___InCache___storage___global___key___';
 
-/**
- * Short storage
- * @ignore
- */
-var storage = root[GLOBAL_KEY];
+        /**
+         * Root object
+         * @ignore
+         */
+        this.root = helper.isServer() ? global : window;
 
-var _onRemoved = function _onRemoved() {};
-var _onCreated = function _onCreated() {};
-var _onUpdated = function _onUpdated() {};
+        /**
+         * Record default options
+         * @type {{silent: boolean, life: number}}
+         * @ignore
+         */
+        this.DEFAULT_OPTS = {
+            silent: false,
+            life: 0
+        };
 
-/**
- * Set/update record
- * @param key {any}
- * @param value {any}
- * @param [opts] {Object} options object
- * @param [opts.silent=false] {boolean} if true no event will be triggered
- * @param [opts.life=0] {number} seconds of life. If 0 not expire.
- * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
- * @example
- * incache.set('my key', 'my value');
- * incache.set('my object', {a: 1, b: 2});
- * incache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
- */
-incache.set = function (key, value) {
-    var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+        /**
+         * InCache default configuration
+         * @type {{save: boolean, filePath: string}}
+         * @ignore
+         */
+        this.DEFAULT_CONFIG = {
+            storeName: '',
+            save: true,
+            filePath: '.InCache'
+        };
 
-    var record = {
-        isNew: true,
-        createdOn: null,
-        updatedOn: null,
-        expiresOn: null,
-        value: value
-    };
-
-    opts = helper.defaults(opts, DEFAULT_OPTS);
-
-    if (opts.life && helper.is(opts.life, 'number')) {
-        record.expiresOn = helper.addSecondsToNow(opts.life);
+        this.setConfig(opts);
     }
 
-    if (incache.has(key)) {
-        record.isNew = false;
-        record.updatedOn = new Date();
-        if (!opts.silent) _onUpdated.call(undefined, key, record);
-    } else {
-        record.createdOn = new Date();
-        if (!opts.silent) _onCreated.call(undefined, key, record);
-    }
+    _createClass(InCache, [{
+        key: '_onRemoved',
+        value: function _onRemoved() {}
+    }, {
+        key: '_onCreated',
+        value: function _onCreated() {}
+    }, {
+        key: '_onUpdated',
+        value: function _onUpdated() {}
+    }, {
+        key: '_write',
+        value: function _write() {
+            if (!helper.isServer()) return;
+            var _memory = this._memory,
+                config = _memory.config,
+                data = _memory.data;
 
-    storage[key] = record;
-
-    return record;
-};
-
-/**
- * Set/update multiple records. This method not trigger any event.
- * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
- * @example
- * incache.bulkSet([
- *      {key: 'my key 1', value: 'my value 1'},
- *      {key: 'my key 2', value: 'my value 2'},
- *      {key: 'my key 3', value: 'my value 3'},
- *      {key: 'my key 4', value: 'my value 4'}
- * ]);
- */
-incache.bulkSet = function (records) {
-    if (!helper.is(records, 'array')) throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
-
-    for (var i = 0; i < records.length; i++) {
-        if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
-        incache.set(records[i].key, records[i].value, { silent: true });
-    }
-};
-
-/**
- * Get record by key
- * @param key {any}
- * @param [onlyValue=true] {boolean} if false get incache record
- * @returns {any|null}
- * @example
- * incache.get('my key');
- */
-incache.get = function (key) {
-    var onlyValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-    if (incache.has(key)) {
-        if (incache.expired(key)) {
-            incache.remove(key, true);
-            return null;
-        }
-        return onlyValue ? storage[key].value : storage[key];
-    } else {
-        return null;
-    }
-};
-
-/**
- * Delete a record
- * @param key {any}
- * @param [silent=false] {boolean} if true no event will be triggered
- * @example
- * incache.remove('my key');
- */
-incache.remove = function (key) {
-    var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-    delete storage[key];
-    if (!silent) _onRemoved.call(undefined, key);
-};
-
-/**
- * Delete multiple records
- * @param keys {array} an array of keys
- * @example
- * incache.bulkRemove(['key1', 'key2', 'key3']);
- */
-incache.bulkRemove = function (keys) {
-    if (!helper.is(keys, 'array')) throw new Error('keys must be an array of keys');
-
-    for (var i = 0; i < keys.length; i++) {
-        incache.remove(keys[i], true);
-    }
-};
-
-/**
- * Fetch all records
- * @returns {Array}
- */
-incache.all = function () {
-    var records = [];
-
-    for (var key in storage) {
-        if (storage.hasOwnProperty(key)) {
-            if (incache.expired(key)) {
-                incache.remove(key, true);
-            } else {
-                records.push({
-                    key: key,
-                    value: storage[key].value
-                });
+            if (config.save) {
+                var content = JSON.stringify(data);
+                fs.writeFileSync(config.filePath, content);
             }
         }
-    }
+    }, {
+        key: '_read',
+        value: function _read() {
+            if (!helper.isServer()) return;
+            var config = this._memory.config;
+            if (config.save && fs.existsSync(config.filePath)) {
+                var content = fs.readFileSync(config.filePath);
+                try {
+                    this.storage = this._memory.data = JSON.parse(content);
+                } catch (e) {
+                    this.storage = this._memory.data = {};
+                }
+            }
+        }
 
-    return records;
-};
+        /**
+         * Set configuration
+         * @param [opts] {Object} configuration object
+         * @param [opts.save=true] {boolean} if true saves cache in disk
+         * @param [opts.filePath=.InCache] {string} cache file path
+         * @param [opts.storeName] {string} store name
+         */
 
-/**
- * Check if record is expired
- * @param key {any}
- * @returns {boolean}
- */
-incache.expired = function (key) {
-    if (storage[key] && storage[key].expiresOn) {
-        var now = new Date();
-        var expiry = new Date(storage[key].expiresOn);
-        return now > expiry;
-    } else {
-        return false;
-    }
-};
+    }, {
+        key: 'setConfig',
+        value: function setConfig() {
+            var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-/**
- * Remove all records
- */
-incache.clear = function () {
-    /**
-     * Reset object
-     * @ignore
-     */
-    storage = root[GLOBAL_KEY] = {};
-};
+            if (opts.storeName) this.GLOBAL_KEY += opts.storeName;
 
-/**
- * Check if key exists
- * @param key {any}
- * @returns {boolean}
- * @example
- * incache.has('my key');
- */
-incache.has = function (key) {
-    return storage.hasOwnProperty(key);
-};
+            if (!this.root[this.GLOBAL_KEY]) {
+                this.root[this.GLOBAL_KEY] = {
+                    data: {},
+                    setConfig: this.DEFAULT_CONFIG
+                };
+            }
+            this.root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
 
-/**
- * Triggered when a record has been deleted
- * @param callback {incache.onRemoved~removedCallback} callback function
- * @example
- * incache.onRemoved((key)=>{
- *      console.log('removed', key);
- * });
- */
-incache.onRemoved = function (callback) {
-    _onRemoved = callback;
-};
+            this._memory = this.root[this.GLOBAL_KEY];
 
-/**
- * onRemoved callback
- * @callback incache.onRemoved~removedCallback
- * @param key {string} key of record removed
- */
+            this.storage = this._memory.data;
 
-/**
- * Triggered when a record has been created
- * @param callback {incache.onCreated~createdCallback} callback function
- * @example
- * incache.onCreated((key, record)=>{
- *      console.log('created', key, record);
- * });
- */
-incache.onCreated = function (callback) {
-    _onCreated = callback;
-};
+            this._read();
+        }
 
-/**
- * onCreated callback
- * @callback incache.onCreated~createdCallback
- * @param key {string} key of record created
- * @param record {Object} record object
- */
+        /**
+         * Get configuration
+         * @returns {*}
+         */
 
-/**
- * Triggered when a record has been updated
- * @param callback {incache.onUpdated~updatedCallback} callback function
- * @example
- * incache.onUpdated((key, record)=>{
- *      console.log('updated', key, record);
- * });
- */
-incache.onUpdated = function (callback) {
-    _onUpdated = callback;
-};
+    }, {
+        key: 'getConfig',
+        value: function getConfig() {
+            return this._memory.config;
+        }
 
-/**
- * onUpdated callback
- * @callback incache.onUpdated~updatedCallback
- * @param key {string} key of record updated
- * @param record {Object} record object
- */
+        /**
+         * Set/update record
+         * @param key {any}
+         * @param value {any}
+         * @param [opts] {Object} options object
+         * @param [opts.silent=false] {boolean} if true no event will be triggered
+         * @param [opts.life=0] {number} seconds of life. If 0 not expire.
+         * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
+         * @example
+         * InCache.set('my key', 'my value');
+         * InCache.set('my object', {a: 1, b: 2});
+         * InCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
+         */
+
+    }, {
+        key: 'set',
+        value: function set(key, value) {
+            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+            var record = {
+                isNew: true,
+                createdOn: null,
+                updatedOn: null,
+                expiresOn: null,
+                value: value
+            };
+
+            opts = helper.defaults(opts, this.DEFAULT_OPTS);
+
+            if (opts.life && helper.is(opts.life, 'number')) {
+                record.expiresOn = helper.addSecondsToNow(opts.life);
+            }
+
+            if (this.has(key)) {
+                record.isNew = false;
+                record.updatedOn = new Date();
+                if (!opts.silent) this._onUpdated.call(this, key, record);
+            } else {
+                record.createdOn = new Date();
+                if (!opts.silent) this._onCreated.call(this, key, record);
+            }
+
+            this.storage[key] = record;
+
+            // If bulk operation is called, the best way is write on end.
+            if (!opts.fromBulk) this._write();
+
+            return record;
+        }
+
+        /**
+         * Set/update multiple records. This method not trigger any event.
+         * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
+         * @example
+         * InCache.bulkSet([
+         *      {key: 'my key 1', value: 'my value 1'},
+         *      {key: 'my key 2', value: 'my value 2'},
+         *      {key: 'my key 3', value: 'my value 3'},
+         *      {key: 'my key 4', value: 'my value 4'}
+         * ]);
+         */
+
+    }, {
+        key: 'bulkSet',
+        value: function bulkSet(records) {
+            if (!helper.is(records, 'array')) throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
+
+            for (var i = 0; i < records.length; i++) {
+                if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
+                this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
+            }
+
+            this._write();
+        }
+
+        /**
+         * Get record by key
+         * @param key {any}
+         * @param [onlyValue=true] {boolean} if false get InCache record
+         * @returns {any|null}
+         * @example
+         * InCache.get('my key');
+         */
+
+    }, {
+        key: 'get',
+        value: function get(key) {
+            var onlyValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+            if (this.has(key)) {
+                if (this.expired(key)) {
+                    this.remove(key, true);
+                    return null;
+                }
+                return onlyValue ? this.storage[key].value : this.storage[key];
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Delete a record
+         * @param key {any}
+         * @param [silent=false] {boolean} if true no event will be triggered
+         * @param [opts] {Object} optional arguments
+         * @example
+         * InCache.remove('my key');
+         */
+
+    }, {
+        key: 'remove',
+        value: function remove(key) {
+            var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+            delete this.storage[key];
+            if (!silent) this._onRemoved.call(this, key);
+
+            // If bulk operation is called, the best way is write on end.
+            if (!opts.fromBulk) this._write();
+        }
+
+        /**
+         * Delete multiple records
+         * @param keys {array} an array of keys
+         * @example
+         * InCache.bulkRemove(['key1', 'key2', 'key3']);
+         */
+
+    }, {
+        key: 'bulkRemove',
+        value: function bulkRemove(keys) {
+            if (!helper.is(keys, 'array')) throw new Error('keys must be an array of keys');
+
+            for (var i = 0; i < keys.length; i++) {
+                this.remove(keys[i], true, { fromBulk: true });
+            }
+
+            this._write();
+        }
+
+        /**
+         * Fetch all records
+         * @returns {Array}
+         */
+
+    }, {
+        key: 'all',
+        value: function all() {
+            var records = [];
+
+            for (var key in this.storage) {
+                if (this.storage.hasOwnProperty(key)) {
+                    if (this.expired(key)) {
+                        this.remove(key, true);
+                    } else {
+                        records.push({
+                            key: key,
+                            value: this.storage[key].value
+                        });
+                    }
+                }
+            }
+
+            return records;
+        }
+
+        /**
+         * Check if record is expired
+         * @param key {any}
+         * @returns {boolean}
+         */
+
+    }, {
+        key: 'expired',
+        value: function expired(key) {
+            if (this.storage[key] && this.storage[key].expiresOn) {
+                var now = new Date();
+                var expiry = new Date(this.storage[key].expiresOn);
+                return now > expiry;
+            } else {
+                return false;
+            }
+        }
+
+        /**
+         * Remove all records
+         */
+
+    }, {
+        key: 'clear',
+        value: function clear() {
+            /**
+             * Reset object
+             * @ignore
+             */
+            this.storage = this._memory.data = {};
+
+            this._write();
+        }
+
+        /**
+         * Check if key exists
+         * @param key {any}
+         * @returns {boolean}
+         * @example
+         * InCache.has('my key');
+         */
+
+    }, {
+        key: 'has',
+        value: function has(key) {
+            return this.storage.hasOwnProperty(key);
+        }
+
+        /**
+         * Triggered when a record has been deleted
+         * @param callback {InCache.onRemoved~removedCallback} callback function
+         * @example
+         * InCache.onRemoved((key)=>{
+        *      console.log('removed', key);
+        * });
+         */
+
+    }, {
+        key: 'onRemoved',
+        value: function onRemoved(callback) {
+            this._onRemoved = callback;
+        }
+
+        /**
+         * onRemoved callback
+         * @callback InCache.onRemoved~removedCallback
+         * @param key {string} key of record removed
+         */
+
+        /**
+         * Triggered when a record has been created
+         * @param callback {InCache.onCreated~createdCallback} callback function
+         * @example
+         * InCache.onCreated((key, record)=>{
+        *      console.log('created', key, record);
+        * });
+         */
+
+    }, {
+        key: 'onCreated',
+        value: function onCreated(callback) {
+            this._onCreated = callback;
+        }
+
+        /**
+         * onCreated callback
+         * @callback InCache.onCreated~createdCallback
+         * @param key {string} key of record created
+         * @param record {Object} record object
+         */
+
+        /**
+         * Triggered when a record has been updated
+         * @param callback {InCache.onUpdated~updatedCallback} callback function
+         * @example
+         * InCache.onUpdated((key, record)=>{
+         *      console.log('updated', key, record);
+         * });
+         */
+
+    }, {
+        key: 'onUpdated',
+        value: function onUpdated(callback) {
+            this._onUpdated = callback;
+        }
+
+        /**
+         * onUpdated callback
+         * @callback InCache.onUpdated~updatedCallback
+         * @param key {string} key of record updated
+         * @param record {Object} record object
+         */
+
+    }]);
+
+    return InCache;
+}();
 
 /**
  * Expose module
  */
-module.exports = incache;
-module.exports._global_key = GLOBAL_KEY;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(3)))
+
+
+module.exports = InCache;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var g;
+
+// This works in non-strict mode
+g = function () {
+	return this;
+}();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1, eval)("this");
+} catch (e) {
+	// This works if the window reference is available
+	if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var helper = {};
+
+/**
+ * Get object type
+ * @param object {*}
+ * @param type {string}
+ * @returns {boolean}
+ */
+helper.is = function (object, type) {
+    var objectToString = Object.prototype.toString.call(object);
+    return objectToString.toLowerCase() === '[object ' + type + ']'.toLowerCase();
+};
+
+/**
+ * Set default value
+ * @param opts {Object} options
+ * @param defaultOpts {Object} default options
+ * @returns {*}
+ */
+helper.defaults = function (opts, defaultOpts) {
+    for (var i in defaultOpts) {
+        if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
+            opts[i] = defaultOpts[i];
+        } else {
+            if (_typeof(opts[i]) === 'object') {
+                helper.defaults(opts[i], defaultOpts[i]);
+            }
+        }
+    }
+    return opts;
+};
+
+/**
+ * Adds seconds to current date
+ * @param seconds {number} number of seconds to add
+ * @returns {Date}
+ */
+helper.addSecondsToNow = function (seconds) {
+    var now = new Date();
+    return new Date(now.setSeconds(now.getSeconds() + seconds));
+};
+
+/**
+ * Check if is Node environment
+ * @returns {boolean}
+ */
+helper.isServer = function () {
+    return (typeof process === 'undefined' ? 'undefined' : _typeof(process)) === 'object' && typeof process.pid !== 'undefined';
+};
+
+module.exports = helper;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -556,87 +797,11 @@ process.umask = function () {
 };
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var g;
-
-// This works in non-strict mode
-g = function () {
-	return this;
-}();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1, eval)("this");
-} catch (e) {
-	// This works if the window reference is available
-	if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var helper = {};
-
-/**
- * Get object type
- * @param object {*}
- * @param type {string}
- * @returns {boolean}
- */
-helper.is = function (object, type) {
-    var objectToString = Object.prototype.toString.call(object);
-    return objectToString.toLowerCase() === '[object ' + type + ']'.toLowerCase();
-};
-
-/**
- * Set default value
- * @param opts {Object} options
- * @param defaultOpts {Object} default options
- * @returns {*}
- */
-helper.defaults = function (opts, defaultOpts) {
-    for (var i in defaultOpts) {
-        if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
-            opts[i] = defaultOpts[i];
-        } else {
-            if (_typeof(opts[i]) === 'object') {
-                helper.defaults(opts[i], defaultOpts[i]);
-            }
-        }
-    }
-    return opts;
-};
-
-/**
- * Adds seconds to current date
- * @param seconds {number} number of seconds to add
- * @returns {Date}
- */
-helper.addSecondsToNow = function (seconds) {
-    var now = new Date();
-    return new Date(now.setSeconds(now.getSeconds() + seconds));
-};
-
-module.exports = helper;
 
 /***/ })
 /******/ ]); 

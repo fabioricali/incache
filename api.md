@@ -1,33 +1,30 @@
-<a name="incache"></a>
+<a name="InCache"></a>
 
-## incache : <code>object</code>
-**Kind**: global namespace  
+## InCache
+**Kind**: global class  
 
-* [incache](#incache) : <code>object</code>
-    * [.setConfig([opts])](#incache.setConfig)
-    * [.getConfig()](#incache.getConfig) ⇒ <code>\*</code>
-    * [.set(key, value, [opts])](#incache.set) ⇒ <code>Object</code>
-    * [.bulkSet(records)](#incache.bulkSet)
-    * [.get(key, [onlyValue])](#incache.get) ⇒ <code>any</code> \| <code>null</code>
-    * [.remove(key, [silent], [opts])](#incache.remove)
-    * [.bulkRemove(keys)](#incache.bulkRemove)
-    * [.all()](#incache.all) ⇒ <code>Array</code>
-    * [.expired(key)](#incache.expired) ⇒ <code>boolean</code>
-    * [.clear()](#incache.clear)
-    * [.has(key)](#incache.has) ⇒ <code>boolean</code>
-    * [.onRemoved(callback)](#incache.onRemoved)
-        * [~removedCallback](#incache.onRemoved..removedCallback) : <code>function</code>
-    * [.onCreated(callback)](#incache.onCreated)
-        * [~createdCallback](#incache.onCreated..createdCallback) : <code>function</code>
-    * [.onUpdated(callback)](#incache.onUpdated)
-        * [~updatedCallback](#incache.onUpdated..updatedCallback) : <code>function</code>
+* [InCache](#InCache)
+    * [new InCache([opts])](#new_InCache_new)
+    * [.setConfig([opts])](#InCache+setConfig)
+    * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
+    * [.set(key, value, [opts])](#InCache+set) ⇒ <code>Object</code>
+    * [.bulkSet(records)](#InCache+bulkSet)
+    * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>any</code> \| <code>null</code>
+    * [.remove(key, [silent], [opts])](#InCache+remove)
+    * [.bulkRemove(keys)](#InCache+bulkRemove)
+    * [.all()](#InCache+all) ⇒ <code>Array</code>
+    * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
+    * [.clear()](#InCache+clear)
+    * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
+    * [.onRemoved(callback)](#InCache+onRemoved)
+    * [.onCreated(callback)](#InCache+onCreated)
+    * [.onUpdated(callback)](#InCache+onUpdated)
 
-<a name="incache.setConfig"></a>
+<a name="new_InCache_new"></a>
 
-### incache.setConfig([opts])
+### new InCache([opts])
 Set configuration
 
-**Kind**: static method of [<code>incache</code>](#incache)  
 <table>
   <thead>
     <tr>
@@ -42,7 +39,7 @@ Set configuration
     <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
 </td>
     </tr><tr>
-    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
+    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.InCache&quot;</code></td><td><p>cache file path</p>
 </td>
     </tr><tr>
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
@@ -50,18 +47,46 @@ Set configuration
     </tr>  </tbody>
 </table>
 
-<a name="incache.getConfig"></a>
+<a name="InCache+setConfig"></a>
 
-### incache.getConfig() ⇒ <code>\*</code>
+### inCache.setConfig([opts])
+Set configuration
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[opts]</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
+</td>
+    </tr><tr>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
+</td>
+    </tr><tr>
+    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.InCache&quot;</code></td><td><p>cache file path</p>
+</td>
+    </tr><tr>
+    <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+getConfig"></a>
+
+### inCache.getConfig() ⇒ <code>\*</code>
 Get configuration
 
-**Kind**: static method of [<code>incache</code>](#incache)  
-<a name="incache.set"></a>
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<a name="InCache+set"></a>
 
-### incache.set(key, value, [opts]) ⇒ <code>Object</code>
+### inCache.set(key, value, [opts]) ⇒ <code>Object</code>
 Set/update record
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -87,14 +112,14 @@ Set/update record
 
 **Example**  
 ```js
-incache.set('my key', 'my value');incache.set('my object', {a: 1, b: 2});incache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
+InCache.set('my key', 'my value');InCache.set('my object', {a: 1, b: 2});InCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
 ```
-<a name="incache.bulkSet"></a>
+<a name="InCache+bulkSet"></a>
 
-### incache.bulkSet(records)
+### inCache.bulkSet(records)
 Set/update multiple records. This method not trigger any event.
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -110,14 +135,14 @@ Set/update multiple records. This method not trigger any event.
 
 **Example**  
 ```js
-incache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
+InCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
 ```
-<a name="incache.get"></a>
+<a name="InCache+get"></a>
 
-### incache.get(key, [onlyValue]) ⇒ <code>any</code> \| <code>null</code>
+### inCache.get(key, [onlyValue]) ⇒ <code>any</code> \| <code>null</code>
 Get record by key
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -128,21 +153,21 @@ Get record by key
 <tr>
     <td>key</td><td><code>any</code></td><td></td><td></td>
     </tr><tr>
-    <td>[onlyValue]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false get incache record</p>
+    <td>[onlyValue]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false get InCache record</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-incache.get('my key');
+InCache.get('my key');
 ```
-<a name="incache.remove"></a>
+<a name="InCache+remove"></a>
 
-### incache.remove(key, [silent], [opts])
+### inCache.remove(key, [silent], [opts])
 Delete a record
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -163,14 +188,14 @@ Delete a record
 
 **Example**  
 ```js
-incache.remove('my key');
+InCache.remove('my key');
 ```
-<a name="incache.bulkRemove"></a>
+<a name="InCache+bulkRemove"></a>
 
-### incache.bulkRemove(keys)
+### inCache.bulkRemove(keys)
 Delete multiple records
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -186,20 +211,20 @@ Delete multiple records
 
 **Example**  
 ```js
-incache.bulkRemove(['key1', 'key2', 'key3']);
+InCache.bulkRemove(['key1', 'key2', 'key3']);
 ```
-<a name="incache.all"></a>
+<a name="InCache+all"></a>
 
-### incache.all() ⇒ <code>Array</code>
+### inCache.all() ⇒ <code>Array</code>
 Fetch all records
 
-**Kind**: static method of [<code>incache</code>](#incache)  
-<a name="incache.expired"></a>
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<a name="InCache+expired"></a>
 
-### incache.expired(key) ⇒ <code>boolean</code>
+### inCache.expired(key) ⇒ <code>boolean</code>
 Check if record is expired
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -212,18 +237,18 @@ Check if record is expired
     </tr>  </tbody>
 </table>
 
-<a name="incache.clear"></a>
+<a name="InCache+clear"></a>
 
-### incache.clear()
+### inCache.clear()
 Remove all records
 
-**Kind**: static method of [<code>incache</code>](#incache)  
-<a name="incache.has"></a>
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<a name="InCache+has"></a>
 
-### incache.has(key) ⇒ <code>boolean</code>
+### inCache.has(key) ⇒ <code>boolean</code>
 Check if key exists
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -238,14 +263,14 @@ Check if key exists
 
 **Example**  
 ```js
-incache.has('my key');
+InCache.has('my key');
 ```
-<a name="incache.onRemoved"></a>
+<a name="InCache+onRemoved"></a>
 
-### incache.onRemoved(callback)
+### inCache.onRemoved(callback)
 Triggered when a record has been deleted
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -254,40 +279,21 @@ Triggered when a record has been deleted
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#incache.onRemoved..removedCallback">removedCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#InCache.onRemoved..removedCallback">removedCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-incache.onRemoved((key)=>{     console.log('removed', key);});
+InCache.onRemoved((key)=>{     console.log('removed', key);});
 ```
-<a name="incache.onRemoved..removedCallback"></a>
+<a name="InCache+onCreated"></a>
 
-#### onRemoved~removedCallback : <code>function</code>
-onRemoved callback
-
-**Kind**: inner typedef of [<code>onRemoved</code>](#incache.onRemoved)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>key</td><td><code>string</code></td><td><p>key of record removed</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-<a name="incache.onCreated"></a>
-
-### incache.onCreated(callback)
+### inCache.onCreated(callback)
 Triggered when a record has been created
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -296,43 +302,21 @@ Triggered when a record has been created
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#incache.onCreated..createdCallback">createdCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#InCache.onCreated..createdCallback">createdCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-incache.onCreated((key, record)=>{     console.log('created', key, record);});
+InCache.onCreated((key, record)=>{     console.log('created', key, record);});
 ```
-<a name="incache.onCreated..createdCallback"></a>
+<a name="InCache+onUpdated"></a>
 
-#### onCreated~createdCallback : <code>function</code>
-onCreated callback
-
-**Kind**: inner typedef of [<code>onCreated</code>](#incache.onCreated)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>key</td><td><code>string</code></td><td><p>key of record created</p>
-</td>
-    </tr><tr>
-    <td>record</td><td><code>Object</code></td><td><p>record object</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-<a name="incache.onUpdated"></a>
-
-### incache.onUpdated(callback)
+### inCache.onUpdated(callback)
 Triggered when a record has been updated
 
-**Kind**: static method of [<code>incache</code>](#incache)  
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
@@ -341,34 +325,12 @@ Triggered when a record has been updated
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#incache.onUpdated..updatedCallback">updatedCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#InCache.onUpdated..updatedCallback">updatedCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-incache.onUpdated((key, record)=>{     console.log('updated', key, record);});
+InCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
-<a name="incache.onUpdated..updatedCallback"></a>
-
-#### onUpdated~updatedCallback : <code>function</code>
-onUpdated callback
-
-**Kind**: inner typedef of [<code>onUpdated</code>](#incache.onUpdated)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>key</td><td><code>string</code></td><td><p>key of record updated</p>
-</td>
-    </tr><tr>
-    <td>record</td><td><code>Object</code></td><td><p>record object</p>
-</td>
-    </tr>  </tbody>
-</table>
-
