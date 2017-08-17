@@ -11,6 +11,10 @@
     * [.bulkSet(records)](#InCache+bulkSet)
     * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>any</code> \| <code>null</code>
     * [.remove(key, [silent], [opts])](#InCache+remove)
+    * [.addTo(key, value)](#InCache+addTo) ⇒ <code>\*</code>
+    * [.prependTo(key, value)](#InCache+prependTo) ⇒ <code>\*</code>
+    * [.updateIn(key, value, where)](#InCache+updateIn)
+    * [.removeFrom(key, where)](#InCache+removeFrom)
     * [.bulkRemove(keys)](#InCache+bulkRemove)
     * [.all()](#InCache+all) ⇒ <code>Array</code>
     * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
@@ -190,6 +194,88 @@ Delete a record
 ```js
 InCache.remove('my key');
 ```
+<a name="InCache+addTo"></a>
+
+### inCache.addTo(key, value) ⇒ <code>\*</code>
+Given a key that has value like an array adds value to end of array
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>any</code></td>
+    </tr><tr>
+    <td>value</td><td><code>any</code></td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+prependTo"></a>
+
+### inCache.prependTo(key, value) ⇒ <code>\*</code>
+Given a key that has value like an array adds value to beginning of array
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>any</code></td>
+    </tr><tr>
+    <td>value</td><td><code>any</code></td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+updateIn"></a>
+
+### inCache.updateIn(key, value, where)
+Given a key that has value like an array updates key(s) if `where` is satisfied
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>any</code></td>
+    </tr><tr>
+    <td>value</td><td><code>any</code></td>
+    </tr><tr>
+    <td>where</td><td><code>any</code></td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+removeFrom"></a>
+
+### inCache.removeFrom(key, where)
+Given a key that has value like an array removes key(s) if `where` is satisfied
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>any</code></td>
+    </tr><tr>
+    <td>where</td><td><code>any</code></td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache+bulkRemove"></a>
 
 ### inCache.bulkRemove(keys)
