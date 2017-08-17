@@ -12,8 +12,8 @@
         "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
         "doc": "jsdoc2md --no-gfm src/incache.js > api.md",
         "benchmark:app": "node ./test/app/index.js",
-        "benchmark:koa": "node ./node_modules/artillery/bin/artillery quick -d 60 -r 1000 -k http://127.0.0.1:3188/benchmark/notCached",
-        "benchmark:cache": "node ./node_modules/artillery/bin/artillery quick -d 60 -r 1000 -k http://127.0.0.1:3188/benchmark/cached"
+        "benchmark:koa": "node ./node_modules/artillery/bin/artillery quick -d 10 -r 1000 -k http://127.0.0.1:3188/benchmark/notCached",
+        "benchmark:cache": "node ./node_modules/artillery/bin/artillery quick -d 10 -r 1000 -k http://127.0.0.1:3188/benchmark/cached"
     },
     "repository": {
         "type": "git",
