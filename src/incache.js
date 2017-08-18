@@ -24,7 +24,7 @@ class InCache {
          * Root object
          * @ignore
          */
-        this.root = helper.isServer() ? global : window;
+        this._root = helper.isServer() ? global : window;
 
         /**
          * Record default options
@@ -74,9 +74,9 @@ class InCache {
         if (config.save && fs.existsSync(config.filePath)) {
             let content = fs.readFileSync(config.filePath);
             try {
-                this.storage = this._memory.data = JSON.parse(content);
+                this._storage = this._memory.data = JSON.parse(content);
             } catch (e) {
-                this.storage = this._memory.data = {};
+                this._storage = this._memory.data = {};
             }
         }
     }
@@ -92,17 +92,17 @@ class InCache {
         if (opts.storeName)
             this.GLOBAL_KEY += opts.storeName;
 
-        if (!this.root[this.GLOBAL_KEY]) {
-            this.root[this.GLOBAL_KEY] = {
+        if (!this._root[this.GLOBAL_KEY]) {
+            this._root[this.GLOBAL_KEY] = {
                 data: {},
-                setConfig: this.DEFAULT_CONFIG
+                config: this.DEFAULT_CONFIG
             };
         }
-        this.root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
+        this._root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
 
-        this._memory = this.root[this.GLOBAL_KEY];
+        this._memory = this._root[this.GLOBAL_KEY];
 
-        this.storage = this._memory.data;
+        this._storage = this._memory.data;
 
         this._read();
     }
@@ -154,7 +154,7 @@ class InCache {
                 this._onCreated.call(this, key, record);
         }
 
-        this.storage[key] = record;
+        this._storage[key] = record;
 
         // If bulk operation is called, the best way is write on end.
         if (!opts.fromBulk)
@@ -201,7 +201,7 @@ class InCache {
                 this.remove(key, true);
                 return null;
             }
-            return onlyValue ? this.storage[key].value : this.storage[key];
+            return onlyValue ? this._storage[key].value : this._storage[key];
         } else {
             return null;
         }
@@ -216,7 +216,7 @@ class InCache {
      * InCache.remove('my key');
      */
     remove(key, silent = false, opts = {}) {
-        delete this.storage[key];
+        delete this._storage[key];
         if (!silent)
             this._onRemoved.call(this, key);
 
@@ -368,14 +368,14 @@ class InCache {
     all() {
         let records = [];
 
-        for (let key in this.storage) {
-            if (this.storage.hasOwnProperty(key)) {
+        for (let key in this._storage) {
+            if (this._storage.hasOwnProperty(key)) {
                 if (this.expired(key)) {
                     this.remove(key, true);
                 } else {
                     records.push({
                         key: key,
-                        value: this.storage[key].value
+                        value: this._storage[key].value
                     });
                 }
             }
@@ -390,9 +390,9 @@ class InCache {
      * @returns {boolean}
      */
     expired(key) {
-        if (this.storage[key] && this.storage[key].expiresOn) {
+        if (this._storage[key] && this._storage[key].expiresOn) {
             let now = new Date();
-            let expiry = new Date(this.storage[key].expiresOn);
+            let expiry = new Date(this._storage[key].expiresOn);
             return now > expiry;
         } else {
             return false;
@@ -407,7 +407,7 @@ class InCache {
          * Reset object
          * @ignore
          */
-        this.storage = this._memory.data = {};
+        this._storage = this._memory.data = {};
 
         this._write();
     }
@@ -420,7 +420,7 @@ class InCache {
      * InCache.has('my key');
      */
     has(key) {
-        return this.storage.hasOwnProperty(key);
+        return this._storage.hasOwnProperty(key);
     }
 
     /**

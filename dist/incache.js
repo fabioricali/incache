@@ -114,7 +114,7 @@ var InCache = function () {
          * Root object
          * @ignore
          */
-        this.root = helper.isServer() ? global : window;
+        this._root = helper.isServer() ? global : window;
 
         /**
          * Record default options
@@ -170,9 +170,9 @@ var InCache = function () {
             if (config.save && fs.existsSync(config.filePath)) {
                 var content = fs.readFileSync(config.filePath);
                 try {
-                    this.storage = this._memory.data = JSON.parse(content);
+                    this._storage = this._memory.data = JSON.parse(content);
                 } catch (e) {
-                    this.storage = this._memory.data = {};
+                    this._storage = this._memory.data = {};
                 }
             }
         }
@@ -192,17 +192,17 @@ var InCache = function () {
 
             if (opts.storeName) this.GLOBAL_KEY += opts.storeName;
 
-            if (!this.root[this.GLOBAL_KEY]) {
-                this.root[this.GLOBAL_KEY] = {
+            if (!this._root[this.GLOBAL_KEY]) {
+                this._root[this.GLOBAL_KEY] = {
                     data: {},
                     setConfig: this.DEFAULT_CONFIG
                 };
             }
-            this.root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
+            this._root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
 
-            this._memory = this.root[this.GLOBAL_KEY];
+            this._memory = this._root[this.GLOBAL_KEY];
 
-            this.storage = this._memory.data;
+            this._storage = this._memory.data;
 
             this._read();
         }
@@ -260,7 +260,7 @@ var InCache = function () {
                 if (!opts.silent) this._onCreated.call(this, key, record);
             }
 
-            this.storage[key] = record;
+            this._storage[key] = record;
 
             // If bulk operation is called, the best way is write on end.
             if (!opts.fromBulk) this._write();
@@ -312,7 +312,7 @@ var InCache = function () {
                     this.remove(key, true);
                     return null;
                 }
-                return onlyValue ? this.storage[key].value : this.storage[key];
+                return onlyValue ? this._storage[key].value : this._storage[key];
             } else {
                 return null;
             }
@@ -333,7 +333,7 @@ var InCache = function () {
             var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
             var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-            delete this.storage[key];
+            delete this._storage[key];
             if (!silent) this._onRemoved.call(this, key);
 
             // If bulk operation is called, the best way is write on end.
@@ -483,14 +483,14 @@ var InCache = function () {
         value: function all() {
             var records = [];
 
-            for (var key in this.storage) {
-                if (this.storage.hasOwnProperty(key)) {
+            for (var key in this._storage) {
+                if (this._storage.hasOwnProperty(key)) {
                     if (this.expired(key)) {
                         this.remove(key, true);
                     } else {
                         records.push({
                             key: key,
-                            value: this.storage[key].value
+                            value: this._storage[key].value
                         });
                     }
                 }
@@ -508,9 +508,9 @@ var InCache = function () {
     }, {
         key: 'expired',
         value: function expired(key) {
-            if (this.storage[key] && this.storage[key].expiresOn) {
+            if (this._storage[key] && this._storage[key].expiresOn) {
                 var now = new Date();
-                var expiry = new Date(this.storage[key].expiresOn);
+                var expiry = new Date(this._storage[key].expiresOn);
                 return now > expiry;
             } else {
                 return false;
@@ -528,7 +528,7 @@ var InCache = function () {
              * Reset object
              * @ignore
              */
-            this.storage = this._memory.data = {};
+            this._storage = this._memory.data = {};
 
             this._write();
         }
@@ -544,7 +544,7 @@ var InCache = function () {
     }, {
         key: 'has',
         value: function has(key) {
-            return this.storage.hasOwnProperty(key);
+            return this._storage.hasOwnProperty(key);
         }
 
         /**
