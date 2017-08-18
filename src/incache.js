@@ -6,7 +6,7 @@ class InCache {
      * Create instance
      * @param [opts] {Object} configuration object
      * @param [opts.save=true] {boolean} if true saves cache in disk
-     * @param [opts.filePath=.InCache] {string} cache file path
+     * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @constructor
      */
@@ -44,21 +44,17 @@ class InCache {
         this.DEFAULT_CONFIG = {
             storeName: '',
             save: true,
-            filePath: '.InCache'
+            filePath: '.incache'
         };
 
         this.setConfig(opts);
     }
 
-    _onRemoved() {
-    }
+    _onRemoved() {}
+    _onCreated() {}
+    _onUpdated() {}
 
-    _onCreated() {
-    }
-
-    _onUpdated() {
-    }
-
+    //todo move to async logic
     _write() {
         if (!helper.isServer()) return;
         let {config, data} = this._memory;
@@ -85,7 +81,7 @@ class InCache {
      * Set configuration
      * @param [opts] {Object} configuration object
      * @param [opts.save=true] {boolean} if true saves cache in disk
-     * @param [opts.filePath=.InCache] {string} cache file path
+     * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      */
     setConfig(opts = {}) {
@@ -94,6 +90,9 @@ class InCache {
 
         if (!this._root[this.GLOBAL_KEY]) {
             this._root[this.GLOBAL_KEY] = {
+                metadata: {
+                    lastSave: null
+                },
                 data: {},
                 config: this.DEFAULT_CONFIG
             };
