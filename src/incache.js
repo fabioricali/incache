@@ -124,9 +124,9 @@ class InCache {
      * @param [opts.life=0] {number} seconds of life. If 0 not expire.
      * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
      * @example
-     * InCache.set('my key', 'my value');
-     * InCache.set('my object', {a: 1, b: 2});
-     * InCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
+     * inCache.set('my key', 'my value');
+     * inCache.set('my object', {a: 1, b: 2});
+     * inCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
      */
     set(key, value, opts = {}) {
         let record = {
@@ -167,7 +167,7 @@ class InCache {
      * Set/update multiple records. This method not trigger any event.
      * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
      * @example
-     * InCache.bulkSet([
+     * inCache.bulkSet([
      *      {key: 'my key 1', value: 'my value 1'},
      *      {key: 'my key 2', value: 'my value 2'},
      *      {key: 'my key 3', value: 'my value 3'},
@@ -193,7 +193,7 @@ class InCache {
      * @param [onlyValue=true] {boolean} if false get InCache record
      * @returns {any|null}
      * @example
-     * InCache.get('my key');
+     * inCache.get('my key');
      */
     get(key, onlyValue = true) {
         if (this.has(key)) {
@@ -213,7 +213,7 @@ class InCache {
      * @param [silent=false] {boolean} if true no event will be triggered
      * @param [opts] {Object} optional arguments
      * @example
-     * InCache.remove('my key');
+     * inCache.remove('my key');
      */
     remove(key, silent = false, opts = {}) {
         delete this._storage[key];
@@ -230,6 +230,9 @@ class InCache {
      * @param key {any}
      * @param value {any}
      * @returns {*}
+     * @example
+     * inCache.set('myArray', ['hello', 'world']);
+     * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
      */
     addTo(key, value) {
         if (!this.has(key)) return null;
@@ -248,6 +251,9 @@ class InCache {
      * @param key {any}
      * @param value {any}
      * @returns {*}
+     * @example
+     * inCache.set('myArray', ['hello', 'world']);
+     * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
      */
     prependTo(key, value) {
         if (!this.has(key)) return null;
@@ -267,6 +273,12 @@ class InCache {
      * @param key {any}
      * @param value {any}
      * @param where {any}
+     * @example
+     * inCache.set('myArray', ['hello', 'world']);
+     * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
+     *
+     * inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});
+     * inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
      */
     updateIn(key, value, where) {
         if (!this.has(key)) return null;
@@ -310,6 +322,9 @@ class InCache {
      * Given a key that has value like an array removes key(s) if `where` is satisfied
      * @param key {any}
      * @param where {any}
+     * @example
+     * inCache.set('myArray', ['hello', 'world']);
+     * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
      */
     removeFrom(key, where) {
         if (!this.has(key)) return null;
@@ -348,7 +363,7 @@ class InCache {
      * Delete multiple records
      * @param keys {array} an array of keys
      * @example
-     * InCache.bulkRemove(['key1', 'key2', 'key3']);
+     * inCache.bulkRemove(['key1', 'key2', 'key3']);
      */
     bulkRemove(keys) {
         if (!helper.is(keys, 'array'))
@@ -417,7 +432,7 @@ class InCache {
      * @param key {any}
      * @returns {boolean}
      * @example
-     * InCache.has('my key');
+     * inCache.has('my key');
      */
     has(key) {
         return this._storage.hasOwnProperty(key);
@@ -425,9 +440,9 @@ class InCache {
 
     /**
      * Triggered when a record has been deleted
-     * @param callback {InCache.onRemoved~removedCallback} callback function
+     * @param callback {inCache.onRemoved~removedCallback} callback function
      * @example
-     * InCache.onRemoved((key)=>{
+     * inCache.onRemoved((key)=>{
  *      console.log('removed', key);
  * });
      */
@@ -437,15 +452,15 @@ class InCache {
 
     /**
      * onRemoved callback
-     * @callback InCache.onRemoved~removedCallback
+     * @callback inCache.onRemoved~removedCallback
      * @param key {string} key of record removed
      */
 
     /**
      * Triggered when a record has been created
-     * @param callback {InCache.onCreated~createdCallback} callback function
+     * @param callback {inCache.onCreated~createdCallback} callback function
      * @example
-     * InCache.onCreated((key, record)=>{
+     * inCache.onCreated((key, record)=>{
  *      console.log('created', key, record);
  * });
      */
@@ -455,16 +470,16 @@ class InCache {
 
     /**
      * onCreated callback
-     * @callback InCache.onCreated~createdCallback
+     * @callback inCache.onCreated~createdCallback
      * @param key {string} key of record created
      * @param record {Object} record object
      */
 
     /**
      * Triggered when a record has been updated
-     * @param callback {InCache.onUpdated~updatedCallback} callback function
+     * @param callback {inCache.onUpdated~updatedCallback} callback function
      * @example
-     * InCache.onUpdated((key, record)=>{
+     * inCache.onUpdated((key, record)=>{
      *      console.log('updated', key, record);
      * });
      */
@@ -474,7 +489,7 @@ class InCache {
 
     /**
      * onUpdated callback
-     * @callback InCache.onUpdated~updatedCallback
+     * @callback inCache.onUpdated~updatedCallback
      * @param key {string} key of record updated
      * @param record {Object} record object
      */

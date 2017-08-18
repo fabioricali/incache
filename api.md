@@ -27,7 +27,7 @@
 <a name="new_InCache_new"></a>
 
 ### new InCache([opts])
-Set configuration
+Create instance
 
 <table>
   <thead>
@@ -116,7 +116,7 @@ Set/update record
 
 **Example**  
 ```js
-InCache.set('my key', 'my value');InCache.set('my object', {a: 1, b: 2});InCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
+inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
 ```
 <a name="InCache+bulkSet"></a>
 
@@ -139,7 +139,7 @@ Set/update multiple records. This method not trigger any event.
 
 **Example**  
 ```js
-InCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
+inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
 ```
 <a name="InCache+get"></a>
 
@@ -164,7 +164,7 @@ Get record by key
 
 **Example**  
 ```js
-InCache.get('my key');
+inCache.get('my key');
 ```
 <a name="InCache+remove"></a>
 
@@ -192,7 +192,7 @@ Delete a record
 
 **Example**  
 ```js
-InCache.remove('my key');
+inCache.remove('my key');
 ```
 <a name="InCache+addTo"></a>
 
@@ -214,6 +214,10 @@ Given a key that has value like an array adds value to end of array
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
+```
 <a name="InCache+prependTo"></a>
 
 ### inCache.prependTo(key, value) ⇒ <code>\*</code>
@@ -234,6 +238,10 @@ Given a key that has value like an array adds value to beginning of array
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
+```
 <a name="InCache+updateIn"></a>
 
 ### inCache.updateIn(key, value, where)
@@ -256,6 +264,10 @@ Given a key that has value like an array updates key(s) if `where` is satisfied
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
+```
 <a name="InCache+removeFrom"></a>
 
 ### inCache.removeFrom(key, where)
@@ -276,6 +288,10 @@ Given a key that has value like an array removes key(s) if `where` is satisfied
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+```
 <a name="InCache+bulkRemove"></a>
 
 ### inCache.bulkRemove(keys)
@@ -297,7 +313,7 @@ Delete multiple records
 
 **Example**  
 ```js
-InCache.bulkRemove(['key1', 'key2', 'key3']);
+inCache.bulkRemove(['key1', 'key2', 'key3']);
 ```
 <a name="InCache+all"></a>
 
@@ -349,7 +365,7 @@ Check if key exists
 
 **Example**  
 ```js
-InCache.has('my key');
+inCache.has('my key');
 ```
 <a name="InCache+onRemoved"></a>
 
@@ -365,14 +381,14 @@ Triggered when a record has been deleted
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#InCache.onRemoved..removedCallback">removedCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#inCache.onRemoved..removedCallback">removedCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-InCache.onRemoved((key)=>{     console.log('removed', key);});
+inCache.onRemoved((key)=>{     console.log('removed', key);});
 ```
 <a name="InCache+onCreated"></a>
 
@@ -388,14 +404,14 @@ Triggered when a record has been created
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#InCache.onCreated..createdCallback">createdCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#inCache.onCreated..createdCallback">createdCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-InCache.onCreated((key, record)=>{     console.log('created', key, record);});
+inCache.onCreated((key, record)=>{     console.log('created', key, record);});
 ```
 <a name="InCache+onUpdated"></a>
 
@@ -411,12 +427,12 @@ Triggered when a record has been updated
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#InCache.onUpdated..updatedCallback">updatedCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#inCache.onUpdated..updatedCallback">updatedCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-InCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
+inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
