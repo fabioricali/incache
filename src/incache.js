@@ -3,7 +3,7 @@ const fs = require('fs');
 
 class InCache {
     /**
-     * Set configuration
+     * Create instance
      * @param [opts] {Object} configuration object
      * @param [opts.save=true] {boolean} if true saves cache in disk
      * @param [opts.filePath=.InCache] {string} cache file path
@@ -479,7 +479,6 @@ class InCache {
      * @param record {Object} record object
      */
 }
-
 
 /**
  * Expose module
