@@ -5,24 +5,29 @@
 
 * [InCache](#InCache)
     * [new InCache([opts])](#new_InCache_new)
-    * [.setConfig([opts])](#InCache+setConfig)
-    * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
-    * [.set(key, value, [opts])](#InCache+set) ⇒ <code>Object</code>
-    * [.bulkSet(records)](#InCache+bulkSet)
-    * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>any</code> \| <code>null</code>
-    * [.remove(key, [silent], [opts])](#InCache+remove)
-    * [.addTo(key, value)](#InCache+addTo) ⇒ <code>\*</code>
-    * [.prependTo(key, value)](#InCache+prependTo) ⇒ <code>\*</code>
-    * [.updateIn(key, value, where)](#InCache+updateIn)
-    * [.removeFrom(key, where)](#InCache+removeFrom)
-    * [.bulkRemove(keys)](#InCache+bulkRemove)
-    * [.all()](#InCache+all) ⇒ <code>Array</code>
-    * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
-    * [.clear()](#InCache+clear)
-    * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
-    * [.onRemoved(callback)](#InCache+onRemoved)
-    * [.onCreated(callback)](#InCache+onCreated)
-    * [.onUpdated(callback)](#InCache+onUpdated)
+    * _instance_
+        * [.setConfig([opts])](#InCache+setConfig)
+        * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
+        * [.set(key, value, [opts])](#InCache+set) ⇒ <code>Object</code>
+        * [.bulkSet(records)](#InCache+bulkSet)
+        * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>any</code> \| <code>null</code>
+        * [.remove(key, [silent], [opts])](#InCache+remove)
+        * [.addTo(key, value)](#InCache+addTo) ⇒ <code>\*</code>
+        * [.prependTo(key, value)](#InCache+prependTo) ⇒ <code>\*</code>
+        * [.updateIn(key, value, where)](#InCache+updateIn)
+        * [.removeFrom(key, where)](#InCache+removeFrom)
+        * [.bulkRemove(keys)](#InCache+bulkRemove)
+        * [.all()](#InCache+all) ⇒ <code>Array</code>
+        * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
+        * [.clear()](#InCache+clear)
+        * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
+        * [.onRemoved(callback)](#InCache+onRemoved)
+        * [.onCreated(callback)](#InCache+onCreated)
+        * [.onUpdated(callback)](#InCache+onUpdated)
+    * _inner_
+        * [~removedCallback](#InCache..removedCallback) : <code>function</code>
+        * [~createdCallback](#InCache..createdCallback) : <code>function</code>
+        * [~updatedCallback](#InCache..updatedCallback) : <code>function</code>
 
 <a name="new_InCache_new"></a>
 
@@ -381,7 +386,7 @@ Triggered when a record has been deleted
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#inCache.onRemoved..removedCallback">removedCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#InCache..removedCallback">removedCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -404,7 +409,7 @@ Triggered when a record has been created
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#inCache.onCreated..createdCallback">createdCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#InCache..createdCallback">createdCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -427,7 +432,7 @@ Triggered when a record has been updated
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#inCache.onUpdated..updatedCallback">updatedCallback</a></code></td><td><p>callback function</p>
+    <td>callback</td><td><code><a href="#InCache..updatedCallback">updatedCallback</a></code></td><td><p>callback function</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -436,3 +441,66 @@ Triggered when a record has been updated
 ```js
 inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
+<a name="InCache..removedCallback"></a>
+
+### InCache~removedCallback : <code>function</code>
+onRemoved callback
+
+**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key of record removed</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache..createdCallback"></a>
+
+### InCache~createdCallback : <code>function</code>
+onCreated callback
+
+**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key of record created</p>
+</td>
+    </tr><tr>
+    <td>record</td><td><code>Object</code></td><td><p>record object</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache..updatedCallback"></a>
+
+### InCache~updatedCallback : <code>function</code>
+onUpdated callback
+
+**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key of record updated</p>
+</td>
+    </tr><tr>
+    <td>record</td><td><code>Object</code></td><td><p>record object</p>
+</td>
+    </tr>  </tbody>
+</table>
+

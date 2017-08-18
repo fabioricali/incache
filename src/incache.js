@@ -440,11 +440,11 @@ class InCache {
 
     /**
      * Triggered when a record has been deleted
-     * @param callback {inCache.onRemoved~removedCallback} callback function
+     * @param callback {InCache~removedCallback} callback function
      * @example
      * inCache.onRemoved((key)=>{
- *      console.log('removed', key);
- * });
+     *      console.log('removed', key);
+     * });
      */
     onRemoved(callback) {
         this._onRemoved = callback;
@@ -452,17 +452,17 @@ class InCache {
 
     /**
      * onRemoved callback
-     * @callback inCache.onRemoved~removedCallback
+     * @callback InCache~removedCallback
      * @param key {string} key of record removed
      */
 
     /**
      * Triggered when a record has been created
-     * @param callback {inCache.onCreated~createdCallback} callback function
+     * @param callback {InCache~createdCallback} callback function
      * @example
      * inCache.onCreated((key, record)=>{
- *      console.log('created', key, record);
- * });
+     *      console.log('created', key, record);
+     * });
      */
     onCreated(callback) {
         this._onCreated = callback;
@@ -470,14 +470,14 @@ class InCache {
 
     /**
      * onCreated callback
-     * @callback inCache.onCreated~createdCallback
+     * @callback InCache~createdCallback
      * @param key {string} key of record created
      * @param record {Object} record object
      */
 
     /**
      * Triggered when a record has been updated
-     * @param callback {inCache.onUpdated~updatedCallback} callback function
+     * @param callback {InCache~updatedCallback} callback function
      * @example
      * inCache.onUpdated((key, record)=>{
      *      console.log('updated', key, record);
@@ -489,7 +489,7 @@ class InCache {
 
     /**
      * onUpdated callback
-     * @callback inCache.onUpdated~updatedCallback
+     * @callback InCache~updatedCallback
      * @param key {string} key of record updated
      * @param record {Object} record object
      */
