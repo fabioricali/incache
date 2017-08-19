@@ -1,53 +1,53 @@
 {
-    "name": "incache",
-    "version": "2.0.0",
-    "description": "Share singleton via global object, yes you can!",
-    "main": "index.js",
-    "scripts": {
-        "version:major": "webpack --env.major && npm run-script doc && version-to-tag.sh && npm publish",
-        "version:minor": "webpack --env.minor && npm run-script doc && version-to-tag.sh && npm publish",
-        "version:patch": "webpack --env.patch && npm run-script doc && version-to-tag.sh && npm publish",
-        "build": "webpack --progress",
-        "mocha.test": "mocha test",
-        "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
-        "doc": "jsdoc2md --no-gfm src/incache.js > api.md",
-        "benchmark:app": "node ./test/app/index.js",
-        "benchmark:koa": "node ./node_modules/artillery/bin/artillery quick -d 10 -r 1000 -k http://127.0.0.1:3188/benchmark/notCached",
-        "benchmark:cache": "node ./node_modules/artillery/bin/artillery quick -d 10 -r 1000 -k http://127.0.0.1:3188/benchmark/cached"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/fabioricali/incache.git"
-    },
-    "keywords": [
-        "cache",
-        "object",
-        "global",
-        "storage",
-        "share"
-    ],
-    "author": "Fabio Ricali",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/fabioricali/incache/issues"
-    },
-    "homepage": "https://github.com/fabioricali/incache#readme",
-    "devDependencies": {
-        "artillery": "^1.6.0-4",
-        "babel-core": "^6.26.0",
-        "babel-loader": "^7.1.1",
-        "babel-preset-es2015": "^6.24.1",
-        "bejs": "^1.11.0",
-        "coveralls": "^2.13.1",
-        "istanbul": "^0.4.5",
-        "jsdoc-to-markdown": "^3.0.0",
-        "koa": "^2.3.0",
-        "koa-router": "^7.2.1",
-        "mocha": "^3.5.0",
-        "mocha-lcov-reporter": "^1.3.0",
-        "unminified-webpack-plugin": "^1.2.0",
-        "webpack": "^3.5.5",
-        "webpack-auto-inject-version": "^0.5.14"
-    },
-    "dependencies": {}
+  "name": "incache",
+  "version": "2.0.0",
+  "description": "Share singleton via global object, yes you can!",
+  "main": "index.js",
+  "scripts": {
+    "version:major": "webpack --env.major && npm run-script doc && version-to-tag.sh && npm publish",
+    "version:minor": "webpack --env.minor && npm run-script doc && version-to-tag.sh && npm publish",
+    "version:patch": "webpack --env.patch && npm run-script doc && version-to-tag.sh && npm publish",
+    "build": "webpack --progress",
+    "mocha.test": "mocha test",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "doc": "jsdoc2md --no-gfm src/incache.js > api.md",
+    "benchmark:app": "node ./test/app/index.js",
+    "benchmark:koa": "node ./node_modules/autocannon/autocannon -c 100 -d 1 -p 10 127.0.0.1:3188/benchmark/notCached",
+    "benchmark:cache": "node ./node_modules/autocannon/autocannon -c 100 -d 1 -p 10 127.0.0.1:3188/benchmark/cached"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabioricali/incache.git"
+  },
+  "keywords": [
+    "cache",
+    "object",
+    "global",
+    "storage",
+    "share"
+  ],
+  "author": "Fabio Ricali",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fabioricali/incache/issues"
+  },
+  "homepage": "https://github.com/fabioricali/incache#readme",
+  "devDependencies": {
+    "autocannon": "^0.16.5",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-es2015": "^6.24.1",
+    "bejs": "^1.11.0",
+    "coveralls": "^2.13.1",
+    "istanbul": "^0.4.5",
+    "jsdoc-to-markdown": "^3.0.0",
+    "koa": "^2.3.0",
+    "koa-router": "^7.2.1",
+    "mocha": "^3.5.0",
+    "mocha-lcov-reporter": "^1.3.0",
+    "unminified-webpack-plugin": "^1.2.0",
+    "webpack": "^3.5.5",
+    "webpack-auto-inject-version": "^0.5.14"
+  },
+  "dependencies": {}
 }

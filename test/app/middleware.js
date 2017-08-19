@@ -4,9 +4,8 @@ module.exports = function(){
 
     const cache = ctx.cache.get(ctx.path);
 
-    if(cache !== null){
+    if(cache !== null)
       return ctx.body = cache;
-    }
 
     await next();
   }
