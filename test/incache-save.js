@@ -11,7 +11,7 @@ describe('cache-save', function () {
     this.timeout(5000);
 
     describe('get, onlyValue false', function () {
-        it('should be return null', ()=>{
+        it('should be return object', ()=>{
             let result = cache.get('myKey', false);
             console.log(result);
             be.err.object(result);

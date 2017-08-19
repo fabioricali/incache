@@ -1,7 +1,6 @@
 const InCache = require('../src/incache');
 const cache = new InCache({
-    save: true,
-    filePath: './test/.incache'
+    save: false
 });
 const be = require('bejs');
 

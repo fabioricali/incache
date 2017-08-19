@@ -48,7 +48,7 @@ Create instance
     <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
 </td>
     </tr><tr>
-    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.InCache&quot;</code></td><td><p>cache file path</p>
+    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
 </td>
     </tr><tr>
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
@@ -76,7 +76,7 @@ Set configuration
     <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
 </td>
     </tr><tr>
-    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.InCache&quot;</code></td><td><p>cache file path</p>
+    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
 </td>
     </tr><tr>
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
