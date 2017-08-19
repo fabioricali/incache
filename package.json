@@ -25,6 +25,9 @@
         "global",
         "storage",
         "session",
+        "http",
+        "response",
+        "data",
         "caching",
         "share"
     ],

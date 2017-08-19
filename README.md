@@ -2,7 +2,7 @@
 <br/><br/>
 <img width="268" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?1" title="incache"/>
 <br/><br/>
-Share singleton via global object, yes you can!
+Easy data storing
 <br/><br/>
 <a href="https://travis-ci.org/fabioricali/incache" target="_blank"><img src="https://travis-ci.org/fabioricali/incache.svg?branch=master" title="Build Status"/></a>
 <a href="https://coveralls.io/github/fabioricali/incache?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/fabioricali/incache/badge.svg?branch=master" title="Coverage Status"/></a>
@@ -12,7 +12,7 @@ Share singleton via global object, yes you can!
 
 ## Why?
 InCache is a module that store any info in memory, it can be used for example for storing **server sessions**, **caching http response** or **sharing singleton object** in your apps.
-It also give you the possibility to save data on a file so you can avoid the data loss when the process exit or restart.
+It also give you the possibility to save data on disk so you can avoid the data loss when the process exit or restart.
 
 ## Installation
 
@@ -61,8 +61,8 @@ incache.onUpdated((key, record) => {
 });
 ```
 
-### API Documentation
-See <a href="https://github.com/fabioricali/incache/blob/master/api.md">here</a>
+### API
+See <a href="https://github.com/fabioricali/incache/blob/master/api.md">full documentation</a>
 
 ### Browser
 
