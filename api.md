@@ -45,7 +45,7 @@ Create instance
     <td>[opts]</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
 </td>
     </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
@@ -82,7 +82,7 @@ Set configuration
     <td>[opts]</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
 </td>
     </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk</p>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
@@ -129,10 +129,10 @@ Set/update record
     <td>[opts]</td><td><code>Object</code></td><td></td><td><p>options object</p>
 </td>
     </tr><tr>
-    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered. (overwrite global configuration)</p>
+    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered. (overwrites global configuration)</p>
 </td>
     </tr><tr>
-    <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire. (overwrite global configuration)</p>
+    <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire. (overwrites global configuration)</p>
 </td>
     </tr>  </tbody>
 </table>

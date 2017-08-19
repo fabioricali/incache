@@ -5,7 +5,7 @@ class InCache {
     /**
      * Create instance
      * @param [opts] {Object} configuration object
-     * @param [opts.save=true] {boolean} if true saves cache in disk
+     * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.global] {Object} global record configuration
@@ -85,7 +85,7 @@ class InCache {
     /**
      * Set configuration
      * @param [opts] {Object} configuration object
-     * @param [opts.save=true] {boolean} if true saves cache in disk
+     * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.global] {Object} global record configuration
