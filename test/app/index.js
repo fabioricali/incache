@@ -30,5 +30,5 @@ function randomData(keyNumber, dataAmount) {
   }
 }
 
-randomData(5, 1000);
+randomData(5, 600);
 
