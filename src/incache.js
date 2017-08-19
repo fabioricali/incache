@@ -61,6 +61,7 @@ class InCache {
                 this._write()
             });
         }
+
         this.setConfig(opts);
     }
 
