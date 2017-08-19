@@ -1,7 +1,7 @@
 {
     "name": "incache",
     "version": "2.0.0",
-    "description": "InCache is a module that store any info in memory, it can be used for example for storing server sessions, caching http response or sharing of singleton object in your apps. It also give you the possibility to save data on a file so you can avoid the data loss when the process exit or restart.",
+    "description": "Simple key/value in-memory storage or on disk to persist some data",
     "main": "index.js",
     "scripts": {
         "version:major": "webpack --env.major && npm run-script doc && version-to-tag.sh && npm publish",
