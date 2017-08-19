@@ -19,10 +19,10 @@ function randomData(keyNumber, dataAmount) {
 
   for(let k=0; k<keyNumber; k++){
 
-    testArray.push([])
+    testArray.push([]);
 
     for(let i=0; i<dataAmount; i++){
-      console.log('test k ', testArray[k])
+      console.log('test k ', testArray[k]);
       testArray[k].push({ id: i+1, name: `test-${i+1}` });
     }
 
@@ -30,4 +30,5 @@ function randomData(keyNumber, dataAmount) {
   }
 }
 
-randomData(5, 500);
+randomData(5, 1000);
+

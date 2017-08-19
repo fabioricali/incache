@@ -52,12 +52,19 @@ class InCache {
         this._onCreated = () => {};
         this._onUpdated = () => {};
 
+        if(helper.isServer()) {
+            process.stdin.resume();
+            process.on('exit', () => {
+                this._write()
+            });
+            process.on('SIGINT', () => {
+                this._write()
+            });
+        }
         this.setConfig(opts);
     }
 
-    //todo move to async logic
     _write() {
-        if (!helper.isServer()) return;
         let {config, data} = this._memory;
         if (config.save) {
             let content = JSON.stringify(data);
@@ -66,7 +73,6 @@ class InCache {
     }
 
     _read() {
-        if (!helper.isServer()) return;
         let config = this._memory.config;
         if (config.save && fs.existsSync(config.filePath)) {
             let content = fs.readFileSync(config.filePath);
@@ -98,13 +104,15 @@ class InCache {
                 config: this.DEFAULT_CONFIG
             };
         }
+
         this._root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
 
         this._memory = this._root[this.GLOBAL_KEY];
 
         this._storage = this._memory.data;
 
-        this._read();
+        if (helper.isServer())
+            this._read();
     }
 
     /**
@@ -156,10 +164,6 @@ class InCache {
 
         this._storage[key] = record;
 
-        // If bulk operation is called, the best way is write on end.
-        if (!opts.fromBulk)
-            this._write();
-
         return record;
     }
 
@@ -183,8 +187,6 @@ class InCache {
                 throw new Error('key and value properties are required');
             this.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
         }
-
-        this._write();
     }
 
     /**
@@ -219,10 +221,6 @@ class InCache {
         delete this._storage[key];
         if (!silent)
             this._onRemoved.call(this, key);
-
-        // If bulk operation is called, the best way is write on end.
-        if (!opts.fromBulk)
-            this._write();
     }
 
     /**
@@ -372,8 +370,6 @@ class InCache {
         for (let i = 0; i < keys.length; i++) {
             this.remove(keys[i], true, {fromBulk: true});
         }
-
-        this._write();
     }
 
     /**
@@ -423,8 +419,6 @@ class InCache {
          * @ignore
          */
         this._storage = this._memory.data = {};
-
-        this._write();
     }
 
     /**
