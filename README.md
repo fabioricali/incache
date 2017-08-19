@@ -10,6 +10,8 @@ Share singleton via global object, yes you can!
 <img src="https://img.shields.io/badge/team-terrons-orange.svg" title="Team Terrons"/>
 </div>
 
+## Why?
+InCache is a module that store any info in memory, it can be used for example for storing server sessions, caching http response or sharing of singleton object in your apps.
 ## Installation
 
 ### Node.js
