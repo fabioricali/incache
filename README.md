@@ -11,7 +11,8 @@ Share singleton via global object, yes you can!
 </div>
 
 ## Why?
-InCache is a module that store any info in memory, it can be used for example for storing server sessions, caching http response or sharing of singleton object in your apps.
+InCache is a module that store any info in memory, it can be used for example for storing **server sessions**, **caching http response** or **sharing singleton object** in your apps.
+It also give you the possibility to save data on a file so you can avoid the data loss when the process exit or restart.
 
 ## Installation
 
@@ -88,3 +89,6 @@ InCache is open-sourced software licensed under the <a target="_blank" href="htt
 
 ## Author
 <a target="_blank" href="http://rica.li">Fabio Ricali</a>
+
+## Contributor
+<a target="_blank" href="https://www.mdslab.org">Davide Polano</a>
