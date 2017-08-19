@@ -8,7 +8,6 @@ describe('cache-save-more-instance', function () {
         it('should be return true', ()=>{
 
             const cache = new InCache({
-                save: true,
                 filePath: './test/.incache-save-more-instance'
             });
 
@@ -20,7 +19,6 @@ describe('cache-save-more-instance', function () {
         it('with expiry, should be return true', (done)=>{
 
             const cache = new InCache({
-                save: true,
                 filePath: './test/.incache-save-more-instance'
             });
 
@@ -36,7 +34,6 @@ describe('cache-save-more-instance', function () {
         it('should be equal', ()=>{
 
             const cache = new InCache({
-                save: true,
                 storeName: 'new',
                 filePath: './test/.incache-save-more-instance-1'
             });

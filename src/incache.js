@@ -5,9 +5,12 @@ class InCache {
     /**
      * Create instance
      * @param [opts] {Object} configuration object
-     * @param [opts.save=true] {boolean} if true saves cache in disk
+     * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
+     * @param [opts.global] {Object} global record configuration
+     * @param [opts.global.silent=false] {boolean} if true no event will be triggered
+     * @param [opts.global.life=0] {number} max age. If 0 not expire
      * @constructor
      */
     constructor(opts = {}) {
@@ -27,24 +30,18 @@ class InCache {
         this._root = helper.isServer() ? global : window;
 
         /**
-         * Record default options
-         * @type {{silent: boolean, life: number}}
-         * @ignore
-         */
-        this.DEFAULT_OPTS = {
-            silent: false,
-            life: 0
-        };
-
-        /**
          * InCache default configuration
-         * @type {{save: boolean, filePath: string}}
+         * @type {{storeName: string, save: boolean, filePath: string, global: {silent: boolean, life: number}}}
          * @ignore
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
             save: true,
-            filePath: '.incache'
+            filePath: '.incache',
+            global: {
+                silent: false,
+                life: 0
+            }
         };
 
         // Defines callback private
@@ -88,9 +85,12 @@ class InCache {
     /**
      * Set configuration
      * @param [opts] {Object} configuration object
-     * @param [opts.save=true] {boolean} if true saves cache in disk
+     * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
+     * @param [opts.global] {Object} global record configuration
+     * @param [opts.global.silent=false] {boolean} if true no event will be triggered
+     * @param [opts.global.life=0] {number} max age. If 0 not expire
      */
     setConfig(opts = {}) {
         if (opts.storeName)
@@ -129,8 +129,8 @@ class InCache {
      * @param key {any}
      * @param value {any}
      * @param [opts] {Object} options object
-     * @param [opts.silent=false] {boolean} if true no event will be triggered
-     * @param [opts.life=0] {number} seconds of life. If 0 not expire.
+     * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
+     * @param [opts.life=0] {number} max age. If 0 not expire. (overwrites global configuration)
      * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
      * @example
      * inCache.set('my key', 'my value');
@@ -146,7 +146,7 @@ class InCache {
             value: value
         };
 
-        opts = helper.defaults(opts, this.DEFAULT_OPTS);
+        opts = helper.defaults(opts, this.DEFAULT_CONFIG.global);
 
         if (opts.life && helper.is(opts.life, 'number')) {
             record.expiresOn = helper.addSecondsToNow(opts.life);
