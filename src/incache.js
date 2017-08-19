@@ -47,12 +47,13 @@ class InCache {
             filePath: '.incache'
         };
 
+        // Defines callback private
+        this._onRemoved = () => {};
+        this._onCreated = () => {};
+        this._onUpdated = () => {};
+
         this.setConfig(opts);
     }
-
-    _onRemoved() {}
-    _onCreated() {}
-    _onUpdated() {}
 
     //todo move to async logic
     _write() {
