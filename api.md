@@ -53,6 +53,15 @@ Create instance
     </tr><tr>
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
 </td>
+    </tr><tr>
+    <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p>global record configuration</p>
+</td>
+    </tr><tr>
+    <td>[opts.global.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+</td>
+    </tr><tr>
+    <td>[opts.global.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire</p>
+</td>
     </tr>  </tbody>
 </table>
 
@@ -80,6 +89,15 @@ Set configuration
 </td>
     </tr><tr>
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
+</td>
+    </tr><tr>
+    <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p>global record configuration</p>
+</td>
+    </tr><tr>
+    <td>[opts.global.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+</td>
+    </tr><tr>
+    <td>[opts.global.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -111,10 +129,10 @@ Set/update record
     <td>[opts]</td><td><code>Object</code></td><td></td><td><p>options object</p>
 </td>
     </tr><tr>
-    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered. (overwrite global configuration)</p>
 </td>
     </tr><tr>
-    <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>seconds of life. If 0 not expire.</p>
+    <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire. (overwrite global configuration)</p>
 </td>
     </tr>  </tbody>
 </table>
