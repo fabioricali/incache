@@ -1,5 +1,4 @@
 const koa = require('koa');
-const api = require('koa-router')();
 const apiRoutes = require('./routes/index');
 const InCache = require('../../src/incache');
 const cache = new InCache({
@@ -9,8 +8,7 @@ const app = new koa();
 
 app.context.cache = cache;
 
-api.use(apiRoutes.routes());
-app.use(api.routes());
+app.use(apiRoutes.routes());
 
 app.listen(3188);
 
@@ -31,4 +29,3 @@ function randomData(keyNumber, dataAmount) {
 }
 
 randomData(5, 600);
-
