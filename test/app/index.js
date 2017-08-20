@@ -10,7 +10,7 @@ app.context.cache = cache;
 
 app.use(apiRoutes.routes());
 
-app.listen(3188);
+app.listen(3188, '127.0.0.1');
 
 function randomData(keyNumber, dataAmount) {
   const testArray = [];
@@ -20,7 +20,7 @@ function randomData(keyNumber, dataAmount) {
     testArray.push([]);
 
     for(let i=0; i<dataAmount; i++){
-      console.log('test k ', testArray[k]);
+      //console.log('test k ', testArray[k]);
       testArray[k].push({ id: i+1, name: `test-${i+1}` });
     }
 
@@ -28,4 +28,4 @@ function randomData(keyNumber, dataAmount) {
   }
 }
 
-randomData(5, 600);
+randomData(5, 500);
