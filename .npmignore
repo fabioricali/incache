@@ -1,3 +1,4 @@
+.idea/
 node_modules/
 coverage/
 extra/
@@ -5,4 +6,4 @@ test/
 .travis.yml
 api.md
 version-to-tag.sh
-webpack.setConfig.js
+webpack.config.js

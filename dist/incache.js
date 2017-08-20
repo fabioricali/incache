@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 3.0.0  
+// [AIV]  InCache Build version: 3.0.1  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache

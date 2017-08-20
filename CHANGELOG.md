@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.1] - 2017-08-20
+- Removed unnecessary files for deployment on NPM
+
 ## [3.0.0] - 2017-08-19
 - Library loading was changed:
     - **Now you need to instantiate the `new InCache` object**
