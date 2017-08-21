@@ -20,7 +20,6 @@ function randomData(keyNumber, dataAmount) {
     testArray.push([]);
 
     for(let i=0; i<dataAmount; i++){
-      //console.log('test k ', testArray[k]);
       testArray[k].push({ id: i+1, name: `test-${i+1}` });
     }
 

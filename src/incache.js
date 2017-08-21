@@ -374,6 +374,24 @@ class InCache {
     }
 
     /**
+     * Delete multiple records that contain the passed keyword
+     * @param key {string} a string that is relative to a group of keys
+     * @example
+     * inCache.set('/api/users/foo', 'Mario Rossi');
+     * inCache.set('/api/users/bar', 'Antonio Bianchi');
+     * inCache.clean('/api/users');
+     */
+    clean(key){
+        if(!helper.is(key, 'string'))
+            throw new Error('key must be a string');
+
+        for (let k in this._storage) {
+            if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1)
+                delete this._storage[k];
+        }
+    }
+
+    /**
      * Fetch all records
      * @returns {Array}
      */

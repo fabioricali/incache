@@ -390,4 +390,30 @@ describe('cache', function () {
             }
         });
     });
+
+    describe('clean', function() {
+        it('should clean cache routes', function() {
+            const exampleObject = { count: 3, rows: [{a: 1, b: 2, c: 3}, {a: 1, d: 4}, {b: 2}] };
+            cache.set('/api/users/0/10', exampleObject);
+            cache.set('/api/users/1/10', exampleObject);
+            cache.set('/api/posts/0/10', exampleObject);
+            cache.clean('users');
+            let result = cache.get('/api/users/0/10');
+            let secondResult = cache.get('/api/users/1/10');
+            let unCleaned = cache.get('/api/posts/0/10');
+            be.err.null(result);
+            be.err.null(secondResult);
+            be.err.object(unCleaned);
+        });
+
+        it('should be return error', (done) => {
+            try {
+                cache.set('myClean', 'hello world');
+                cache.clean();
+            } catch (e) {
+                console.log(e.message);
+                done();
+            }
+        });
+    });
 });
