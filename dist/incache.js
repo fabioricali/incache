@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 3.0.1  
+// [AIV]  InCache Build version: 3.1.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -678,6 +678,25 @@ var InCache = function () {
 
             for (var i = 0; i < keys.length; i++) {
                 this.remove(keys[i], true, { fromBulk: true });
+            }
+        }
+
+        /**
+         * Delete multiple records that contain the passed keyword
+         * @param key {string} a string that is relative to a group of keys
+         * @example
+         * inCache.set('/api/users/foo', 'Mario Rossi');
+         * inCache.set('/api/users/bar', 'Antonio Bianchi');
+         * inCache.clean('/api/users');
+         */
+
+    }, {
+        key: 'clean',
+        value: function clean(key) {
+            if (!helper.is(key, 'string')) throw new Error('key must be a string');
+
+            for (var k in this._storage) {
+                if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) delete this._storage[k];
             }
         }
 
