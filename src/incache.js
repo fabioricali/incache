@@ -374,6 +374,23 @@ class InCache {
     }
 
     /**
+     * Delete multiple records that contain the passed keyword
+     * @param key {string} a string that is relative to a group of keys
+     * @example
+     * inCache.clean('users');
+     */
+    clean(key){
+        if(!helper.is(key, 'string'))
+            throw new Error('key must be a string');
+
+        let storedKeys = Object.keys(this._storage)
+        for (let k in this._storage) {
+            if (k.indexOf(key) !== -1)
+                delete this._storage[k]
+        }
+    }
+
+    /**
      * Fetch all records
      * @returns {Array}
      */
