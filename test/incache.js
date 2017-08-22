@@ -10,7 +10,8 @@ describe('cache', function () {
     this.timeout(5000);
     describe('set', function () {
         it('should be return true', ()=>{
-            cache.set('myKey', 'myValue');
+            let record = cache.set('myKey', 'myValue');
+            console.log(record);
             let result = cache.get('myKey');
             console.log(result);
             be.err.equal(result, 'myValue');
