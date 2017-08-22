@@ -485,7 +485,7 @@ inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 <a name="InCache..record"></a>
 
 ### InCache~record : <code>Object</code>
-InCache Record
+InCache record
 
 **Kind**: inner typedef of [<code>InCache</code>](#InCache)  
 **Properties**

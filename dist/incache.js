@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 3.1.1  
+// [AIV]  InCache Build version: 4.0.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -282,15 +282,19 @@ var helper = __webpack_require__(4);
 var fs = __webpack_require__(5);
 
 var InCache = function () {
+
     /**
      * Create instance
      * @param [opts] {Object} configuration object
+     * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire
+     * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`)
+     * @param [opts.silent=false] {boolean} if true no event will be triggered
      * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
-     * @param [opts.global] {Object} global record configuration
-     * @param [opts.global.silent=false] {boolean} if true no event will be triggered
-     * @param [opts.global.life=0] {number} max age. If 0 not expire
+     * @param [opts.global] {Object} **deprecated:** global record configuration
+     * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
+     * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
      * @constructor
      */
     function InCache() {
@@ -323,6 +327,8 @@ var InCache = function () {
             storeName: '',
             save: true,
             filePath: '.incache',
+            maxAge: 0,
+            silent: false,
             global: {
                 silent: false,
                 life: 0
@@ -376,12 +382,7 @@ var InCache = function () {
         /**
          * Set configuration
          * @param [opts] {Object} configuration object
-         * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
-         * @param [opts.filePath=.incache] {string} cache file path
-         * @param [opts.storeName] {string} store name
-         * @param [opts.global] {Object} global record configuration
-         * @param [opts.global.silent=false] {boolean} if true no event will be triggered
-         * @param [opts.global.life=0] {number} max age. If 0 not expire
+         * @see {@link constructor} for further information
          */
 
     }, {
@@ -399,6 +400,11 @@ var InCache = function () {
                     data: {},
                     config: this.DEFAULT_CONFIG
                 };
+            }
+
+            if (opts.global) {
+                helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
+                helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
             }
 
             this._root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
@@ -422,17 +428,29 @@ var InCache = function () {
         }
 
         /**
+         * InCache record
+         * @typedef {Object} InCache~record
+         * @property {boolean} isNew - indicates if is a new record
+         * @property {Date|null} createdOn - creation date
+         * @property {Date|null} updatedOn - update date
+         * @property {Date|null} expiresOn - expiry date
+         * @property {any} value - record value
+         */
+
+        /**
          * Set/update record
          * @param key {any}
          * @param value {any}
          * @param [opts] {Object} options object
          * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
-         * @param [opts.life=0] {number} max age. If 0 not expire. (overwrites global configuration)
-         * @returns {{isNew: boolean, createdOn: Date|null, updatedOn: Date|null, value: *}}
+         * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
+         * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
+         * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
+         * @returns {InCache~record}
          * @example
          * inCache.set('my key', 'my value');
          * inCache.set('my object', {a: 1, b: 2});
-         * inCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
+         * inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
          */
 
     }, {
@@ -448,10 +466,15 @@ var InCache = function () {
                 value: value
             };
 
-            opts = helper.defaults(opts, this.DEFAULT_CONFIG.global);
+            opts = helper.defaults(opts, this.DEFAULT_CONFIG);
 
-            if (opts.life && helper.is(opts.life, 'number')) {
+            if (opts.maxAge && helper.is(opts.maxAge, 'number')) {
+                record.expiresOn = helper.addMSToNow(opts.maxAge);
+            } else if (opts.life && helper.is(opts.life, 'number')) {
+                helper.deprecated(opts.life, 'life is deprecated use maxAge instead');
                 record.expiresOn = helper.addSecondsToNow(opts.life);
+            } else if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
+                record.expiresOn = new Date(opts.expires);
             }
 
             if (this.has(key)) {
@@ -495,7 +518,7 @@ var InCache = function () {
          * Get record by key
          * @param key {any}
          * @param [onlyValue=true] {boolean} if false get InCache record
-         * @returns {any|null}
+         * @returns {any|null|InCache~record}
          * @example
          * inCache.get('my key');
          */
@@ -539,7 +562,7 @@ var InCache = function () {
          * Given a key that has value like an array adds value to end of array
          * @param key {any}
          * @param value {any}
-         * @returns {*}
+         * @returns {InCache~record}
          * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
@@ -562,7 +585,7 @@ var InCache = function () {
          * Given a key that has value like an array adds value to beginning of array
          * @param key {any}
          * @param value {any}
-         * @returns {*}
+         * @returns {InCache~record}
          * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
@@ -812,7 +835,7 @@ var InCache = function () {
          * onCreated callback
          * @callback InCache~createdCallback
          * @param key {string} key of record created
-         * @param record {Object} record object
+         * @param record {InCache~record} record object
          */
 
         /**
@@ -834,7 +857,7 @@ var InCache = function () {
          * onUpdated callback
          * @callback InCache~updatedCallback
          * @param key {string} key of record updated
-         * @param record {Object} record object
+         * @param record {InCache~record} record object
          */
 
     }]);
@@ -925,10 +948,21 @@ helper.defaults = function (opts, defaultOpts) {
  * Adds seconds to current date
  * @param seconds {number} number of seconds to add
  * @returns {Date}
+ * @deprecated
  */
 helper.addSecondsToNow = function (seconds) {
     var now = new Date();
     return new Date(now.setSeconds(now.getSeconds() + seconds));
+};
+
+/**
+ * Adds milliseconds to current date
+ * @param ms {number} number of milliseconds to add
+ * @returns {Date}
+ */
+helper.addMSToNow = function (ms) {
+    var now = new Date();
+    return new Date(now.setMilliseconds(now.getMilliseconds() + ms));
 };
 
 /**
@@ -937,6 +971,22 @@ helper.addSecondsToNow = function (seconds) {
  */
 helper.isServer = function () {
     return (typeof process === 'undefined' ? 'undefined' : _typeof(process)) === 'object' && typeof process.pid !== 'undefined';
+};
+
+/**
+ * Throw deprecated
+ * @param prop
+ * @param msg
+ * @param [type=warn]
+ */
+helper.deprecated = function (prop, msg) {
+    var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'warn';
+
+    if (typeof prop !== 'undefined') {
+        console[type](msg || prop);
+        return true;
+    }
+    return false;
 };
 
 module.exports = helper;

@@ -1,6 +1,6 @@
 {
     "name": "incache",
-    "version": "3.1.1",
+    "version": "4.0.0",
     "description": "Simple key/value in-memory storage or on disk to persist some data",
     "main": "index.js",
     "scripts": {
