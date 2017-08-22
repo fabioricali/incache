@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.0.1  
+// [AIV]  InCache Build version: 4.0.2  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -469,13 +469,13 @@ var InCache = function () {
 
             opts = helper.defaults(opts, this.DEFAULT_CONFIG);
 
-            if (opts.maxAge && helper.is(opts.maxAge, 'number')) {
+            if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
+                record.expiresOn = new Date(opts.expires);
+            } else if (opts.maxAge && helper.is(opts.maxAge, 'number')) {
                 record.expiresOn = helper.addMSToNow(opts.maxAge);
             } else if (opts.life && helper.is(opts.life, 'number')) {
                 helper.deprecated(opts.life, 'life is deprecated use maxAge instead');
                 record.expiresOn = helper.addSecondsToNow(opts.life);
-            } else if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
-                record.expiresOn = new Date(opts.expires);
             }
 
             if (this.has(key)) {
