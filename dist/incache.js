@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.0.0  
+// [AIV]  InCache Build version: 4.0.1  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -320,14 +320,15 @@ var InCache = function () {
 
         /**
          * InCache default configuration
-         * @type {{storeName: string, save: boolean, filePath: string, global: {silent: boolean, life: number}}}
          * @ignore
+         * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, global: {silent: boolean, life: number}}}
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
             save: true,
             filePath: '.incache',
             maxAge: 0,
+            expires: null,
             silent: false,
             global: {
                 silent: false,
