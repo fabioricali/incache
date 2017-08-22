@@ -131,7 +131,7 @@ class InCache {
     }
 
     /**
-     * InCache Record
+     * InCache record
      * @typedef {Object} InCache~record
      * @property {boolean} isNew - indicates if is a new record
      * @property {Date|null} createdOn - creation date
