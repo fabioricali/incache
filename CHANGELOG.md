@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.2] - 2017-08-22
+- Fixed expires: if set not overwrites maxAge
+
 ## [4.0.1] - 2017-08-22
 - Fixed default configuration
 
