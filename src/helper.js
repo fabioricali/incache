@@ -35,10 +35,21 @@ helper.defaults = (opts, defaultOpts) => {
  * Adds seconds to current date
  * @param seconds {number} number of seconds to add
  * @returns {Date}
+ * @deprecated
  */
 helper.addSecondsToNow = (seconds) => {
     let now = new Date();
     return new Date(now.setSeconds(now.getSeconds() + seconds));
+};
+
+/**
+ * Adds milliseconds to current date
+ * @param ms {number} number of milliseconds to add
+ * @returns {Date}
+ */
+helper.addMSToNow = (ms) => {
+    let now = new Date();
+    return new Date(now.setMilliseconds(now.getMilliseconds() + ms));
 };
 
 /**
@@ -47,6 +58,20 @@ helper.addSecondsToNow = (seconds) => {
  */
 helper.isServer = () => {
     return typeof process === 'object' && typeof process.pid !== 'undefined';
+};
+
+/**
+ * Throw deprecated
+ * @param prop
+ * @param msg
+ * @param [type=warn]
+ */
+helper.deprecated = (prop, msg, type='warn') => {
+    if(typeof prop !== 'undefined') {
+        console[type](msg || prop);
+        return true;
+    }
+    return false;
 };
 
 module.exports = helper;

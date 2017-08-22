@@ -4,6 +4,7 @@ const cache = new InCache({
     filePath: './test/.incache'
 });
 const be = require('bejs');
+const typis = require('typis');
 
 describe('cache', function () {
     this.timeout(5000);
@@ -16,7 +17,7 @@ describe('cache', function () {
         });
         it('with expiry, should be return true', (done)=>{
             cache.set('myKeyExpiry', 'myValue', {
-                life: 1
+                maxAge: 1000
             });
             setTimeout(()=>{
                 let result = cache.get('myKeyExpiry', false);
@@ -142,7 +143,7 @@ describe('cache', function () {
             cache.set('myKey1', 'myValue1');
             cache.set('myKey2', 'myValue2');
             cache.set('myKey3', 'myValue3');
-            cache.set('myKey4', 'myValue4', {life: 1});
+            cache.set('myKey4', 'myValue4', {maxAge: 1000});
             cache.set('myKey5', 'myValue5');
             setTimeout(()=>{
                 result = cache.all();
@@ -256,15 +257,48 @@ describe('cache', function () {
     });
 
     describe('expired', function () {
-        it('with expiry, should be return true', (done)=>{
-            cache.set('myKeyExpiry1', 'myValue', {
+        it('with param life, should be return true', (done)=>{
+            cache.set('myKeyExpiry1-life', 'myValue', {
                 life: 1
             });
             setTimeout(()=>{
-                be.err.true(cache.expired('myKeyExpiry1'));
+                be.err.true(cache.expired('myKeyExpiry1-life'));
                 done();
             }, 2000);
         });
+        it('with param maxAge, should be return true', (done)=>{
+            cache.set('myKeyExpiry1-maxAge', 'myValue', {
+                maxAge: 1000
+            });
+            setTimeout(()=>{
+                be.err.true(cache.expired('myKeyExpiry1-maxAge'));
+                done();
+            }, 2000);
+        });
+        it('with param expires, should be return true', (done)=>{
+            let now = new Date();
+            now = new Date(now.setSeconds(now.getSeconds() + 1));
+            cache.set('myKeyExpiry1-expires', 'myValue', {
+                expires: now
+            });
+            setTimeout(()=>{
+                be.err.true(cache.expired('myKeyExpiry1-expires'));
+                done();
+            }, 2000);
+        });
+        it('with param expires and string date, should be return true', (done)=>{
+            let now = new Date();
+            now = new Date(now.setSeconds(now.getSeconds() + 1)).toLocaleString();
+            let result = cache.set('myKeyExpiry1-expires2', 'myValue', {
+                expires: now
+            });
+            console.log(result);
+            setTimeout(()=>{
+                be.err.true(cache.expired('myKeyExpiry1-expires2'));
+                done();
+            }, 2000);
+        });
+
         it('key not found, should be return false', ()=>{
             be.err.false(cache.expired('myKeyExpiry10'));
         });

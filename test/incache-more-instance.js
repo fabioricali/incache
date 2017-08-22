@@ -23,7 +23,7 @@ describe('cache-save-more-instance', function () {
             });
 
             cache.set('myKeyXCVExpiry', 'myValue', {
-                life: 1
+                maxAge: 1000
             });
             setTimeout(()=>{
                 let result = cache.get('myKeyXCVExpiry', false);

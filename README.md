@@ -10,7 +10,7 @@ Simple key/value in-memory storage or on disk to persist some data
 <img src="https://img.shields.io/badge/team-terrons-orange.svg" title="Team Terrons"/>
 </div>
 
-## Why?
+## What does?
 InCache is a module that store any info in memory, it can be used for example for storing **server sessions**, **caching http response** or **sharing singleton object** in your apps.
 It also give you the possibility to save data on disk so you can avoid the data loss when the process exit or restart.
 
@@ -39,7 +39,9 @@ store.remove('my key');
 store.clear();
 
 // Expires after 2 seconds
-incache.set('my string', 'hello world', {life: 2});
+incache.set('my string', 'hello world', {maxAge: 2000});
+// Or expires on...
+incache.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
 ```
 
 ### Events

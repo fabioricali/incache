@@ -8,12 +8,12 @@
     * _instance_
         * [.setConfig([opts])](#InCache+setConfig)
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
-        * [.set(key, value, [opts])](#InCache+set) ⇒ <code>Object</code>
+        * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record)
         * [.bulkSet(records)](#InCache+bulkSet)
-        * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>any</code> \| <code>null</code>
+        * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>any</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
         * [.remove(key, [silent], [opts])](#InCache+remove)
-        * [.addTo(key, value)](#InCache+addTo) ⇒ <code>\*</code>
-        * [.prependTo(key, value)](#InCache+prependTo) ⇒ <code>\*</code>
+        * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record)
+        * [.prependTo(key, value)](#InCache+prependTo) ⇒ [<code>record</code>](#InCache..record)
         * [.updateIn(key, value, where)](#InCache+updateIn)
         * [.removeFrom(key, where)](#InCache+removeFrom)
         * [.bulkRemove(keys)](#InCache+bulkRemove)
@@ -26,6 +26,7 @@
         * [.onCreated(callback)](#InCache+onCreated)
         * [.onUpdated(callback)](#InCache+onUpdated)
     * _inner_
+        * [~record](#InCache..record) : <code>Object</code>
         * [~removedCallback](#InCache..removedCallback) : <code>function</code>
         * [~createdCallback](#InCache..createdCallback) : <code>function</code>
         * [~updatedCallback](#InCache..updatedCallback) : <code>function</code>
@@ -46,6 +47,15 @@ Create instance
     <td>[opts]</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
 </td>
     </tr><tr>
+    <td>[opts.maxAge]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age in milliseconds. If 0 not expire</p>
+</td>
+    </tr><tr>
+    <td>[opts.expires]</td><td><code>Date</code> | <code>string</code></td><td></td><td><p>a Date for expiration. (overwrites <code>opts.maxAge</code>)</p>
+</td>
+    </tr><tr>
+    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+</td>
+    </tr><tr>
     <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk. (server only)</p>
 </td>
     </tr><tr>
@@ -55,13 +65,13 @@ Create instance
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
 </td>
     </tr><tr>
-    <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p>global record configuration</p>
+    <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p><strong>deprecated:</strong> global record configuration</p>
 </td>
     </tr><tr>
-    <td>[opts.global.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+    <td>[opts.global.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true no event will be triggered, use <code>silent</code> instead</p>
 </td>
     </tr><tr>
-    <td>[opts.global.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire</p>
+    <td>[opts.global.life]</td><td><code>number</code></td><td><code>0</code></td><td><p><strong>deprecated:</strong> max age in seconds. If 0 not expire, use <code>maxAge</code> instead</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -72,33 +82,16 @@ Create instance
 Set configuration
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**See**: [constructor](constructor) for further information  
 <table>
   <thead>
     <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+      <th>Param</th><th>Type</th><th>Description</th>
     </tr>
   </thead>
   <tbody>
 <tr>
-    <td>[opts]</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
-</td>
-    </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk. (server only)</p>
-</td>
-    </tr><tr>
-    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
-</td>
-    </tr><tr>
-    <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
-</td>
-    </tr><tr>
-    <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p>global record configuration</p>
-</td>
-    </tr><tr>
-    <td>[opts.global.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
-</td>
-    </tr><tr>
-    <td>[opts.global.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire</p>
+    <td>[opts]</td><td><code>Object</code></td><td><p>configuration object</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -111,7 +104,7 @@ Get configuration
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <a name="InCache+set"></a>
 
-### inCache.set(key, value, [opts]) ⇒ <code>Object</code>
+### inCache.set(key, value, [opts]) ⇒ [<code>record</code>](#InCache..record)
 Set/update record
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -133,14 +126,20 @@ Set/update record
     <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered. (overwrites global configuration)</p>
 </td>
     </tr><tr>
-    <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age. If 0 not expire. (overwrites global configuration)</p>
+    <td>[opts.maxAge]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age in milliseconds. If 0 not expire. (overwrites global configuration)</p>
+</td>
+    </tr><tr>
+    <td>[opts.expires]</td><td><code>Date</code> | <code>string</code></td><td></td><td><p>a Date for expiration. (overwrites global configuration and <code>opts.maxAge</code>)</p>
+</td>
+    </tr><tr>
+    <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p><strong>deprecated:</strong> max age in seconds. If 0 not expire. (overwrites global configuration)</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCache.set('my boolean', true, {life: 2}); // Expires after 2 seconds
+inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
 ```
 <a name="InCache+bulkSet"></a>
 
@@ -167,7 +166,7 @@ inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my ke
 ```
 <a name="InCache+get"></a>
 
-### inCache.get(key, [onlyValue]) ⇒ <code>any</code> \| <code>null</code>
+### inCache.get(key, [onlyValue]) ⇒ <code>any</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
 Get record by key
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -220,7 +219,7 @@ inCache.remove('my key');
 ```
 <a name="InCache+addTo"></a>
 
-### inCache.addTo(key, value) ⇒ <code>\*</code>
+### inCache.addTo(key, value) ⇒ [<code>record</code>](#InCache..record)
 Given a key that has value like an array adds value to end of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -244,7 +243,7 @@ inCache.set('myArray', ['hello', 'world']);inCache.addTo('myArray', 'ciao'); //
 ```
 <a name="InCache+prependTo"></a>
 
-### inCache.prependTo(key, value) ⇒ <code>\*</code>
+### inCache.prependTo(key, value) ⇒ [<code>record</code>](#InCache..record)
 Given a key that has value like an array adds value to beginning of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -483,6 +482,39 @@ Triggered when a record has been updated
 ```js
 inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
+<a name="InCache..record"></a>
+
+### InCache~record : <code>Object</code>
+InCache Record
+
+**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
+**Properties**
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>isNew</td><td><code>boolean</code></td><td><p>indicates if is a new record</p>
+</td>
+    </tr><tr>
+    <td>createdOn</td><td><code>Date</code> | <code>null</code></td><td><p>creation date</p>
+</td>
+    </tr><tr>
+    <td>updatedOn</td><td><code>Date</code> | <code>null</code></td><td><p>update date</p>
+</td>
+    </tr><tr>
+    <td>expiresOn</td><td><code>Date</code> | <code>null</code></td><td><p>expiry date</p>
+</td>
+    </tr><tr>
+    <td>value</td><td><code>any</code></td><td><p>record value</p>
+</td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache..removedCallback"></a>
 
 ### InCache~removedCallback : <code>function</code>
@@ -519,7 +551,7 @@ onCreated callback
     <td>key</td><td><code>string</code></td><td><p>key of record created</p>
 </td>
     </tr><tr>
-    <td>record</td><td><code>Object</code></td><td><p>record object</p>
+    <td>record</td><td><code><a href="#InCache..record">record</a></code></td><td><p>record object</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -541,7 +573,7 @@ onUpdated callback
     <td>key</td><td><code>string</code></td><td><p>key of record updated</p>
 </td>
     </tr><tr>
-    <td>record</td><td><code>Object</code></td><td><p>record object</p>
+    <td>record</td><td><code><a href="#InCache..record">record</a></code></td><td><p>record object</p>
 </td>
     </tr>  </tbody>
 </table>

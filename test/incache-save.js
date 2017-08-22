@@ -27,7 +27,7 @@ describe('cache-save', function () {
         });
         it('with expiry, should be return true', (done)=>{
             cache.set('myKeyExpiry', 'myValue', {
-                life: 1
+                maxAge: 1000
             });
             setTimeout(()=>{
                 let result = cache.get('myKeyExpiry', false);

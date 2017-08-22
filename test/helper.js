@@ -49,4 +49,23 @@ describe('helper', function () {
             be.err.true(helper.isServer());
         });
     });
+
+    describe('deprecated', function () {
+        it('should be return true', () => {
+            const result = helper.deprecated('foo()', 'foo() is deprecated');
+            be.err.true(result);
+        });
+        it('only one argument, should be return true', () => {
+            const result = helper.deprecated('bar() is deprecated');
+            be.err.true(result);
+        });
+        it('log type, should be return true', () => {
+            const result = helper.deprecated(123, 'bar() is deprecated', 'log');
+            be.err.true(result);
+        });
+        it('undefined, should be return false', () => {
+            const result = helper.deprecated(undefined, 'bar() is deprecated');
+            be.err.false(result);
+        });
+    });
 });
