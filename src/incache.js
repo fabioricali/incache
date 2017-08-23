@@ -138,13 +138,13 @@ class InCache {
      * @property {Date|null} createdOn - creation date
      * @property {Date|null} updatedOn - update date
      * @property {Date|null} expiresOn - expiry date
-     * @property {any} value - record value
+     * @property {*} value - record value
      */
 
     /**
      * Set/update record
-     * @param key {any}
-     * @param value {any}
+     * @param key {*}
+     * @param value {*}
      * @param [opts] {Object} options object
      * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
      * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
@@ -216,9 +216,9 @@ class InCache {
 
     /**
      * Get record by key
-     * @param key {any}
+     * @param key {*}
      * @param [onlyValue=true] {boolean} if false get InCache record
-     * @returns {any|null|InCache~record}
+     * @returns {*|null|InCache~record}
      * @example
      * inCache.get('my key');
      */
@@ -236,7 +236,7 @@ class InCache {
 
     /**
      * Delete a record
-     * @param key {any}
+     * @param key {*}
      * @param [silent=false] {boolean} if true no event will be triggered
      * @param [opts] {Object} optional arguments
      * @example
@@ -250,8 +250,8 @@ class InCache {
 
     /**
      * Given a key that has value like an array adds value to end of array
-     * @param key {any}
-     * @param value {any}
+     * @param key {*}
+     * @param value {*}
      * @returns {InCache~record}
      * @example
      * inCache.set('myArray', ['hello', 'world']);
@@ -271,8 +271,8 @@ class InCache {
 
     /**
      * Given a key that has value like an array adds value to beginning of array
-     * @param key {any}
-     * @param value {any}
+     * @param key {*}
+     * @param value {*}
      * @returns {InCache~record}
      * @example
      * inCache.set('myArray', ['hello', 'world']);
@@ -293,9 +293,9 @@ class InCache {
 
     /**
      * Given a key that has value like an array updates key(s) if `where` is satisfied
-     * @param key {any}
-     * @param value {any}
-     * @param where {any}
+     * @param key {*}
+     * @param value {*}
+     * @param where {*}
      * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
@@ -343,8 +343,8 @@ class InCache {
 
     /**
      * Given a key that has value like an array removes key(s) if `where` is satisfied
-     * @param key {any}
-     * @param where {any}
+     * @param key {*}
+     * @param where {*}
      * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
@@ -440,7 +440,7 @@ class InCache {
 
     /**
      * Check if record is expired
-     * @param key {any}
+     * @param key {*}
      * @returns {boolean}
      */
     expired(key) {
@@ -466,7 +466,7 @@ class InCache {
 
     /**
      * Check if key exists
-     * @param key {any}
+     * @param key {*}
      * @returns {boolean}
      * @example
      * inCache.has('my key');
