@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.0.2  
+// [AIV]  InCache Build version: 4.1.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -435,13 +435,13 @@ var InCache = function () {
          * @property {Date|null} createdOn - creation date
          * @property {Date|null} updatedOn - update date
          * @property {Date|null} expiresOn - expiry date
-         * @property {any} value - record value
+         * @property {*} value - record value
          */
 
         /**
          * Set/update record
-         * @param key {any}
-         * @param value {any}
+         * @param key {*}
+         * @param value {*}
          * @param [opts] {Object} options object
          * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
          * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
@@ -493,33 +493,10 @@ var InCache = function () {
         }
 
         /**
-         * Set/update multiple records. This method not trigger any event.
-         * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
-         * @example
-         * inCache.bulkSet([
-         *      {key: 'my key 1', value: 'my value 1'},
-         *      {key: 'my key 2', value: 'my value 2'},
-         *      {key: 'my key 3', value: 'my value 3'},
-         *      {key: 'my key 4', value: 'my value 4'}
-         * ]);
-         */
-
-    }, {
-        key: 'bulkSet',
-        value: function bulkSet(records) {
-            if (!helper.is(records, 'array')) throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
-
-            for (var i = 0; i < records.length; i++) {
-                if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
-                this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
-            }
-        }
-
-        /**
          * Get record by key
-         * @param key {any}
+         * @param key {*}
          * @param [onlyValue=true] {boolean} if false get InCache record
-         * @returns {any|null|InCache~record}
+         * @returns {*|null|InCache~record}
          * @example
          * inCache.get('my key');
          */
@@ -542,7 +519,7 @@ var InCache = function () {
 
         /**
          * Delete a record
-         * @param key {any}
+         * @param key {*}
          * @param [silent=false] {boolean} if true no event will be triggered
          * @param [opts] {Object} optional arguments
          * @example
@@ -560,9 +537,68 @@ var InCache = function () {
         }
 
         /**
+         * Given a key that has value like an array removes key(s) if `where` is satisfied
+         * @param key {*}
+         * @param where {*}
+         * @example
+         * inCache.set('myArray', ['hello', 'world']);
+         * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+         */
+
+    }, {
+        key: 'removeFrom',
+        value: function removeFrom(key, where) {
+            if (!this.has(key)) return null;
+
+            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
+
+            var recordValue = this.get(key);
+
+            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
+
+            var recordLengthBefore = recordValue.length;
+            for (var i in recordValue) {
+                if (recordValue.hasOwnProperty(i)) {
+                    var result = [];
+                    for (var prop in where) {
+                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
+                    }
+
+                    if (result.length && result.indexOf(false) === -1) recordValue.splice(i, 1);
+                }
+            }
+
+            if (recordLengthBefore !== recordValue.length) {
+                this.set(key, recordValue);
+            }
+        }
+
+        /**
+         * Remove expired records
+         * @example
+         * inCache.set('my key 1', 'my value');
+         * inCache.set('my key 2', 'my value', {maxAge: 1000});
+         * inCache.set('my key 3', 'my value', {maxAge: 1500});
+         * setTimeout(()=>{
+         *      inCache.removeExpired();
+         *      inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]
+         * }, 2000)
+         */
+
+    }, {
+        key: 'removeExpired',
+        value: function removeExpired() {
+            for (var key in this._storage) {
+                if (this._storage.hasOwnProperty(key) && this.expired(key)) {
+                    this.remove(key, true);
+                }
+            }
+        }
+
+        /**
          * Given a key that has value like an array adds value to end of array
-         * @param key {any}
-         * @param value {any}
+         * @param key {*}
+         * @param value {*}
          * @returns {InCache~record}
          * @example
          * inCache.set('myArray', ['hello', 'world']);
@@ -584,8 +620,8 @@ var InCache = function () {
 
         /**
          * Given a key that has value like an array adds value to beginning of array
-         * @param key {any}
-         * @param value {any}
+         * @param key {*}
+         * @param value {*}
          * @returns {InCache~record}
          * @example
          * inCache.set('myArray', ['hello', 'world']);
@@ -607,9 +643,9 @@ var InCache = function () {
 
         /**
          * Given a key that has value like an array updates key(s) if `where` is satisfied
-         * @param key {any}
-         * @param value {any}
-         * @param where {any}
+         * @param key {*}
+         * @param value {*}
+         * @param where {*}
          * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
@@ -652,39 +688,25 @@ var InCache = function () {
         }
 
         /**
-         * Given a key that has value like an array removes key(s) if `where` is satisfied
-         * @param key {any}
-         * @param where {any}
+         * Set/update multiple records. This method not trigger any event.
+         * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
          * @example
-         * inCache.set('myArray', ['hello', 'world']);
-         * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+         * inCache.bulkSet([
+         *      {key: 'my key 1', value: 'my value 1'},
+         *      {key: 'my key 2', value: 'my value 2'},
+         *      {key: 'my key 3', value: 'my value 3'},
+         *      {key: 'my key 4', value: 'my value 4'}
+         * ]);
          */
 
     }, {
-        key: 'removeFrom',
-        value: function removeFrom(key, where) {
-            if (!this.has(key)) return null;
+        key: 'bulkSet',
+        value: function bulkSet(records) {
+            if (!helper.is(records, 'array')) throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
 
-            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
-
-            var recordValue = this.get(key);
-
-            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
-
-            var recordLengthBefore = recordValue.length;
-            for (var i in recordValue) {
-                if (recordValue.hasOwnProperty(i)) {
-                    var result = [];
-                    for (var prop in where) {
-                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
-                    }
-
-                    if (result.length && result.indexOf(false) === -1) recordValue.splice(i, 1);
-                }
-            }
-
-            if (recordLengthBefore !== recordValue.length) {
-                this.set(key, recordValue);
+            for (var i = 0; i < records.length; i++) {
+                if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
+                this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
             }
         }
 
@@ -752,7 +774,7 @@ var InCache = function () {
 
         /**
          * Check if record is expired
-         * @param key {any}
+         * @param key {*}
          * @returns {boolean}
          */
 
@@ -784,7 +806,7 @@ var InCache = function () {
 
         /**
          * Check if key exists
-         * @param key {any}
+         * @param key {*}
          * @returns {boolean}
          * @example
          * inCache.has('my key');
