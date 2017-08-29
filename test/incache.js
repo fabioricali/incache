@@ -1,3 +1,4 @@
+const fs = require('fs');
 const InCache = require('../src/incache');
 const cache = new InCache({
     save: true,
@@ -7,7 +8,9 @@ const be = require('bejs');
 const typis = require('typis');
 
 describe('cache', function () {
+
     this.timeout(5000);
+
     describe('set', function () {
         it('should be return true', ()=>{
             let record = cache.set('myKey', 'myValue');
@@ -90,6 +93,22 @@ describe('cache', function () {
             console.log(result);
             be.err.falsy(global[cache.GLOBAL_KEY]['myKeyB']);
             be.err.false(result);
+        });
+    });
+
+    describe('removeExpired', function () {
+        it('should be return false', (done)=>{
+            cache.set('myKeyBExp', 'myValue', {maxAge: 500});
+            cache.set('myKeyBExp2', 'myValue');
+            cache.set('myKeyBExp3', 'myValue', {maxAge: 500});
+            setTimeout(function () {
+                cache.removeExpired();
+                console.log(cache.has('myKeyBExp2'));
+                be.err.false(cache.has('myKeyBExp'));
+                be.err.true(cache.has('myKeyBExp2'));
+                be.err.false(cache.has('myKeyBExp3'));
+                done();
+            }, 1000);
         });
     });
 

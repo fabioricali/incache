@@ -9,13 +9,14 @@
         * [.setConfig([opts])](#InCache+setConfig)
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
         * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record)
-        * [.bulkSet(records)](#InCache+bulkSet)
-        * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>any</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
+        * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>\*</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
         * [.remove(key, [silent], [opts])](#InCache+remove)
+        * [.removeFrom(key, where)](#InCache+removeFrom)
+        * [.removeExpired()](#InCache+removeExpired)
         * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record)
         * [.prependTo(key, value)](#InCache+prependTo) ⇒ [<code>record</code>](#InCache..record)
         * [.updateIn(key, value, where)](#InCache+updateIn)
-        * [.removeFrom(key, where)](#InCache+removeFrom)
+        * [.bulkSet(records)](#InCache+bulkSet)
         * [.bulkRemove(keys)](#InCache+bulkRemove)
         * [.clean(key)](#InCache+clean)
         * [.all()](#InCache+all) ⇒ <code>Array</code>
@@ -116,9 +117,9 @@ Set/update record
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td><td></td><td></td>
+    <td>key</td><td><code>*</code></td><td></td><td></td>
     </tr><tr>
-    <td>value</td><td><code>any</code></td><td></td><td></td>
+    <td>value</td><td><code>*</code></td><td></td><td></td>
     </tr><tr>
     <td>[opts]</td><td><code>Object</code></td><td></td><td><p>options object</p>
 </td>
@@ -141,32 +142,9 @@ Set/update record
 ```js
 inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
 ```
-<a name="InCache+bulkSet"></a>
-
-### inCache.bulkSet(records)
-Set/update multiple records. This method not trigger any event.
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>records</td><td><code>array</code></td><td><p>array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-**Example**  
-```js
-inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
-```
 <a name="InCache+get"></a>
 
-### inCache.get(key, [onlyValue]) ⇒ <code>any</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
+### inCache.get(key, [onlyValue]) ⇒ <code>\*</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
 Get record by key
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -178,7 +156,7 @@ Get record by key
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td><td></td><td></td>
+    <td>key</td><td><code>*</code></td><td></td><td></td>
     </tr><tr>
     <td>[onlyValue]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false get InCache record</p>
 </td>
@@ -203,7 +181,7 @@ Delete a record
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td><td></td><td></td>
+    <td>key</td><td><code>*</code></td><td></td><td></td>
     </tr><tr>
     <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
 </td>
@@ -216,6 +194,40 @@ Delete a record
 **Example**  
 ```js
 inCache.remove('my key');
+```
+<a name="InCache+removeFrom"></a>
+
+### inCache.removeFrom(key, where)
+Given a key that has value like an array removes key(s) if `where` is satisfied
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>*</code></td>
+    </tr><tr>
+    <td>where</td><td><code>*</code></td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+```
+<a name="InCache+removeExpired"></a>
+
+### inCache.removeExpired()
+Remove expired records
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Example**  
+```js
+inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge: 1000});inCache.set('my key 3', 'my value', {maxAge: 1500});setTimeout(()=>{     inCache.removeExpired();     inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]}, 2000)
 ```
 <a name="InCache+addTo"></a>
 
@@ -231,9 +243,9 @@ Given a key that has value like an array adds value to end of array
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td>
+    <td>key</td><td><code>*</code></td>
     </tr><tr>
-    <td>value</td><td><code>any</code></td>
+    <td>value</td><td><code>*</code></td>
     </tr>  </tbody>
 </table>
 
@@ -255,9 +267,9 @@ Given a key that has value like an array adds value to beginning of array
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td>
+    <td>key</td><td><code>*</code></td>
     </tr><tr>
-    <td>value</td><td><code>any</code></td>
+    <td>value</td><td><code>*</code></td>
     </tr>  </tbody>
 </table>
 
@@ -279,11 +291,11 @@ Given a key that has value like an array updates key(s) if `where` is satisfied
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td>
+    <td>key</td><td><code>*</code></td>
     </tr><tr>
-    <td>value</td><td><code>any</code></td>
+    <td>value</td><td><code>*</code></td>
     </tr><tr>
-    <td>where</td><td><code>any</code></td>
+    <td>where</td><td><code>*</code></td>
     </tr>  </tbody>
 </table>
 
@@ -291,29 +303,28 @@ Given a key that has value like an array updates key(s) if `where` is satisfied
 ```js
 inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
 ```
-<a name="InCache+removeFrom"></a>
+<a name="InCache+bulkSet"></a>
 
-### inCache.removeFrom(key, where)
-Given a key that has value like an array removes key(s) if `where` is satisfied
+### inCache.bulkSet(records)
+Set/update multiple records. This method not trigger any event.
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
-      <th>Param</th><th>Type</th>
+      <th>Param</th><th>Type</th><th>Description</th>
     </tr>
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td>
-    </tr><tr>
-    <td>where</td><td><code>any</code></td>
+    <td>records</td><td><code>array</code></td><td><p>array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
+</td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-inCache.set('myArray', ['hello', 'world']);inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
 ```
 <a name="InCache+bulkRemove"></a>
 
@@ -381,7 +392,7 @@ Check if record is expired
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td>
+    <td>key</td><td><code>*</code></td>
     </tr>  </tbody>
 </table>
 
@@ -405,7 +416,7 @@ Check if key exists
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>any</code></td>
+    <td>key</td><td><code>*</code></td>
     </tr>  </tbody>
 </table>
 
@@ -510,7 +521,7 @@ InCache record
     <td>expiresOn</td><td><code>Date</code> | <code>null</code></td><td><p>expiry date</p>
 </td>
     </tr><tr>
-    <td>value</td><td><code>any</code></td><td><p>record value</p>
+    <td>value</td><td><code>*</code></td><td><p>record value</p>
 </td>
     </tr>  </tbody>
 </table>

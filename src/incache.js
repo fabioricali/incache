@@ -193,28 +193,6 @@ class InCache {
     }
 
     /**
-     * Set/update multiple records. This method not trigger any event.
-     * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
-     * @example
-     * inCache.bulkSet([
-     *      {key: 'my key 1', value: 'my value 1'},
-     *      {key: 'my key 2', value: 'my value 2'},
-     *      {key: 'my key 3', value: 'my value 3'},
-     *      {key: 'my key 4', value: 'my value 4'}
-     * ]);
-     */
-    bulkSet(records) {
-        if (!helper.is(records, 'array'))
-            throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
-
-        for (let i = 0; i < records.length; i++) {
-            if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined'))
-                throw new Error('key and value properties are required');
-            this.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
-        }
-    }
-
-    /**
      * Get record by key
      * @param key {*}
      * @param [onlyValue=true] {boolean} if false get InCache record
@@ -246,6 +224,66 @@ class InCache {
         delete this._storage[key];
         if (!silent)
             this._onRemoved.call(this, key);
+    }
+
+    /**
+     * Given a key that has value like an array removes key(s) if `where` is satisfied
+     * @param key {*}
+     * @param where {*}
+     * @example
+     * inCache.set('myArray', ['hello', 'world']);
+     * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+     */
+    removeFrom(key, where) {
+        if (!this.has(key)) return null;
+
+        if (helper.is(where, 'undefined'))
+            throw new Error('where cannot be undefined');
+
+        let recordValue = this.get(key);
+
+        if (!helper.is(recordValue, 'array'))
+            throw new Error('value must be an array');
+
+        let recordLengthBefore = recordValue.length;
+        for (let i in recordValue) {
+            if (recordValue.hasOwnProperty(i)) {
+                let result = [];
+                for (let prop in where) {
+                    if (where.hasOwnProperty(prop))
+                        if (helper.is(where, 'object'))
+                            result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);
+                        else
+                            result.push(recordValue[i] === where);
+                }
+
+                if (result.length && result.indexOf(false) === -1)
+                    recordValue.splice(i, 1);
+            }
+        }
+
+        if (recordLengthBefore !== recordValue.length) {
+            this.set(key, recordValue);
+        }
+    }
+
+    /**
+     * Remove expired records
+     * @example
+     * inCache.set('my key 1', 'my value');
+     * inCache.set('my key 2', 'my value', {maxAge: 1000});
+     * inCache.set('my key 3', 'my value', {maxAge: 1500});
+     * setTimeout(()=>{
+     *      inCache.removeExpired();
+     *      inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]
+     * }, 2000)
+     */
+    removeExpired() {
+        for (let key in this._storage) {
+            if (this._storage.hasOwnProperty(key) && this.expired(key)) {
+                this.remove(key, true);
+            }
+        }
     }
 
     /**
@@ -342,43 +380,24 @@ class InCache {
     }
 
     /**
-     * Given a key that has value like an array removes key(s) if `where` is satisfied
-     * @param key {*}
-     * @param where {*}
+     * Set/update multiple records. This method not trigger any event.
+     * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
      * @example
-     * inCache.set('myArray', ['hello', 'world']);
-     * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+     * inCache.bulkSet([
+     *      {key: 'my key 1', value: 'my value 1'},
+     *      {key: 'my key 2', value: 'my value 2'},
+     *      {key: 'my key 3', value: 'my value 3'},
+     *      {key: 'my key 4', value: 'my value 4'}
+     * ]);
      */
-    removeFrom(key, where) {
-        if (!this.has(key)) return null;
+    bulkSet(records) {
+        if (!helper.is(records, 'array'))
+            throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
 
-        if (helper.is(where, 'undefined'))
-            throw new Error('where cannot be undefined');
-
-        let recordValue = this.get(key);
-
-        if (!helper.is(recordValue, 'array'))
-            throw new Error('value must be an array');
-
-        let recordLengthBefore = recordValue.length;
-        for (let i in recordValue) {
-            if (recordValue.hasOwnProperty(i)) {
-                let result = [];
-                for (let prop in where) {
-                    if (where.hasOwnProperty(prop))
-                        if (helper.is(where, 'object'))
-                            result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);
-                        else
-                            result.push(recordValue[i] === where);
-                }
-
-                if (result.length && result.indexOf(false) === -1)
-                    recordValue.splice(i, 1);
-            }
-        }
-
-        if (recordLengthBefore !== recordValue.length) {
-            this.set(key, recordValue);
+        for (let i = 0; i < records.length; i++) {
+            if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined'))
+                throw new Error('key and value properties are required');
+            this.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
         }
     }
 
