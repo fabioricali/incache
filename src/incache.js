@@ -216,11 +216,10 @@ class InCache {
      * Delete a record
      * @param key {*}
      * @param [silent=false] {boolean} if true no event will be triggered
-     * @param [opts] {Object} optional arguments
      * @example
      * inCache.remove('my key');
      */
-    remove(key, silent = false, opts = {}) {
+    remove(key, silent = false) {
         delete this._storage[key];
         if (!silent)
             this._onRemoved.call(this, key);
@@ -412,7 +411,7 @@ class InCache {
             throw new Error('keys must be an array of keys');
 
         for (let i = 0; i < keys.length; i++) {
-            this.remove(keys[i], true, {fromBulk: true});
+            this.remove(keys[i], true);
         }
     }
 
