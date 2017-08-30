@@ -10,7 +10,7 @@
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
         * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record)
         * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>\*</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
-        * [.remove(key, [silent], [opts])](#InCache+remove)
+        * [.remove(key, [silent])](#InCache+remove)
         * [.removeFrom(key, where)](#InCache+removeFrom)
         * [.removeExpired()](#InCache+removeExpired)
         * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record)
@@ -23,6 +23,7 @@
         * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
+        * [.destroy(...args)](#InCache+destroy)
         * [.onRemoved(callback)](#InCache+onRemoved)
         * [.onCreated(callback)](#InCache+onCreated)
         * [.onUpdated(callback)](#InCache+onUpdated)
@@ -169,7 +170,7 @@ inCache.get('my key');
 ```
 <a name="InCache+remove"></a>
 
-### inCache.remove(key, [silent], [opts])
+### inCache.remove(key, [silent])
 Delete a record
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -184,9 +185,6 @@ Delete a record
     <td>key</td><td><code>*</code></td><td></td><td></td>
     </tr><tr>
     <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
-</td>
-    </tr><tr>
-    <td>[opts]</td><td><code>Object</code></td><td></td><td><p>optional arguments</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -424,6 +422,24 @@ Check if key exists
 ```js
 inCache.has('my key');
 ```
+<a name="InCache+destroy"></a>
+
+### inCache.destroy(...args)
+Alias of `remove`
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>...args</td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache+onRemoved"></a>
 
 ### inCache.onRemoved(callback)

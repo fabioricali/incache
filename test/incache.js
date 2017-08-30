@@ -94,6 +94,17 @@ describe('cache', function () {
             be.err.falsy(global[cache.GLOBAL_KEY]['myKeyB']);
             be.err.false(result);
         });
+        it('using alias destroy, should be return false', ()=>{
+            cache.set('myKeyBD', 'myValue');
+            let result = cache.has('myKeyBD');
+            be.err.true(result);
+            console.log(result);
+            cache.destroy('myKeyBD');
+            result = cache.has('myKeyBD');
+            console.log(result);
+            be.err.falsy(global[cache.GLOBAL_KEY]['myKeyBD']);
+            be.err.false(result);
+        });
     });
 
     describe('removeExpired', function () {

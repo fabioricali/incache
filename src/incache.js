@@ -494,6 +494,15 @@ class InCache {
     }
 
     /**
+     * Alias of `remove`
+     * @borrows remove as destroy
+     * @param args
+     */
+    destroy(...args) {
+        this.remove.apply(this, args);
+    }
+
+    /**
      * Triggered when a record has been deleted
      * @param callback {InCache~removedCallback} callback function
      * @example
