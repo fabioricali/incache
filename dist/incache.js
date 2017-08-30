@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.1.0  
+// [AIV]  InCache Build version: 4.1.1  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -521,7 +521,6 @@ var InCache = function () {
          * Delete a record
          * @param key {*}
          * @param [silent=false] {boolean} if true no event will be triggered
-         * @param [opts] {Object} optional arguments
          * @example
          * inCache.remove('my key');
          */
@@ -530,7 +529,6 @@ var InCache = function () {
         key: 'remove',
         value: function remove(key) {
             var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
             delete this._storage[key];
             if (!silent) this._onRemoved.call(this, key);
@@ -723,7 +721,7 @@ var InCache = function () {
             if (!helper.is(keys, 'array')) throw new Error('keys must be an array of keys');
 
             for (var i = 0; i < keys.length; i++) {
-                this.remove(keys[i], true, { fromBulk: true });
+                this.remove(keys[i], true);
             }
         }
 
@@ -816,6 +814,22 @@ var InCache = function () {
         key: 'has',
         value: function has(key) {
             return this._storage.hasOwnProperty(key);
+        }
+
+        /**
+         * Alias of `remove`
+         * @borrows remove as destroy
+         * @param args
+         */
+
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
+
+            this.remove.apply(this, args);
         }
 
         /**
