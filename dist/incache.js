@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.1.1  
+// [AIV]  InCache Build version: 4.1.2  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -480,6 +480,7 @@ var InCache = function () {
 
             if (this.has(key)) {
                 record.isNew = false;
+                record.createdOn = this._storage[key].createdOn;
                 record.updatedOn = new Date();
                 if (!opts.silent) this._onUpdated.call(this, key, record);
             } else {
