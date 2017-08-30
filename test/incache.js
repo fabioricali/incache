@@ -127,6 +127,7 @@ describe('cache', function () {
         it('should be return false', (done)=>{
             cache.onRemoved((key)=>{
                 console.log('deleted', key);
+                if(key === 'myKeyBI')
                 done();
             });
             cache.set('myKeyBI', 'myValue');
@@ -149,8 +150,9 @@ describe('cache', function () {
         it('should be return false', (done)=>{
             cache.onUpdated((key, record)=>{
                 console.log('updated', record);
-                if(key === 'myKeyBBB') done();
+                if(record.createdOn && key === 'myKeyBBB') done();
             });
+            cache.destroy('myKeyBBB');
             cache.set('myKeyBBB', 'myValue');
             cache.set('myKeyBBB', 'myValue 2');
         });

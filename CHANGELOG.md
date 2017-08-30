@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.2] - 2017-08-30
+- Fixed `record.createdOn` is null, it happened when record was updated
+
 ## [4.1.1] - 2017-08-30
 - Added alias method to `remove`: `destroy`
 - Removed unused code

@@ -178,6 +178,7 @@ class InCache {
 
         if (this.has(key)) {
             record.isNew = false;
+            record.createdOn = this._storage[key].createdOn;
             record.updatedOn = new Date();
             if (!opts.silent)
                 this._onUpdated.call(this, key, record);
