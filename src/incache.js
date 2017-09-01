@@ -95,6 +95,11 @@ class InCache {
      */
     setConfig(opts = {}) {
 
+        if (opts.global) {
+            helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
+            helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
+        }
+
         helper.defaults(opts, this.DEFAULT_CONFIG);
 
         /**
@@ -118,11 +123,6 @@ class InCache {
                 data: {},
                 config: this.DEFAULT_CONFIG
             };
-        }
-
-        if (opts.global) {
-            helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
-            helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
         }
 
         this._root[this.GLOBAL_KEY].config = opts;
