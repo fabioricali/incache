@@ -12,6 +12,7 @@ class InCache {
      * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
+     * @param [opts.share=true] {boolean} if true use global object as storage
      * @param [opts.global] {Object} **deprecated:** global record configuration
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
@@ -28,12 +29,6 @@ class InCache {
         this.GLOBAL_KEY = '___InCache___storage___global___key___';
 
         /**
-         * Root object
-         * @ignore
-         */
-        this._root = helper.isServer() ? global : window;
-
-        /**
          * InCache default configuration
          * @ignore
          * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, global: {silent: boolean, life: number}}}
@@ -45,6 +40,7 @@ class InCache {
             maxAge: 0,
             expires: null,
             silent: false,
+            share: true,
             global: {
                 silent: false,
                 life: 0
@@ -52,11 +48,14 @@ class InCache {
         };
 
         // Defines callback private
-        this._onRemoved = () => {};
-        this._onCreated = () => {};
-        this._onUpdated = () => {};
+        this._onRemoved = () => {
+        };
+        this._onCreated = () => {
+        };
+        this._onUpdated = () => {
+        };
 
-        if(helper.isServer()) {
+        if (helper.isServer()) {
             process.stdin.resume();
             process.on('exit', () => {
                 this._write()
@@ -95,6 +94,19 @@ class InCache {
      * @see {@link constructor} for further information
      */
     setConfig(opts = {}) {
+
+        helper.defaults(opts, this.DEFAULT_CONFIG);
+
+        /**
+         * Root object
+         * @ignore
+         */
+        this._root = opts.share
+            ? helper.isServer()
+                ? global
+                : window
+            : {};
+
         if (opts.storeName)
             this.GLOBAL_KEY += opts.storeName;
 
@@ -108,12 +120,12 @@ class InCache {
             };
         }
 
-        if(opts.global) {
+        if (opts.global) {
             helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
             helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
         }
 
-        this._root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
+        this._root[this.GLOBAL_KEY].config = opts;
 
         this._memory = this._root[this.GLOBAL_KEY];
 
@@ -424,8 +436,8 @@ class InCache {
      * inCache.set('/api/users/bar', 'Antonio Bianchi');
      * inCache.clean('/api/users');
      */
-    clean(key){
-        if(!helper.is(key, 'string'))
+    clean(key) {
+        if (!helper.is(key, 'string'))
             throw new Error('key must be a string');
 
         for (let k in this._storage) {
