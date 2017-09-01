@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.2.0  
+// [AIV]  InCache Build version: 4.2.1  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -388,6 +388,11 @@ var InCache = function () {
             var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 
+            if (opts.global) {
+                helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
+                helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
+            }
+
             helper.defaults(opts, this.DEFAULT_CONFIG);
 
             /**
@@ -406,11 +411,6 @@ var InCache = function () {
                     data: {},
                     config: this.DEFAULT_CONFIG
                 };
-            }
-
-            if (opts.global) {
-                helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
-                helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
             }
 
             this._root[this.GLOBAL_KEY].config = opts;
