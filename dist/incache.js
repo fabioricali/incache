@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.1.2  
+// [AIV]  InCache Build version: 4.2.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -272,7 +272,7 @@ module.exports = __webpack_require__(2);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global, process) {
+/* WEBPACK VAR INJECTION */(function(process, global) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -292,6 +292,7 @@ var InCache = function () {
      * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
+     * @param [opts.share=true] {boolean} if true use global object as storage
      * @param [opts.global] {Object} **deprecated:** global record configuration
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
@@ -313,12 +314,6 @@ var InCache = function () {
         this.GLOBAL_KEY = '___InCache___storage___global___key___';
 
         /**
-         * Root object
-         * @ignore
-         */
-        this._root = helper.isServer() ? global : window;
-
-        /**
          * InCache default configuration
          * @ignore
          * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, global: {silent: boolean, life: number}}}
@@ -330,6 +325,7 @@ var InCache = function () {
             maxAge: 0,
             expires: null,
             silent: false,
+            share: true,
             global: {
                 silent: false,
                 life: 0
@@ -391,6 +387,15 @@ var InCache = function () {
         value: function setConfig() {
             var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
+
+            helper.defaults(opts, this.DEFAULT_CONFIG);
+
+            /**
+             * Root object
+             * @ignore
+             */
+            this._root = opts.share ? helper.isServer() ? global : window : {};
+
             if (opts.storeName) this.GLOBAL_KEY += opts.storeName;
 
             if (!this._root[this.GLOBAL_KEY]) {
@@ -408,7 +413,7 @@ var InCache = function () {
                 helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
             }
 
-            this._root[this.GLOBAL_KEY].config = helper.defaults(opts, this.DEFAULT_CONFIG);
+            this._root[this.GLOBAL_KEY].config = opts;
 
             this._memory = this._root[this.GLOBAL_KEY];
 
@@ -909,7 +914,7 @@ var InCache = function () {
 
 
 module.exports = InCache;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(3)))
 
 /***/ }),
 /* 3 */

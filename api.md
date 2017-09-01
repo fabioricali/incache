@@ -67,6 +67,9 @@ Create instance
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
 </td>
     </tr><tr>
+    <td>[opts.share]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true use global object as storage</p>
+</td>
+    </tr><tr>
     <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p><strong>deprecated:</strong> global record configuration</p>
 </td>
     </tr><tr>
