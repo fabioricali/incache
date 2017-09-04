@@ -48,6 +48,10 @@ class InCache {
         };
 
         // Defines callback private
+        this._onSet = () => {
+        };
+        this._onBeforeSet = () => {
+        };
         this._onRemoved = () => {
         };
         this._onCreated = () => {
@@ -162,13 +166,20 @@ class InCache {
      * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
      * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
-     * @returns {InCache~record}
+     * @returns {InCache~record|*}
      * @example
      * inCache.set('my key', 'my value');
      * inCache.set('my object', {a: 1, b: 2});
      * inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
      */
     set(key, value, opts = {}) {
+
+        if(!opts.silent){
+            if(this._onBeforeSet.call(this, key, value) === false){
+                return;
+            }
+        }
+
         let record = {
             isNew: true,
             createdOn: null,
@@ -201,6 +212,10 @@ class InCache {
         }
 
         this._storage[key] = record;
+
+        if(!opts.silent){
+            this._onSet.call(this, key, value);
+        }
 
         return record;
     }
@@ -513,6 +528,46 @@ class InCache {
      */
     destroy(...args) {
         this.remove.apply(this, args);
+    }
+
+    /**
+     * onSet callback
+     * @callback InCache~setCallback
+     * @param key {string} key
+     * @param value {string} value
+     */
+
+    /**
+     * Triggered when a record has been set
+     * @param callback {InCache~setCallback} callback function
+     * @example
+     * inCache.onSet((key, value)=>{
+     *      console.log('set', key, value);
+     * });
+     */
+    onSet(callback) {
+        return this._onSet = callback;
+    }
+
+    /**
+     * onBeforeSet callback
+     * @callback InCache~beforeSetCallback
+     * @param key {string} key
+     * @param value {string} value
+     */
+
+    /**
+     * Triggered before record set
+     * @param callback {InCache~beforeSetCallback} callback function
+     * @example
+     * inCache.onBeforeSet((key, value)=>{
+     *      console.log('before set', key, value);
+     *      // you can cancel "set" operation
+     *      return false;
+     * });
+     */
+    onBeforeSet(callback) {
+        return this._onBeforeSet = callback;
     }
 
     /**

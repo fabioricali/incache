@@ -123,41 +123,6 @@ describe('cache', function () {
         });
     });
 
-    describe('onRemoved', function () {
-        it('should be return false', (done)=>{
-            cache.onRemoved((key)=>{
-                console.log('deleted', key);
-                if(key === 'myKeyBI')
-                done();
-            });
-            cache.set('myKeyBI', 'myValue');
-            cache.remove('myKeyBI');
-        });
-    });
-
-    describe('onCreated', function () {
-        it('should be return false', (done)=>{
-            cache.onCreated((key, record)=>{
-                console.log('created', key, record);
-                if(key === 'myKeyBB')
-                    done();
-            });
-            cache.set('myKeyBB', 'myValue');
-        });
-    });
-
-    describe('onUpdated', function () {
-        it('should be return false', (done)=>{
-            cache.onUpdated((key, record)=>{
-                console.log('updated', record);
-                if(record.createdOn && key === 'myKeyBBB') done();
-            });
-            cache.destroy('myKeyBBB');
-            cache.set('myKeyBBB', 'myValue');
-            cache.set('myKeyBBB', 'myValue 2');
-        });
-    });
-
     describe('all', function () {
         it('should be return an array of 5 items', ()=>{
             cache.clear();
