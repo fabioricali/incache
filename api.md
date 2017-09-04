@@ -8,7 +8,7 @@
     * _instance_
         * [.setConfig([opts])](#InCache+setConfig)
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
-        * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record)
+        * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code>
         * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>\*</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
         * [.remove(key, [silent])](#InCache+remove)
         * [.removeFrom(key, where)](#InCache+removeFrom)
@@ -24,11 +24,15 @@
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
+        * [.onSet(callback)](#InCache+onSet)
+        * [.onBeforeSet(callback)](#InCache+onBeforeSet)
         * [.onRemoved(callback)](#InCache+onRemoved)
         * [.onCreated(callback)](#InCache+onCreated)
         * [.onUpdated(callback)](#InCache+onUpdated)
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
+        * [~setCallback](#InCache..setCallback) : <code>function</code>
+        * [~beforeSetCallback](#InCache..beforeSetCallback) : <code>function</code>
         * [~removedCallback](#InCache..removedCallback) : <code>function</code>
         * [~createdCallback](#InCache..createdCallback) : <code>function</code>
         * [~updatedCallback](#InCache..updatedCallback) : <code>function</code>
@@ -109,7 +113,7 @@ Get configuration
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <a name="InCache+set"></a>
 
-### inCache.set(key, value, [opts]) ⇒ [<code>record</code>](#InCache..record)
+### inCache.set(key, value, [opts]) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code>
 Set/update record
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -443,6 +447,52 @@ Alias of `remove`
     </tr>  </tbody>
 </table>
 
+<a name="InCache+onSet"></a>
+
+### inCache.onSet(callback)
+Triggered when a record has been set
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>callback</td><td><code><a href="#InCache..setCallback">setCallback</a></code></td><td><p>callback function</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+inCache.onSet((key, value)=>{     console.log('set', key, value);});
+```
+<a name="InCache+onBeforeSet"></a>
+
+### inCache.onBeforeSet(callback)
+Triggered before record set
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>callback</td><td><code><a href="#InCache..beforeSetCallback">beforeSetCallback</a></code></td><td><p>callback function</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+inCache.onBeforeSet((key, value)=>{     console.log('before set', key, value);     // you can cancel "set" operation     return false;});
+```
 <a name="InCache+onRemoved"></a>
 
 ### inCache.onRemoved(callback)
@@ -541,6 +591,50 @@ InCache record
 </td>
     </tr><tr>
     <td>value</td><td><code>*</code></td><td><p>record value</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache..setCallback"></a>
+
+### InCache~setCallback : <code>function</code>
+onSet callback
+
+**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key</p>
+</td>
+    </tr><tr>
+    <td>value</td><td><code>string</code></td><td><p>value</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache..beforeSetCallback"></a>
+
+### InCache~beforeSetCallback : <code>function</code>
+onBeforeSet callback
+
+**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key</p>
+</td>
+    </tr><tr>
+    <td>value</td><td><code>string</code></td><td><p>value</p>
 </td>
     </tr>  </tbody>
 </table>
