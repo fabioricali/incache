@@ -107,6 +107,7 @@ Set configuration
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **See**: [constructor](constructor) for further information  
+**Since**: 3.0.0  
 <table>
   <thead>
     <tr>
@@ -223,6 +224,7 @@ inCache.remove('my key');
 Given a key that has value like an array removes key(s) if `where` is satisfied
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 3.0.0  
 <table>
   <thead>
     <tr>
@@ -248,6 +250,7 @@ Remove expired records
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Returns**: <code>Array</code> - expired keys  
+**Since**: 4.1.0  
 **Example**  
 ```js
 inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge: 1000});inCache.set('my key 3', 'my value', {maxAge: 1500});setTimeout(()=>{     inCache.removeExpired();     inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]}, 2000)
@@ -258,6 +261,7 @@ inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge
 Given a key that has value like an array adds value to end of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 3.0.0  
 <table>
   <thead>
     <tr>
@@ -282,6 +286,7 @@ inCache.set('myArray', ['hello', 'world']);inCache.addTo('myArray', 'ciao'); //
 Given a key that has value like an array adds value to beginning of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 3.0.0  
 <table>
   <thead>
     <tr>
@@ -306,6 +311,7 @@ inCache.set('myArray', ['hello', 'world']);inCache.prependTo('myArray', 'ciao')
 Given a key that has value like an array updates key(s) if `where` is satisfied
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 3.0.0  
 <table>
   <thead>
     <tr>
@@ -461,6 +467,7 @@ inCache.has('my key');
 Alias of `remove`
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 4.1.1  
 <table>
   <thead>
     <tr>
@@ -500,7 +507,7 @@ Adds listener to instance
 ### <del>inCache.onRemoved(callback)</del>
 ***Deprecated***
 
-Triggered when a record has been deleted. **Deprecated:** use `on('remove', callback)` instead
+Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -525,7 +532,7 @@ inCache.onRemoved((key)=>{     console.log('removed', key);});
 ### <del>inCache.onCreated(callback)</del>
 ***Deprecated***
 
-Triggered when a record has been created. **Deprecated:** use `on('create', callback)` instead
+Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -550,7 +557,7 @@ inCache.onCreated((key, record)=>{     console.log('created', key, record);});
 ### <del>inCache.onUpdated(callback)</del>
 ***Deprecated***
 
-Triggered when a record has been updated. **Deprecated:** use `on('update', callback)` instead
+Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
