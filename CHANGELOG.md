@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed `record.createdOn` is null, it happened when record was updated
 
 ## [4.1.1] - 2017-08-30
-- Added alias method to `remove`: `destroy`
+- Added `destroy`, alias of `remove`
 - Removed unused code
 
 ## [4.1.0] - 2017-08-29
