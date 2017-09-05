@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 5.0.0  
+// [AIV]  InCache Build version: 5.1.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -334,7 +334,7 @@ var InCache = function () {
             silent: false,
             share: true,
             autoRemovePeriod: 0,
-            nullIfNotFound: true,
+            nullIfNotFound: false,
             global: {
                 silent: false,
                 life: 0
@@ -389,6 +389,7 @@ var InCache = function () {
          * Set configuration
          * @param [opts] {Object} configuration object
          * @see {@link constructor} for further information
+         * @since 3.0.0
          */
 
     }, {
@@ -601,6 +602,7 @@ var InCache = function () {
          * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+         * @since 3.0.0
          */
 
     }, {
@@ -634,6 +636,7 @@ var InCache = function () {
         /**
          * Remove expired records
          * @returns {Array} expired keys
+         * @since 4.1.0
          * @example
          * inCache.set('my key 1', 'my value');
          * inCache.set('my key 2', 'my value', {maxAge: 1000});
@@ -665,6 +668,7 @@ var InCache = function () {
          * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
+         * @since 3.0.0
          */
 
     }, {
@@ -688,6 +692,7 @@ var InCache = function () {
          * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
+         * @since 3.0.0
          */
 
     }, {
@@ -714,6 +719,7 @@ var InCache = function () {
          *
          * inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});
          * inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
+         * @since 3.0.0
          */
 
     }, {
@@ -908,6 +914,7 @@ var InCache = function () {
          * Alias of `remove`
          * @borrows remove as destroy
          * @param args
+         * @since 4.1.1
          */
 
     }, {
@@ -1016,7 +1023,7 @@ var InCache = function () {
         /***************************** DEPRECATED ********************************/
 
         /**
-         * Triggered when a record has been deleted. **Deprecated:** use `on('remove', callback)` instead
+         * Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
          * @param callback {InCache~removedCallback} callback function
          * @deprecated
          * @example
@@ -1039,7 +1046,7 @@ var InCache = function () {
          */
 
         /**
-         * Triggered when a record has been created. **Deprecated:** use `on('create', callback)` instead
+         * Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
          * @param callback {InCache~createdCallback} callback function
          * @deprecated
          * @example
@@ -1063,7 +1070,7 @@ var InCache = function () {
          */
 
         /**
-         * Triggered when a record has been updated. **Deprecated:** use `on('update', callback)` instead
+         * Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
          * @param callback {InCache~updatedCallback} callback function
          * @deprecated
          * @example
