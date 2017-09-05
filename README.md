@@ -44,27 +44,27 @@ incache.set('my string', 'hello world', {maxAge: 2000});
 incache.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
 ```
 
-### Events
+### Some events
 ```javascript
 
 // Triggered when a record has been deleted
-incache.onRemoved(key => {
+incache.on('remove', key => {
     console.log(key);
 });
 
 // Triggered when a record has been created
-incache.onCreated((key, record) => {
+incache.on('create', (key, record) => {
     console.log(key, record);
 });
 
 //Triggered when a record has been updated
-incache.onUpdated((key, record) => {
+incache.on('update', (key, record) => {
     console.log(key, record);
 });
 ```
 
 ### API
-See <a href="https://github.com/fabioricali/incache/blob/master/api.md">full documentation</a>
+Please see the **<a href="https://github.com/fabioricali/incache/blob/master/api.md">full documentation</a>** for more details.
 
 ### Browser
 
