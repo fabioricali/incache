@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 4.2.1  
+// [AIV]  InCache Build version: 5.0.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -279,7 +279,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var helper = __webpack_require__(4);
-var fs = __webpack_require__(5);
+var Flak = __webpack_require__(5);
+var fs = __webpack_require__(9);
 
 var InCache = function () {
 
@@ -293,9 +294,12 @@ var InCache = function () {
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=true] {boolean} if true use global object as storage
+     * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
+     * @param [opts.nullIfNotFound=true] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
      * @param [opts.global] {Object} **deprecated:** global record configuration
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
+     * @fires InCache#expired
      * @constructor
      */
     function InCache() {
@@ -305,18 +309,21 @@ var InCache = function () {
 
         _classCallCheck(this, InCache);
 
+        this._emitter = new Flak();
+
+        this._timerExpiryCheck = null;
+
         /**
          * Global key
          * @type {string}
          * @ignore
          */
-
         this.GLOBAL_KEY = '___InCache___storage___global___key___';
 
         /**
          * InCache default configuration
          * @ignore
-         * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, global: {silent: boolean, life: number}}}
+         * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, share: boolean, global: {silent: boolean, life: number}}}
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
@@ -326,6 +333,8 @@ var InCache = function () {
             expires: null,
             silent: false,
             share: true,
+            autoRemovePeriod: 0,
+            nullIfNotFound: true,
             global: {
                 silent: false,
                 life: 0
@@ -385,6 +394,8 @@ var InCache = function () {
     }, {
         key: 'setConfig',
         value: function setConfig() {
+            var _this2 = this;
+
             var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 
@@ -394,6 +405,8 @@ var InCache = function () {
             }
 
             helper.defaults(opts, this.DEFAULT_CONFIG);
+
+            this._opts = opts;
 
             /**
              * Root object
@@ -420,6 +433,20 @@ var InCache = function () {
             this._storage = this._memory.data;
 
             if (helper.isServer()) this._read();
+
+            if (this._timerExpiryCheck) {
+                clearInterval(this._timerExpiryCheck);
+                this._timerExpiryCheck = null;
+            }
+
+            if (opts.autoRemovePeriod) {
+                this._timerExpiryCheck = setInterval(function () {
+                    var expired = _this2.removeExpired();
+                    if (expired.length) {
+                        _this2._emitter.fire('expired', expired);
+                    }
+                }, opts.autoRemovePeriod * 1000);
+            }
         }
 
         /**
@@ -452,7 +479,11 @@ var InCache = function () {
          * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
          * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
          * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
-         * @returns {InCache~record}
+         * @returns {InCache~record|*}
+         * @fires InCache#beforeSet
+         * @fires InCache#create
+         * @fires InCache#update
+         * @fires InCache#set
          * @example
          * inCache.set('my key', 'my value');
          * inCache.set('my object', {a: 1, b: 2});
@@ -463,6 +494,11 @@ var InCache = function () {
         key: 'set',
         value: function set(key, value) {
             var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+
+            if (!opts.silent && this._emitter.fireTheFirst('beforeSet', key, value) === false) {
+                return;
+            }
 
             var record = {
                 isNew: true,
@@ -487,13 +523,23 @@ var InCache = function () {
                 record.isNew = false;
                 record.createdOn = this._storage[key].createdOn;
                 record.updatedOn = new Date();
-                if (!opts.silent) this._onUpdated.call(this, key, record);
+                if (!opts.silent) {
+                    this._onUpdated.call(this, key, record);
+                    this._emitter.fire('update', key, record);
+                }
             } else {
                 record.createdOn = new Date();
-                if (!opts.silent) this._onCreated.call(this, key, record);
+                if (!opts.silent) {
+                    this._onCreated.call(this, key, record);
+                    this._emitter.fire('create', key, record);
+                }
             }
 
             this._storage[key] = record;
+
+            if (!opts.silent) {
+                this._emitter.fire('set', key, record);
+            }
 
             return record;
         }
@@ -513,13 +559,13 @@ var InCache = function () {
             var onlyValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
             if (this.has(key)) {
-                if (this.expired(key)) {
+                if (!this._opts.autoRemovePeriod && this.expired(key)) {
                     this.remove(key, true);
-                    return null;
+                    return this._opts.nullIfNotFound ? null : undefined;
                 }
                 return onlyValue ? this._storage[key].value : this._storage[key];
             } else {
-                return null;
+                return this._opts.nullIfNotFound ? null : undefined;
             }
         }
 
@@ -527,6 +573,8 @@ var InCache = function () {
          * Delete a record
          * @param key {*}
          * @param [silent=false] {boolean} if true no event will be triggered
+         * @fires InCache#beforeRemove
+         * @fires InCache#remove
          * @example
          * inCache.remove('my key');
          */
@@ -536,8 +584,14 @@ var InCache = function () {
         value: function remove(key) {
             var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
+            if (!silent && this._emitter.fireTheFirst('beforeRemove', key) === false) {
+                return;
+            }
             delete this._storage[key];
-            if (!silent) this._onRemoved.call(this, key);
+            if (!silent) {
+                this._onRemoved.call(this, key);
+                this._emitter.fire('remove', key);
+            }
         }
 
         /**
@@ -579,6 +633,7 @@ var InCache = function () {
 
         /**
          * Remove expired records
+         * @returns {Array} expired keys
          * @example
          * inCache.set('my key 1', 'my value');
          * inCache.set('my key 2', 'my value', {maxAge: 1000});
@@ -592,11 +647,14 @@ var InCache = function () {
     }, {
         key: 'removeExpired',
         value: function removeExpired() {
+            var expired = [];
             for (var key in this._storage) {
                 if (this._storage.hasOwnProperty(key) && this.expired(key)) {
                     this.remove(key, true);
+                    expired.push(key);
                 }
             }
+            return expired;
         }
 
         /**
@@ -694,6 +752,9 @@ var InCache = function () {
         /**
          * Set/update multiple records. This method not trigger any event.
          * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
+         * @param [silent=false] {boolean} if true no event will be triggered
+         * @fires InCache#beforeBulkSet
+         * @fires InCache#bulkSet
          * @example
          * inCache.bulkSet([
          *      {key: 'my key 1', value: 'my value 1'},
@@ -706,28 +767,49 @@ var InCache = function () {
     }, {
         key: 'bulkSet',
         value: function bulkSet(records) {
+            var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
             if (!helper.is(records, 'array')) throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
+
+            if (!silent && this._emitter.fireTheFirst('beforeBulkSet', records) === false) {
+                return;
+            }
 
             for (var i = 0; i < records.length; i++) {
                 if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
                 this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
+            }
+
+            if (!silent) {
+                this._emitter.fire('bulkSet', records);
             }
         }
 
         /**
          * Delete multiple records
          * @param keys {array} an array of keys
+         * @param [silent=false] {boolean} if true no event will be triggered
+         * @fires InCache#beforeBulkRemove
+         * @fires InCache#bulkRemove
          * @example
          * inCache.bulkRemove(['key1', 'key2', 'key3']);
          */
 
     }, {
         key: 'bulkRemove',
-        value: function bulkRemove(keys) {
+        value: function bulkRemove(keys, silent) {
             if (!helper.is(keys, 'array')) throw new Error('keys must be an array of keys');
+
+            if (!silent && this._emitter.fireTheFirst('beforeBulkRemove', keys) === false) {
+                return;
+            }
 
             for (var i = 0; i < keys.length; i++) {
                 this.remove(keys[i], true);
+            }
+
+            if (!silent) {
+                this._emitter.fire('bulkRemove', keys);
             }
         }
 
@@ -762,7 +844,7 @@ var InCache = function () {
 
             for (var key in this._storage) {
                 if (this._storage.hasOwnProperty(key)) {
-                    if (this.expired(key)) {
+                    if (!this._opts.autoRemovePeriod && this.expired(key)) {
                         this.remove(key, true);
                     } else {
                         records.push({
@@ -839,8 +921,104 @@ var InCache = function () {
         }
 
         /**
-         * Triggered when a record has been deleted
+         * Adds listener to instance
+         * @param eventName {string} event name
+         * @param callback {Function} callback
+         */
+
+    }, {
+        key: 'on',
+        value: function on(eventName, callback) {
+            this._emitter.on.call(this._emitter, eventName, callback);
+        }
+
+        /**
+         * Triggered before set
+         * @event InCache#beforeSet
+         * @param key {string} key
+         * @param value {string} value
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after set
+         * @event InCache#set
+         * @param key {string} key
+         * @param record {InCache~record} record object
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after create the record
+         * @event InCache#create
+         * @param key {string} key of record
+         * @param record {InCache~record} record object
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after update the record
+         * @event InCache#update
+         * @param key {string} key of record
+         * @param record {InCache~record} record object
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered before remove the record
+         * @event InCache#beforeRemove
+         * @param key {string} key of record to be removed
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after record has been removed
+         * @event InCache#remove
+         * @param key {string} key of record
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered before bulk set
+         * @event InCache#beforeBulkSet
+         * @param records {array} array of objects
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after bulk set
+         * @event InCache#bulkSet
+         * @param records {array} array of objects
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered before remove the records
+         * @event InCache#beforeBulkRemove
+         * @param keys {array} array of keys to be removed
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after records have been removed
+         * @event InCache#bulkRemove
+         * @param keys {array} array of keys removed
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered when records are expired and `opts.autoRemovePeriod` is set
+         * @event InCache#expired
+         * @param keys {array} array of keys expired
+         * @since 5.0.0
+         */
+
+        /***************************** DEPRECATED ********************************/
+
+        /**
+         * Triggered when a record has been deleted. **Deprecated:** use `on('remove', callback)` instead
          * @param callback {InCache~removedCallback} callback function
+         * @deprecated
          * @example
          * inCache.onRemoved((key)=>{
          *      console.log('removed', key);
@@ -857,11 +1035,13 @@ var InCache = function () {
          * onRemoved callback
          * @callback InCache~removedCallback
          * @param key {string} key of record removed
+         * @deprecated
          */
 
         /**
-         * Triggered when a record has been created
+         * Triggered when a record has been created. **Deprecated:** use `on('create', callback)` instead
          * @param callback {InCache~createdCallback} callback function
+         * @deprecated
          * @example
          * inCache.onCreated((key, record)=>{
          *      console.log('created', key, record);
@@ -879,11 +1059,13 @@ var InCache = function () {
          * @callback InCache~createdCallback
          * @param key {string} key of record created
          * @param record {InCache~record} record object
+         * @deprecated
          */
 
         /**
-         * Triggered when a record has been updated
+         * Triggered when a record has been updated. **Deprecated:** use `on('update', callback)` instead
          * @param callback {InCache~updatedCallback} callback function
+         * @deprecated
          * @example
          * inCache.onUpdated((key, record)=>{
          *      console.log('updated', key, record);
@@ -901,6 +1083,7 @@ var InCache = function () {
          * @callback InCache~updatedCallback
          * @param key {string} key of record updated
          * @param record {InCache~record} record object
+         * @deprecated
          */
 
     }]);
@@ -1037,6 +1220,570 @@ module.exports = helper;
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(6);
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var helper = __webpack_require__(7);
+var error = __webpack_require__(8);
+
+var Flak = function () {
+    //TODO add support to cross-domain through postMessage, see: https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+    /**
+     * Constructor
+     * @param [opts] {Object} options
+     * @param [opts.maxListeners=10] {number} Max number listeners per event
+     * @param [opts.asyncDelay=10] {number} Delay in ms for async method `fireAsync`
+     * @example
+     * const emitter = new Flak();
+     */
+    function Flak() {
+        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        _classCallCheck(this, Flak);
+
+        /**
+         * Class options
+         * @type {{maxListeners: number, asyncDelay: number}}
+         * @ignore
+         */
+        this.defaultClassOpts = {
+            maxListeners: 10,
+            asyncDelay: 10 // ms
+        };
+
+        /**
+         * Event options
+         * @type {{maxCalls: number, prepend: boolean}}
+         * @ignore
+         */
+        this.defaultListenerOpts = {
+            maxCalls: 0,
+            prepend: false
+        };
+
+        this.opts = helper.defaults(opts, this.defaultClassOpts);
+        this.events = {};
+    }
+
+    /**
+     * Create event and add listener
+     * @param eventName {string} event name
+     * @param listener {Function} listener function
+     * @param [opts] {Object} option object
+     * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
+     * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
+     * @private
+     * @ignore
+     */
+
+
+    _createClass(Flak, [{
+        key: '_createEvent',
+        value: function _createEvent(eventName, listener, opts) {
+
+            if (!this.events[eventName]) this.events[eventName] = [];
+
+            if (this.opts.maxListeners) {
+                var maxListeners = this.opts.maxListeners;
+                var listenersCount = this.events[eventName].length;
+                if (listenersCount >= maxListeners) throw new Error(error[3] + maxListeners);
+            }
+
+            listener.opts = helper.defaults(opts, this.defaultListenerOpts);
+
+            listener.info = {
+                calls: 0
+            };
+
+            if (opts.prepend) this.events[eventName].unshift(listener);else this.events[eventName].push(listener);
+
+            this._created.call(this, eventName, listener, opts);
+        }
+
+        /**
+         * Call event
+         * @param eventName {string} event name
+         * @param eventListener {Function} event listener
+         * @param args args {*} ...arguments
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_callEvent',
+        value: function _callEvent(eventName, eventListener, args) {
+            if (eventListener.opts.maxCalls && eventListener.info.calls++ >= eventListener.opts.maxCalls) {
+                this.off(eventName, eventListener);
+                return;
+            }
+
+            this._catchAll.call(this, args);
+            return eventListener.apply(this, args);
+        }
+
+        /**
+         * Callback on create
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_created',
+        value: function _created() {}
+
+        /**
+         * Callback on remove
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_removed',
+        value: function _removed() {}
+
+        /**
+         * Callback catch all
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_catchAll',
+        value: function _catchAll() {}
+
+        /**
+         * Adds event listener for eventName
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @param [opts] {Object} option object
+         * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
+         * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
+         * @returns {Flak}
+         * @example
+         * emitter.on('myEvent', (param)=>{
+         *      console.log(param);
+         * });
+         */
+
+    }, {
+        key: 'on',
+        value: function on(eventName, listener) {
+            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            eventName = eventName.trim();
+
+            if (!eventName.length) throw new Error(error[4]);
+
+            if (helper.is(listener, 'array')) {
+                for (var i in listener) {
+                    if (listener.hasOwnProperty(i)) {
+                        if (!helper.is(listener[i], 'function')) throw new Error(error[1]);
+                        this._createEvent(eventName, listener[i], opts);
+                    }
+                }
+            } else {
+                if (!helper.is(listener, 'function')) throw new Error(error[1]);
+                this._createEvent(eventName, listener, opts);
+            }
+
+            return this;
+        }
+
+        /**
+         * Adds a one time listener function for the event named eventName.
+         * This is a wrapper method of `on` that set to `opts.maxCalls = 1`
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @returns {Flak}
+         * @example
+         * emitter.once('myEvent', (param)=>{
+         *      console.log(param);
+         * });
+         */
+
+    }, {
+        key: 'once',
+        value: function once(eventName, listener) {
+            return this.on(eventName, listener, {
+                maxCalls: 1
+            });
+        }
+
+        /**
+         * Calls each of the listeners registered for the event
+         * @param eventName {string} event name
+         * @param [args] {*} ...arguments
+         * @returns {Flak}
+         * @example
+         * emitter.fire('myEvent', param1, param2, ...);
+         */
+
+    }, {
+        key: 'fire',
+        value: function fire(eventName) {
+
+            if (this.exists(eventName)) {
+                for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                    args[_key - 1] = arguments[_key];
+                }
+
+                for (var j = 0; j < this.events[eventName].length; j++) {
+                    this._callEvent(eventName, this.events[eventName][j], args);
+                }
+            }return this;
+        }
+
+        /**
+         * Calls the first of the listeners registered for the event and return it
+         * @param eventName {string} event name
+         * @param [args] {*} ...arguments
+         * @returns {*}
+         * @since 0.3.0
+         * @example
+         * emitter.on('myEvent', (param1, param2)=>{
+         *      return param1 + '-' + param2;
+         * });
+         * console.log('foo-bar' === emitter.fireTheFirst('myEvent', 'foo', 'bar')) //=> true;
+         */
+
+    }, {
+        key: 'fireTheFirst',
+        value: function fireTheFirst(eventName) {
+            for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+                args[_key2 - 1] = arguments[_key2];
+            }
+
+            if (this.exists(eventName)) return this._callEvent(eventName, this.events[eventName][0], args);
+        }
+
+        /**
+         * Calls each of the listeners registered for the event, this method is async
+         * @param eventName {string} event name
+         * @param args {*} ...arguments
+         * @example
+         * emitter.fireAsync('myEvent', param1, param2, ...);
+         */
+
+    }, {
+        key: 'fireAsync',
+        value: function fireAsync(eventName) {
+            var _this = this;
+
+            for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+                args[_key3 - 1] = arguments[_key3];
+            }
+
+            args.unshift(eventName);
+            setTimeout(function () {
+                _this.fire.apply(_this, args);
+            }, this.opts.asyncDelay);
+        }
+
+        /**
+         * Remove event/listener
+         * @param eventName {string} event name
+         * @param [listener] {Function} listener function, if is set remove listener only for this event
+         * @returns {Flak}
+         * @example
+         * emitter.off('myEvent'); // remove event
+         * emitter.off('myEvent', listener); // remove specific listener
+         */
+
+    }, {
+        key: 'off',
+        value: function off(eventName, listener) {
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            if (this.events[eventName]) if (typeof listener === 'function') {
+                for (var i = 0; i < this.events[eventName].length; i++) {
+                    if (this.events[eventName][i] === listener) {
+                        this.events[eventName].splice(i, 1);
+                        this._removed.call(this, eventName, listener);
+                    }
+                }
+            } else {
+                delete this.events[eventName];
+                this._removed.call(this, eventName);
+            }
+
+            return this;
+        }
+
+        /**
+         * Adds the listener function to the beginning of the listeners array for the event named eventName.
+         * This is a wrapper method of `on` that set to `opts.prepend = true`
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @returns {Flak}
+         */
+
+    }, {
+        key: 'prependListener',
+        value: function prependListener(eventName, listener) {
+            return this.on(eventName, listener, {
+                prepend: true
+            });
+        }
+
+        /**
+         * Adds a one time listener function to the beginning of the listeners array for the event named eventName.
+         * This is a wrapper method of `on` that set to `opts.maxCalls = 1` and `opts.prepend = true`
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @returns {Flak}
+         */
+
+    }, {
+        key: 'prependOnceListener',
+        value: function prependOnceListener(eventName, listener) {
+            return this.on(eventName, listener, {
+                maxCalls: 1,
+                prepend: true
+            });
+        }
+
+        /**
+         * Remove all events
+         * @returns {Flak}
+         * @example
+         * emitter.clear();
+         */
+
+    }, {
+        key: 'clear',
+        value: function clear() {
+            this.events = [];
+            return this;
+        }
+
+        /**
+         * Get listeners count
+         * @param eventName {string} event name
+         * @returns {number}
+         * @example
+         * emitter.on('event', listener1);
+         * emitter.on('event', listener2);
+         * emitter.on('event1', listener3);
+         *
+         * emitter.getListenersCount('event'); // 2
+         */
+
+    }, {
+        key: 'getListenersCount',
+        value: function getListenersCount(eventName) {
+            return this.getListeners(eventName).length;
+        }
+
+        /**
+         * Get listeners list of event
+         * @param eventName {string} event name
+         * @returns {Array}
+         */
+
+    }, {
+        key: 'getListeners',
+        value: function getListeners(eventName) {
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            if (!this.exists(eventName)) throw new Error(error[5]);
+
+            return this.events[eventName];
+        }
+
+        /**
+         * Get events list
+         * @returns {Object}
+         */
+
+    }, {
+        key: 'getEvents',
+        value: function getEvents() {
+            return this.events;
+        }
+
+        /**
+         * Check if event exists
+         * @param eventName {string} event name
+         * @returns {boolean}
+         */
+
+    }, {
+        key: 'exists',
+        value: function exists(eventName) {
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            return !helper.is(this.events[eventName], 'undefined');
+        }
+
+        /**
+         * Get max number of listeners per event
+         * @returns {number}
+         */
+
+    }, {
+        key: 'getMaxListeners',
+        value: function getMaxListeners() {
+            return this.opts.maxListeners;
+        }
+
+        /**
+         * Set max number of listeners per event
+         * @param value {int} number max listeners
+         * @returns {Flak}
+         */
+
+    }, {
+        key: 'setMaxListeners',
+        value: function setMaxListeners(value) {
+            if (!helper.is(value, 'number')) throw new Error(error[2]);
+
+            this.opts.maxListeners = value;
+            return this;
+        }
+
+        /**
+         * Triggered when an event is fired
+         * @param callback {Function} callback function
+         * @returns {Flak}
+         * @since 0.2.0
+         * @example
+         * emitter.onCatchAll(args=>{
+         *      // args is an array of params
+         *      console.log(args);
+         * });
+         *
+         * emitter.on('myEvent', param=>{
+         *      console.log(param);
+         * });
+         *
+         * emitter.fire('myEvent');
+         */
+
+    }, {
+        key: 'onCatchAll',
+        value: function onCatchAll(callback) {
+            this._catchAll = callback;
+            return this;
+        }
+
+        /**
+         * Triggered when an event is created
+         * @param callback {Function} callback function
+         * @returns {Flak}
+         * @example
+         * emitter.onCreated(obj=>{
+         *      console.log(obj); //-> eventName, listener, opts
+         * });
+         *
+         * emitter.on('myEvent', (param)=>{
+         *      console.log(param);
+         * });
+         */
+
+    }, {
+        key: 'onCreated',
+        value: function onCreated(callback) {
+            this._created = callback;
+            return this;
+        }
+
+        /**
+         * Triggered when an event is removed
+         * @param callback {Function} callback function
+         * @returns {Flak}
+         * @example
+         * emitter.onRemoved(obj=>{
+         *      console.log(obj); //-> eventName, (listener)
+         * });
+         *
+         * emitter.off('myEvent');
+         */
+
+    }, {
+        key: 'onRemoved',
+        value: function onRemoved(callback) {
+            this._removed = callback;
+            return this;
+        }
+    }]);
+
+    return Flak;
+}();
+
+module.exports = Flak;
+module.exports._error = error;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var helper = {};
+
+/**
+ * Get object type
+ * @param object {*}
+ * @param type {string}
+ * @returns {boolean}
+ */
+helper.is = function (object, type) {
+    var objectToString = Object.prototype.toString.call(object);
+    return objectToString.toLowerCase() === '[object ' + type + ']'.toLowerCase();
+};
+
+/**
+ * Set default value
+ * @param opts {Object} options
+ * @param defaultOpts {Object} default options
+ * @returns {*}
+ */
+helper.defaults = function (opts, defaultOpts) {
+    for (var i in defaultOpts) {
+        if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
+            opts[i] = defaultOpts[i];
+        } else {
+            if (_typeof(opts[i]) === 'object') {
+                helper.defaults(opts[i], defaultOpts[i]);
+            }
+        }
+    }
+    return opts;
+};
+
+module.exports = helper;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = ['event name is required and must be a string', 'listener is required and must be a function or an array of function', 'value must be a number', 'increase maxListeners per event: ', 'event name not valid', 'event not found'];
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
