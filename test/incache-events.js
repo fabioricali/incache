@@ -58,30 +58,30 @@ describe('cache-events', function () {
     });
 
     describe('on', function () {
-        describe('created', function () {
+        describe('create', function () {
             it('should be return done', (done)=>{
                 const cache = new InCache({
                     save: false,
                     share: false
                 });
 
-                cache.on('created', (key, record)=>{
-                    console.log('created', key, record);
+                cache.on('create', (key, record)=>{
+                    console.log('create', key, record);
                     done();
                 });
 
                 cache.set('myKeyBBB', 'myValue');
             });
         });
-        describe('removed', function () {
+        describe('remove', function () {
             it('should be return done', (done)=>{
                 const cache = new InCache({
                     save: false,
                     share: false
                 });
 
-                cache.on('removed', (key)=>{
-                    console.log('removed', key);
+                cache.on('remove', (key)=>{
+                    console.log('remove', key);
                     done();
                 });
 
@@ -135,15 +135,15 @@ describe('cache-events', function () {
                 },100);
             });
         });
-        describe('updated', function () {
+        describe('update', function () {
             it('should be return done', (done)=>{
                 const cache = new InCache({
                     save: false,
                     share: false
                 });
 
-                cache.on('updated', (key, record)=>{
-                    console.log('updated', record);
+                cache.on('update', (key, record)=>{
+                    console.log('update', record);
                     if(record.createdOn && key === 'myKeyBBB') done();
                 });
 

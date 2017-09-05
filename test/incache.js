@@ -11,6 +11,11 @@ describe('cache', function () {
 
     this.timeout(5000);
 
+    before(function () {
+        if(fs.existsSync('./test/.incache'))
+            fs.unlinkSync('./test/.incache');
+    });
+
     describe('set', function () {
         it('should be return true', ()=>{
             let record = cache.set('myKey', 'myValue');
@@ -109,15 +114,15 @@ describe('cache', function () {
 
     describe('removeExpired', function () {
         it('should be return false', (done)=>{
-            cache.set('myKeyBExp', 'myValue', {maxAge: 500});
-            cache.set('myKeyBExp2', 'myValue');
-            cache.set('myKeyBExp3', 'myValue', {maxAge: 500});
+            cache.set('_myKeyBExp', 'myValue', {maxAge: 500});
+            cache.set('_myKeyBExp2', 'myValue');
+            cache.set('_myKeyBExp3', 'myValue', {maxAge: 500});
             setTimeout(function () {
                 cache.removeExpired();
-                console.log(cache.has('myKeyBExp2'));
-                be.err.false(cache.has('myKeyBExp'));
-                be.err.true(cache.has('myKeyBExp2'));
-                be.err.false(cache.has('myKeyBExp3'));
+                console.log(cache.has('_myKeyBExp2'));
+                be.err.false(cache.has('_myKeyBExp'));
+                be.err.true(cache.has('_myKeyBExp2'));
+                be.err.false(cache.has('_myKeyBExp3'));
                 done();
             }, 1000);
         });

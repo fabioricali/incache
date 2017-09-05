@@ -228,13 +228,13 @@ class InCache {
             record.updatedOn = new Date();
             if (!opts.silent) {
                 this._onUpdated.call(this, key, record);
-                this._emitter.fire('updated', key, record);
+                this._emitter.fire('update', key, record);
             }
         } else {
             record.createdOn = new Date();
             if (!opts.silent) {
                 this._onCreated.call(this, key, record);
-                this._emitter.fire('created', key, record);
+                this._emitter.fire('create', key, record);
             }
         }
 
@@ -343,7 +343,7 @@ class InCache {
     removeExpired() {
         const expired = [];
         for (let key in this._storage) {
-            if (this._opts.autoRemovePeriod && this._storage.hasOwnProperty(key) && this.expired(key)) {
+            if (this._storage.hasOwnProperty(key) && this.expired(key)) {
                 this.remove(key, true);
                 expired.push(key);
             }
