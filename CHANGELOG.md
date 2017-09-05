@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.0] - 2017-09-05
+- Added
+    - method`on`
+    - events:
+        - beforeSet
+        - set
+        - create
+        - update
+        - beforeRemove
+        - remove
+        - beforeBulkSet
+        - bulkSet
+        - beforeBulkRemove
+        - bulkRemove
+        - expired
+    - options: 
+        - `autoRemovePeriod`, now InCache can remove automatically expired records without calling any methods
+        - `nullIfNotFound`
+- Deprecated methods:
+    - `onCreated`
+    - `onUpdated`
+    - `onRemoved`
+
 ## [4.2.1] - 2017-09-01
 - Fixed wrong warning message
 
