@@ -42,9 +42,9 @@
         * ["expired" (keys)](#InCache+event_expired)
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
-        * [~removedCallback](#InCache..removedCallback) : <code>function</code>
-        * [~createdCallback](#InCache..createdCallback) : <code>function</code>
-        * [~updatedCallback](#InCache..updatedCallback) : <code>function</code>
+        * <del>[~removedCallback](#InCache..removedCallback) : <code>function</code></del>
+        * <del>[~createdCallback](#InCache..createdCallback) : <code>function</code></del>
+        * <del>[~updatedCallback](#InCache..updatedCallback) : <code>function</code></del>
 
 <a name="new_InCache_new"></a>
 
@@ -837,7 +837,9 @@ InCache record
 
 <a name="InCache..removedCallback"></a>
 
-### InCache~removedCallback : <code>function</code>
+### <del>InCache~removedCallback : <code>function</code></del>
+***Deprecated***
+
 onRemoved callback
 
 **Kind**: inner typedef of [<code>InCache</code>](#InCache)  
@@ -856,7 +858,9 @@ onRemoved callback
 
 <a name="InCache..createdCallback"></a>
 
-### InCache~createdCallback : <code>function</code>
+### <del>InCache~createdCallback : <code>function</code></del>
+***Deprecated***
+
 onCreated callback
 
 **Kind**: inner typedef of [<code>InCache</code>](#InCache)  
@@ -878,7 +882,9 @@ onCreated callback
 
 <a name="InCache..updatedCallback"></a>
 
-### InCache~updatedCallback : <code>function</code>
+### <del>InCache~updatedCallback : <code>function</code></del>
+***Deprecated***
+
 onUpdated callback
 
 **Kind**: inner typedef of [<code>InCache</code>](#InCache)  

@@ -699,6 +699,7 @@ class InCache {
      * onRemoved callback
      * @callback InCache~removedCallback
      * @param key {string} key of record removed
+     * @deprecated
      */
 
     /**
@@ -719,6 +720,7 @@ class InCache {
      * @callback InCache~createdCallback
      * @param key {string} key of record created
      * @param record {InCache~record} record object
+     * @deprecated
      */
 
     /**
@@ -739,6 +741,7 @@ class InCache {
      * @callback InCache~updatedCallback
      * @param key {string} key of record updated
      * @param record {InCache~record} record object
+     * @deprecated
      */
 }
 
