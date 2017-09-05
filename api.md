@@ -2,6 +2,7 @@
 
 ## InCache
 **Kind**: global class  
+**Emits**: [<code>expired</code>](#InCache+event_expired)  
 
 * [InCache](#InCache)
     * [new InCache([opts])](#new_InCache_new)
@@ -12,27 +13,35 @@
         * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>\*</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
         * [.remove(key, [silent])](#InCache+remove)
         * [.removeFrom(key, where)](#InCache+removeFrom)
-        * [.removeExpired()](#InCache+removeExpired)
+        * [.removeExpired()](#InCache+removeExpired) ⇒ <code>Array</code>
         * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record)
         * [.prependTo(key, value)](#InCache+prependTo) ⇒ [<code>record</code>](#InCache..record)
         * [.updateIn(key, value, where)](#InCache+updateIn)
-        * [.bulkSet(records)](#InCache+bulkSet)
-        * [.bulkRemove(keys)](#InCache+bulkRemove)
+        * [.bulkSet(records, [silent])](#InCache+bulkSet)
+        * [.bulkRemove(keys, [silent])](#InCache+bulkRemove)
         * [.clean(key)](#InCache+clean)
         * [.all()](#InCache+all) ⇒ <code>Array</code>
         * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
-        * <del>[.onSet(callback)](#InCache+onSet)</del>
-        * <del>[.onBeforeSet(callback)](#InCache+onBeforeSet)</del>
+        * [.on(eventName, callback)](#InCache+on)
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
         * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
+        * ["beforeSet" (key, value)](#InCache+event_beforeSet)
+        * ["set" (key, record)](#InCache+event_set)
+        * ["create" (key, record)](#InCache+event_create)
+        * ["update" (key, record)](#InCache+event_update)
+        * ["beforeRemove" (key)](#InCache+event_beforeRemove)
+        * ["remove" (key)](#InCache+event_remove)
+        * ["beforeBulkSet" (records)](#InCache+event_beforeBulkSet)
+        * ["bulkSet" (records)](#InCache+event_bulkSet)
+        * ["beforeBulkRemove" (keys)](#InCache+event_beforeBulkRemove)
+        * ["bulkRemove" (keys)](#InCache+event_bulkRemove)
+        * ["expired" (keys)](#InCache+event_expired)
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
-        * [~setCallback](#InCache..setCallback) : <code>function</code>
-        * [~beforeSetCallback](#InCache..beforeSetCallback) : <code>function</code>
         * [~removedCallback](#InCache..removedCallback) : <code>function</code>
         * [~createdCallback](#InCache..createdCallback) : <code>function</code>
         * [~updatedCallback](#InCache..updatedCallback) : <code>function</code>
@@ -74,7 +83,10 @@ Create instance
     <td>[opts.share]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true use global object as storage</p>
 </td>
     </tr><tr>
-    <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records, if 0 not run</p>
+    <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won&#39;t run</p>
+</td>
+    </tr><tr>
+    <td>[opts.nullIfNotFound]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>calling <code>get</code> if the key is not found returns <code>null</code>. If false returns <code>undefined</code></p>
 </td>
     </tr><tr>
     <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p><strong>deprecated:</strong> global record configuration</p>
@@ -120,6 +132,7 @@ Get configuration
 Set/update record
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Emits**: [<code>beforeSet</code>](#InCache+event_beforeSet), [<code>create</code>](#InCache+event_create), [<code>update</code>](#InCache+event_update), [<code>set</code>](#InCache+event_set)  
 <table>
   <thead>
     <tr>
@@ -184,6 +197,7 @@ inCache.get('my key');
 Delete a record
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Emits**: [<code>beforeRemove</code>](#InCache+event_beforeRemove), [<code>remove</code>](#InCache+event_remove)  
 <table>
   <thead>
     <tr>
@@ -229,10 +243,11 @@ inCache.set('myArray', ['hello', 'world']);inCache.removeFrom('myArray', 'hello
 ```
 <a name="InCache+removeExpired"></a>
 
-### inCache.removeExpired()
+### inCache.removeExpired() ⇒ <code>Array</code>
 Remove expired records
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Returns**: <code>Array</code> - expired keys  
 **Example**  
 ```js
 inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge: 1000});inCache.set('my key 3', 'my value', {maxAge: 1500});setTimeout(()=>{     inCache.removeExpired();     inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]}, 2000)
@@ -313,19 +328,23 @@ inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 
 ```
 <a name="InCache+bulkSet"></a>
 
-### inCache.bulkSet(records)
+### inCache.bulkSet(records, [silent])
 Set/update multiple records. This method not trigger any event.
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Emits**: [<code>beforeBulkSet</code>](#InCache+event_beforeBulkSet), [<code>bulkSet</code>](#InCache+event_bulkSet)  
 <table>
   <thead>
     <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
     </tr>
   </thead>
   <tbody>
 <tr>
-    <td>records</td><td><code>array</code></td><td><p>array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
+    <td>records</td><td><code>array</code></td><td></td><td><p>array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
+</td>
+    </tr><tr>
+    <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -336,19 +355,23 @@ inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my ke
 ```
 <a name="InCache+bulkRemove"></a>
 
-### inCache.bulkRemove(keys)
+### inCache.bulkRemove(keys, [silent])
 Delete multiple records
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Emits**: [<code>beforeBulkRemove</code>](#InCache+event_beforeBulkRemove), [<code>bulkRemove</code>](#InCache+event_bulkRemove)  
 <table>
   <thead>
     <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
     </tr>
   </thead>
   <tbody>
 <tr>
-    <td>keys</td><td><code>array</code></td><td><p>an array of keys</p>
+    <td>keys</td><td><code>array</code></td><td></td><td><p>an array of keys</p>
+</td>
+    </tr><tr>
+    <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -450,12 +473,10 @@ Alias of `remove`
     </tr>  </tbody>
 </table>
 
-<a name="InCache+onSet"></a>
+<a name="InCache+on"></a>
 
-### <del>inCache.onSet(callback)</del>
-***Deprecated***
-
-Triggered when a record has been set
+### inCache.on(eventName, callback)
+Adds listener to instance
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -466,46 +487,20 @@ Triggered when a record has been set
   </thead>
   <tbody>
 <tr>
-    <td>callback</td><td><code><a href="#InCache..setCallback">setCallback</a></code></td><td><p>callback function</p>
+    <td>eventName</td><td><code>string</code></td><td><p>event name</p>
+</td>
+    </tr><tr>
+    <td>callback</td><td><code>function</code></td><td><p>callback</p>
 </td>
     </tr>  </tbody>
 </table>
 
-**Example**  
-```js
-inCache.onSet((key, value)=>{     console.log('set', key, value);});
-```
-<a name="InCache+onBeforeSet"></a>
-
-### <del>inCache.onBeforeSet(callback)</del>
-***Deprecated***
-
-Triggered before record set
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>callback</td><td><code><a href="#InCache..beforeSetCallback">beforeSetCallback</a></code></td><td><p>callback function</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-**Example**  
-```js
-inCache.onBeforeSet((key, value)=>{     console.log('before set', key, value);     // you can cancel "set" operation     return false;});
-```
 <a name="InCache+onRemoved"></a>
 
 ### <del>inCache.onRemoved(callback)</del>
 ***Deprecated***
 
-Triggered when a record has been deleted. **Deprecated:** use `on('removed', callback)` instead
+Triggered when a record has been deleted. **Deprecated:** use `on('remove', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -530,7 +525,7 @@ inCache.onRemoved((key)=>{     console.log('removed', key);});
 ### <del>inCache.onCreated(callback)</del>
 ***Deprecated***
 
-Triggered when a record has been created. **Deprecated:** use `on('created', callback)` instead
+Triggered when a record has been created. **Deprecated:** use `on('create', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -555,7 +550,7 @@ inCache.onCreated((key, record)=>{     console.log('created', key, record);});
 ### <del>inCache.onUpdated(callback)</del>
 ***Deprecated***
 
-Triggered when a record has been updated. **Deprecated:** use `on('updated', callback)` instead
+Triggered when a record has been updated. **Deprecated:** use `on('update', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -575,6 +570,238 @@ Triggered when a record has been updated. **Deprecated:** use `on('updated', cal
 ```js
 inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
+<a name="InCache+event_beforeSet"></a>
+
+### "beforeSet" (key, value)
+Triggered before set
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key</p>
+</td>
+    </tr><tr>
+    <td>value</td><td><code>string</code></td><td><p>value</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_set"></a>
+
+### "set" (key, record)
+Triggered after set
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key</p>
+</td>
+    </tr><tr>
+    <td>record</td><td><code><a href="#InCache..record">record</a></code></td><td><p>record object</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_create"></a>
+
+### "create" (key, record)
+Triggered after create the record
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key of record</p>
+</td>
+    </tr><tr>
+    <td>record</td><td><code><a href="#InCache..record">record</a></code></td><td><p>record object</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_update"></a>
+
+### "update" (key, record)
+Triggered after update the record
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key of record</p>
+</td>
+    </tr><tr>
+    <td>record</td><td><code><a href="#InCache..record">record</a></code></td><td><p>record object</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_beforeRemove"></a>
+
+### "beforeRemove" (key)
+Triggered before remove the record
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key of record to be removed</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_remove"></a>
+
+### "remove" (key)
+Triggered after record has been removed
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key of record</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_beforeBulkSet"></a>
+
+### "beforeBulkSet" (records)
+Triggered before bulk set
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>records</td><td><code>array</code></td><td><p>array of objects</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_bulkSet"></a>
+
+### "bulkSet" (records)
+Triggered after bulk set
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>records</td><td><code>array</code></td><td><p>array of objects</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_beforeBulkRemove"></a>
+
+### "beforeBulkRemove" (keys)
+Triggered before remove the records
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>keys</td><td><code>array</code></td><td><p>array of keys to be removed</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_bulkRemove"></a>
+
+### "bulkRemove" (keys)
+Triggered after records have been removed
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>keys</td><td><code>array</code></td><td><p>array of keys removed</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_expired"></a>
+
+### "expired" (keys)
+Triggered when records are expired and `opts.autoRemovePeriod` is set
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 5.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>keys</td><td><code>array</code></td><td><p>array of keys expired</p>
+</td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache..record"></a>
 
 ### InCache~record : <code>Object</code>
@@ -604,50 +831,6 @@ InCache record
 </td>
     </tr><tr>
     <td>value</td><td><code>*</code></td><td><p>record value</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-<a name="InCache..setCallback"></a>
-
-### InCache~setCallback : <code>function</code>
-onSet callback
-
-**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>key</td><td><code>string</code></td><td><p>key</p>
-</td>
-    </tr><tr>
-    <td>value</td><td><code>string</code></td><td><p>value</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-<a name="InCache..beforeSetCallback"></a>
-
-### InCache~beforeSetCallback : <code>function</code>
-onBeforeSet callback
-
-**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>key</td><td><code>string</code></td><td><p>key</p>
-</td>
-    </tr><tr>
-    <td>value</td><td><code>string</code></td><td><p>value</p>
 </td>
     </tr>  </tbody>
 </table>

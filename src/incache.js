@@ -19,6 +19,7 @@ class InCache {
      * @param [opts.global] {Object} **deprecated:** global record configuration
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
+     * @fires InCache#expired
      * @constructor
      */
     constructor(opts = {}) {
@@ -187,6 +188,10 @@ class InCache {
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
      * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
      * @returns {InCache~record|*}
+     * @fires InCache#beforeSet
+     * @fires InCache#create
+     * @fires InCache#update
+     * @fires InCache#set
      * @example
      * inCache.set('my key', 'my value');
      * inCache.set('my object', {a: 1, b: 2});
@@ -266,14 +271,19 @@ class InCache {
      * Delete a record
      * @param key {*}
      * @param [silent=false] {boolean} if true no event will be triggered
+     * @fires InCache#beforeRemove
+     * @fires InCache#remove
      * @example
      * inCache.remove('my key');
      */
     remove(key, silent = false) {
+        if (!silent && this._emitter.fireTheFirst('beforeRemove', key) === false) {
+            return;
+        }
         delete this._storage[key];
         if (!silent) {
             this._onRemoved.call(this, key);
-            this._emitter.fire('removed', key);
+            this._emitter.fire('remove', key);
         }
     }
 
@@ -333,7 +343,7 @@ class InCache {
     removeExpired() {
         const expired = [];
         for (let key in this._storage) {
-            if (!this._opts.autoRemovePeriod && this._storage.hasOwnProperty(key) && this.expired(key)) {
+            if (this._opts.autoRemovePeriod && this._storage.hasOwnProperty(key) && this.expired(key)) {
                 this.remove(key, true);
                 expired.push(key);
             }
@@ -438,6 +448,8 @@ class InCache {
      * Set/update multiple records. This method not trigger any event.
      * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
      * @param [silent=false] {boolean} if true no event will be triggered
+     * @fires InCache#beforeBulkSet
+     * @fires InCache#bulkSet
      * @example
      * inCache.bulkSet([
      *      {key: 'my key 1', value: 'my value 1'},
@@ -469,6 +481,8 @@ class InCache {
      * Delete multiple records
      * @param keys {array} an array of keys
      * @param [silent=false] {boolean} if true no event will be triggered
+     * @fires InCache#beforeBulkRemove
+     * @fires InCache#bulkRemove
      * @example
      * inCache.bulkRemove(['key1', 'key2', 'key3']);
      */
@@ -577,29 +591,99 @@ class InCache {
     }
 
     /**
-     * Calls events
-     * @param args
+     * Adds listener to instance
+     * @param eventName {string} event name
+     * @param callback {Function} callback
      */
-    on(...args) {
-        this._emitter.on.apply(this._emitter, args);
+    on(eventName, callback) {
+        this._emitter.on.call(this._emitter, eventName, callback);
     }
 
     /**
-     * onSet callback
-     * @callback InCache~setCallback
+     * Triggered before set
+     * @event InCache#beforeSet
      * @param key {string} key
      * @param value {string} value
+     * @since 5.0.0
      */
 
     /**
-     * onBeforeSet callback
-     * @callback InCache~beforeSetCallback
+     * Triggered after set
+     * @event InCache#set
      * @param key {string} key
-     * @param value {string} value
+     * @param record {InCache~record} record object
+     * @since 5.0.0
      */
 
     /**
-     * Triggered when a record has been deleted. **Deprecated:** use `on('removed', callback)` instead
+     * Triggered after create the record
+     * @event InCache#create
+     * @param key {string} key of record
+     * @param record {InCache~record} record object
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered after update the record
+     * @event InCache#update
+     * @param key {string} key of record
+     * @param record {InCache~record} record object
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered before remove the record
+     * @event InCache#beforeRemove
+     * @param key {string} key of record to be removed
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered after record has been removed
+     * @event InCache#remove
+     * @param key {string} key of record
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered before bulk set
+     * @event InCache#beforeBulkSet
+     * @param records {array} array of objects
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered after bulk set
+     * @event InCache#bulkSet
+     * @param records {array} array of objects
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered before remove the records
+     * @event InCache#beforeBulkRemove
+     * @param keys {array} array of keys to be removed
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered after records have been removed
+     * @event InCache#bulkRemove
+     * @param keys {array} array of keys removed
+     * @since 5.0.0
+     */
+
+    /**
+     * Triggered when records are expired and `opts.autoRemovePeriod` is set
+     * @event InCache#expired
+     * @param keys {array} array of keys expired
+     * @since 5.0.0
+     */
+
+    /***************************** DEPRECATED ********************************/
+
+    /**
+     * Triggered when a record has been deleted. **Deprecated:** use `on('remove', callback)` instead
      * @param callback {InCache~removedCallback} callback function
      * @deprecated
      * @example
@@ -618,7 +702,7 @@ class InCache {
      */
 
     /**
-     * Triggered when a record has been created. **Deprecated:** use `on('created', callback)` instead
+     * Triggered when a record has been created. **Deprecated:** use `on('create', callback)` instead
      * @param callback {InCache~createdCallback} callback function
      * @deprecated
      * @example
@@ -638,7 +722,7 @@ class InCache {
      */
 
     /**
-     * Triggered when a record has been updated. **Deprecated:** use `on('updated', callback)` instead
+     * Triggered when a record has been updated. **Deprecated:** use `on('update', callback)` instead
      * @param callback {InCache~updatedCallback} callback function
      * @deprecated
      * @example
