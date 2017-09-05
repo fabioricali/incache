@@ -131,7 +131,7 @@ describe('cache-events', function () {
 
                 cache.set('myKeyBBB', 'myValue');
                 setTimeout(function () {
-                    be.err(done).null(cache.get('myKeyBBB'));
+                    be.err(done).undefined(cache.get('myKeyBBB'));
                 },100);
             });
         });

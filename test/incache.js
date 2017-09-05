@@ -31,7 +31,7 @@ describe('cache', function () {
             setTimeout(()=>{
                 let result = cache.get('myKeyExpiry', false);
                 console.log(result);
-                be.err(done).null(result);
+                be.err(done).undefined(result);
             }, 1200);
         });
         it('should be equal', ()=>{
@@ -57,10 +57,10 @@ describe('cache', function () {
     });
 
     describe('get, not found', function () {
-        it('should be return null', ()=>{
+        it('should be return undefined', ()=>{
             let result = cache.get('myKey_not_found');
             console.log(result);
-            be.err.null(result);
+            be.err.undefined(result);
         });
     });
 
@@ -438,8 +438,8 @@ describe('cache', function () {
             let result = cache.get('/api/users/0/10');
             let secondResult = cache.get('/api/users/1/10');
             let unCleaned = cache.get('/api/posts/0/10');
-            be.err.null(result);
-            be.err.null(secondResult);
+            be.err.undefined(result);
+            be.err.undefined(secondResult);
             be.err.object(unCleaned);
         });
 

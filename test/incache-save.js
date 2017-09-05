@@ -32,7 +32,7 @@ describe('cache-save', function () {
             setTimeout(()=>{
                 let result = cache.get('myKeyExpiry', false);
                 console.log(result);
-                be.err(done).null(result);
+                be.err(done).undefined(result);
             }, 1200);
         });
         it('should be equal', ()=>{

@@ -49,7 +49,7 @@ class InCache {
             silent: false,
             share: true,
             autoRemovePeriod: 0,
-            nullIfNotFound: true,
+            nullIfNotFound: false,
             global: {
                 silent: false,
                 life: 0
