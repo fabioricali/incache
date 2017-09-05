@@ -1,4 +1,5 @@
 const helper = require('./helper');
+const Flak = require('flak');
 const fs = require('fs');
 
 class InCache {
@@ -13,6 +14,8 @@ class InCache {
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=true] {boolean} if true use global object as storage
+     * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records, if 0 not will run
+     * @param [opts.nullIfNotFound=true] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
      * @param [opts.global] {Object} **deprecated:** global record configuration
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
@@ -20,18 +23,21 @@ class InCache {
      */
     constructor(opts = {}) {
 
+        this._emitter = new Flak();
+
+        this._timerExpiryCheck = null;
+
         /**
          * Global key
          * @type {string}
          * @ignore
          */
-
         this.GLOBAL_KEY = '___InCache___storage___global___key___';
 
         /**
          * InCache default configuration
          * @ignore
-         * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, global: {silent: boolean, life: number}}}
+         * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, share: boolean, global: {silent: boolean, life: number}}}
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
@@ -41,6 +47,8 @@ class InCache {
             expires: null,
             silent: false,
             share: true,
+            autoRemovePeriod: 0,
+            nullIfNotFound: true,
             global: {
                 silent: false,
                 life: 0
@@ -48,10 +56,6 @@ class InCache {
         };
 
         // Defines callback private
-        this._onSet = () => {
-        };
-        this._onBeforeSet = () => {
-        };
         this._onRemoved = () => {
         };
         this._onCreated = () => {
@@ -106,6 +110,8 @@ class InCache {
 
         helper.defaults(opts, this.DEFAULT_CONFIG);
 
+        this._opts = opts;
+
         /**
          * Root object
          * @ignore
@@ -137,6 +143,20 @@ class InCache {
 
         if (helper.isServer())
             this._read();
+
+        if (this._timerExpiryCheck) {
+            clearInterval(this._timerExpiryCheck);
+            this._timerExpiryCheck = null;
+        }
+
+        if (opts.autoRemovePeriod) {
+            this._timerExpiryCheck = setInterval(() => {
+                let expired = this.removeExpired();
+                if(expired.length){
+                    this._emitter.fire('expired', expired);
+                }
+            }, opts.autoRemovePeriod * 1000);
+        }
     }
 
     /**
@@ -174,10 +194,8 @@ class InCache {
      */
     set(key, value, opts = {}) {
 
-        if(!opts.silent){
-            if(this._onBeforeSet.call(this, key, value) === false){
-                return;
-            }
+        if (!opts.silent && this._emitter.fireTheFirst('beforeSet', key, value) === false) {
+            return;
         }
 
         let record = {
@@ -203,18 +221,22 @@ class InCache {
             record.isNew = false;
             record.createdOn = this._storage[key].createdOn;
             record.updatedOn = new Date();
-            if (!opts.silent)
+            if (!opts.silent) {
                 this._onUpdated.call(this, key, record);
+                this._emitter.fire('updated', key, record);
+            }
         } else {
             record.createdOn = new Date();
-            if (!opts.silent)
+            if (!opts.silent) {
                 this._onCreated.call(this, key, record);
+                this._emitter.fire('created', key, record);
+            }
         }
 
         this._storage[key] = record;
 
-        if(!opts.silent){
-            this._onSet.call(this, key, value);
+        if (!opts.silent) {
+            this._emitter.fire('set', key, record);
         }
 
         return record;
@@ -230,13 +252,13 @@ class InCache {
      */
     get(key, onlyValue = true) {
         if (this.has(key)) {
-            if (this.expired(key)) {
+            if (!this._opts.autoRemovePeriod && this.expired(key)) {
                 this.remove(key, true);
-                return null;
+                return (this._opts.nullIfNotFound ? null : undefined);
             }
             return onlyValue ? this._storage[key].value : this._storage[key];
         } else {
-            return null;
+            return (this._opts.nullIfNotFound ? null : undefined);
         }
     }
 
@@ -249,8 +271,10 @@ class InCache {
      */
     remove(key, silent = false) {
         delete this._storage[key];
-        if (!silent)
+        if (!silent) {
             this._onRemoved.call(this, key);
+            this._emitter.fire('removed', key);
+        }
     }
 
     /**
@@ -296,6 +320,7 @@ class InCache {
 
     /**
      * Remove expired records
+     * @returns {Array} expired keys
      * @example
      * inCache.set('my key 1', 'my value');
      * inCache.set('my key 2', 'my value', {maxAge: 1000});
@@ -306,11 +331,14 @@ class InCache {
      * }, 2000)
      */
     removeExpired() {
+        const expired = [];
         for (let key in this._storage) {
-            if (this._storage.hasOwnProperty(key) && this.expired(key)) {
+            if (!this._opts.autoRemovePeriod && this._storage.hasOwnProperty(key) && this.expired(key)) {
                 this.remove(key, true);
+                expired.push(key);
             }
         }
+        return expired;
     }
 
     /**
@@ -409,6 +437,7 @@ class InCache {
     /**
      * Set/update multiple records. This method not trigger any event.
      * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
+     * @param [silent=false] {boolean} if true no event will be triggered
      * @example
      * inCache.bulkSet([
      *      {key: 'my key 1', value: 'my value 1'},
@@ -417,29 +446,46 @@ class InCache {
      *      {key: 'my key 4', value: 'my value 4'}
      * ]);
      */
-    bulkSet(records) {
+    bulkSet(records, silent = false) {
         if (!helper.is(records, 'array'))
             throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
+
+        if (!silent && this._emitter.fireTheFirst('beforeBulkSet', records) === false) {
+            return;
+        }
 
         for (let i = 0; i < records.length; i++) {
             if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined'))
                 throw new Error('key and value properties are required');
             this.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
         }
+
+        if (!silent) {
+            this._emitter.fire('bulkSet', records);
+        }
     }
 
     /**
      * Delete multiple records
      * @param keys {array} an array of keys
+     * @param [silent=false] {boolean} if true no event will be triggered
      * @example
      * inCache.bulkRemove(['key1', 'key2', 'key3']);
      */
-    bulkRemove(keys) {
+    bulkRemove(keys, silent) {
         if (!helper.is(keys, 'array'))
             throw new Error('keys must be an array of keys');
 
+        if (!silent && this._emitter.fireTheFirst('beforeBulkRemove', keys) === false) {
+            return;
+        }
+
         for (let i = 0; i < keys.length; i++) {
             this.remove(keys[i], true);
+        }
+
+        if (!silent) {
+            this._emitter.fire('bulkRemove', keys);
         }
     }
 
@@ -470,7 +516,7 @@ class InCache {
 
         for (let key in this._storage) {
             if (this._storage.hasOwnProperty(key)) {
-                if (this.expired(key)) {
+                if (!this._opts.autoRemovePeriod && this.expired(key)) {
                     this.remove(key, true);
                 } else {
                     records.push({
@@ -531,23 +577,19 @@ class InCache {
     }
 
     /**
+     * Calls events
+     * @param args
+     */
+    on(...args) {
+        this._emitter.on.apply(this._emitter, args);
+    }
+
+    /**
      * onSet callback
      * @callback InCache~setCallback
      * @param key {string} key
      * @param value {string} value
      */
-
-    /**
-     * Triggered when a record has been set
-     * @param callback {InCache~setCallback} callback function
-     * @example
-     * inCache.onSet((key, value)=>{
-     *      console.log('set', key, value);
-     * });
-     */
-    onSet(callback) {
-        return this._onSet = callback;
-    }
 
     /**
      * onBeforeSet callback
@@ -557,22 +599,9 @@ class InCache {
      */
 
     /**
-     * Triggered before record set
-     * @param callback {InCache~beforeSetCallback} callback function
-     * @example
-     * inCache.onBeforeSet((key, value)=>{
-     *      console.log('before set', key, value);
-     *      // you can cancel "set" operation
-     *      return false;
-     * });
-     */
-    onBeforeSet(callback) {
-        return this._onBeforeSet = callback;
-    }
-
-    /**
-     * Triggered when a record has been deleted
+     * Triggered when a record has been deleted. **Deprecated:** use `on('removed', callback)` instead
      * @param callback {InCache~removedCallback} callback function
+     * @deprecated
      * @example
      * inCache.onRemoved((key)=>{
      *      console.log('removed', key);
@@ -589,8 +618,9 @@ class InCache {
      */
 
     /**
-     * Triggered when a record has been created
+     * Triggered when a record has been created. **Deprecated:** use `on('created', callback)` instead
      * @param callback {InCache~createdCallback} callback function
+     * @deprecated
      * @example
      * inCache.onCreated((key, record)=>{
      *      console.log('created', key, record);
@@ -608,8 +638,9 @@ class InCache {
      */
 
     /**
-     * Triggered when a record has been updated
+     * Triggered when a record has been updated. **Deprecated:** use `on('updated', callback)` instead
      * @param callback {InCache~updatedCallback} callback function
+     * @deprecated
      * @example
      * inCache.onUpdated((key, record)=>{
      *      console.log('updated', key, record);

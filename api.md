@@ -24,11 +24,11 @@
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
-        * [.onSet(callback)](#InCache+onSet)
-        * [.onBeforeSet(callback)](#InCache+onBeforeSet)
-        * [.onRemoved(callback)](#InCache+onRemoved)
-        * [.onCreated(callback)](#InCache+onCreated)
-        * [.onUpdated(callback)](#InCache+onUpdated)
+        * <del>[.onSet(callback)](#InCache+onSet)</del>
+        * <del>[.onBeforeSet(callback)](#InCache+onBeforeSet)</del>
+        * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
+        * <del>[.onCreated(callback)](#InCache+onCreated)</del>
+        * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
         * [~setCallback](#InCache..setCallback) : <code>function</code>
@@ -72,6 +72,9 @@ Create instance
 </td>
     </tr><tr>
     <td>[opts.share]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true use global object as storage</p>
+</td>
+    </tr><tr>
+    <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records, if 0 not run</p>
 </td>
     </tr><tr>
     <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p><strong>deprecated:</strong> global record configuration</p>
@@ -449,7 +452,9 @@ Alias of `remove`
 
 <a name="InCache+onSet"></a>
 
-### inCache.onSet(callback)
+### <del>inCache.onSet(callback)</del>
+***Deprecated***
+
 Triggered when a record has been set
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -472,7 +477,9 @@ inCache.onSet((key, value)=>{     console.log('set', key, value);});
 ```
 <a name="InCache+onBeforeSet"></a>
 
-### inCache.onBeforeSet(callback)
+### <del>inCache.onBeforeSet(callback)</del>
+***Deprecated***
+
 Triggered before record set
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -495,8 +502,10 @@ inCache.onBeforeSet((key, value)=>{     console.log('before set', key, value);
 ```
 <a name="InCache+onRemoved"></a>
 
-### inCache.onRemoved(callback)
-Triggered when a record has been deleted
+### <del>inCache.onRemoved(callback)</del>
+***Deprecated***
+
+Triggered when a record has been deleted. **Deprecated:** use `on('removed', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -518,8 +527,10 @@ inCache.onRemoved((key)=>{     console.log('removed', key);});
 ```
 <a name="InCache+onCreated"></a>
 
-### inCache.onCreated(callback)
-Triggered when a record has been created
+### <del>inCache.onCreated(callback)</del>
+***Deprecated***
+
+Triggered when a record has been created. **Deprecated:** use `on('created', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
@@ -541,8 +552,10 @@ inCache.onCreated((key, record)=>{     console.log('created', key, record);});
 ```
 <a name="InCache+onUpdated"></a>
 
-### inCache.onUpdated(callback)
-Triggered when a record has been updated
+### <del>inCache.onUpdated(callback)</del>
+***Deprecated***
+
+Triggered when a record has been updated. **Deprecated:** use `on('updated', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
