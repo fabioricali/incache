@@ -106,6 +106,7 @@ class InCache {
      */
     setConfig(opts = {}) {
 
+        /* istanbul ignore if  */
         if (opts.global) {
             helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
             helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
@@ -128,6 +129,7 @@ class InCache {
         if (opts.storeName)
             this.GLOBAL_KEY += opts.storeName;
 
+        /* istanbul ignore else  */
         if (!this._root[this.GLOBAL_KEY]) {
             this._root[this.GLOBAL_KEY] = {
                 metadata: {
@@ -144,6 +146,7 @@ class InCache {
 
         this._storage = this._memory.data;
 
+        /* istanbul ignore else  */
         if (helper.isServer())
             this._read();
 
