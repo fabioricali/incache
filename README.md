@@ -44,7 +44,7 @@ incache.set('my string', 'hello world', {maxAge: 2000});
 incache.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
 ```
 
-### Some events
+### Events
 ```javascript
 
 // Triggered when a record has been deleted
