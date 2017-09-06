@@ -11,7 +11,7 @@ class InCache {
      * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`)
      * @param [opts.silent=false] {boolean} if true no event will be triggered
-     * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
+     * @param [opts.save=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true use global object as storage
@@ -43,7 +43,7 @@ class InCache {
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
-            save: true,
+            save: false,
             filePath: '.incache',
             maxAge: 0,
             expires: null,

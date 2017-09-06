@@ -21,7 +21,9 @@ It also give you the possibility to save data on disk so you can avoid the data 
 npm install incache --save
 ```
 
-## Example
+## Examples
+
+### Basic
 ```javascript
 const InCache = require('incache');
 const store = new InCache();
@@ -44,12 +46,27 @@ incache.set('my string', 'hello world', {maxAge: 2000});
 incache.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
 ```
 
+### Save on disk
+This operation is running when the process is terminated
+```javascript
+const store = new InCache({
+    save: true
+});
+```
+
 ### Events
 ```javascript
 
 // Triggered when a record has been deleted
 incache.on('remove', key => {
     console.log(key);
+});
+
+// Triggered before create/update
+incache.on('beforeSet', (key, value) => {
+    console.log(key, value);
+    if(foo)
+        return false;
 });
 
 // Triggered when a record has been created

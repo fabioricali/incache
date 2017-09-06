@@ -16,7 +16,8 @@ describe('cache-save-more-instance', function () {
         it('should be return true', ()=>{
 
             const cache = new InCache({
-                filePath: './test/.incache-save-more-instance'
+                filePath: './test/.incache-save-more-instance',
+                save: true
             });
 
             cache.set('myKeyXCV', 'myValue');
@@ -27,7 +28,8 @@ describe('cache-save-more-instance', function () {
         it('with expiry, should be return true', (done)=>{
 
             const cache = new InCache({
-                filePath: './test/.incache-save-more-instance'
+                filePath: './test/.incache-save-more-instance',
+                save: true
             });
 
             cache.set('myKeyXCVExpiry', 'myValue', {
@@ -44,6 +46,7 @@ describe('cache-save-more-instance', function () {
             const cache = new InCache({
                 storeName: 'new',
                 filePath: './test/.incache-save-more-instance-1',
+                save: true,
                 share: true
             });
 
