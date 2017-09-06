@@ -71,7 +71,7 @@ Create instance
     <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
 </td>
     </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true saves cache in disk. (server only)</p>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
