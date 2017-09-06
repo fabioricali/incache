@@ -80,7 +80,7 @@ Create instance
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
 </td>
     </tr><tr>
-    <td>[opts.share]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if true use global object as storage</p>
+    <td>[opts.share]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true use global object as storage</p>
 </td>
     </tr><tr>
     <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won&#39;t run</p>
@@ -825,6 +825,9 @@ InCache record
   </thead>
   <tbody>
 <tr>
+    <td>id</td><td><code>string</code></td><td><p>uuid</p>
+</td>
+    </tr><tr>
     <td>isNew</td><td><code>boolean</code></td><td><p>indicates if is a new record</p>
 </td>
     </tr><tr>
