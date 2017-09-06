@@ -1,6 +1,7 @@
 const helper = require('./helper');
 const Flak = require('flak');
 const fs = require('fs');
+const uuid = require('uuid/v1');
 
 class InCache {
 
@@ -172,6 +173,7 @@ class InCache {
     /**
      * InCache record
      * @typedef {Object} InCache~record
+     * @property {string} id - uuid
      * @property {boolean} isNew - indicates if is a new record
      * @property {Date|null} createdOn - creation date
      * @property {Date|null} updatedOn - update date
@@ -205,6 +207,7 @@ class InCache {
         }
 
         let record = {
+            id: null,
             isNew: true,
             createdOn: null,
             updatedOn: null,
@@ -225,6 +228,7 @@ class InCache {
 
         if (this.has(key)) {
             record.isNew = false;
+            record.id = this._storage[key].id;
             record.createdOn = this._storage[key].createdOn;
             record.updatedOn = new Date();
             if (!opts.silent) {
@@ -232,6 +236,7 @@ class InCache {
                 this._emitter.fire('update', key, record);
             }
         } else {
+            record.id = uuid();
             record.createdOn = new Date();
             if (!opts.silent) {
                 this._onCreated.call(this, key, record);

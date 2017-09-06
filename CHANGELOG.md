@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [5.1.0] - 2017-09-05
-- Changed the default value of `nullIfNotFound` option, now is set to "false"
+- **Important:** changed the default value of `nullIfNotFound` option, now is set to "false"
 
 ## [5.0.0] - 2017-09-05
 - Added
