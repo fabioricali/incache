@@ -14,7 +14,7 @@ class InCache {
      * @param [opts.save=true] {boolean} if true saves cache in disk. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
-     * @param [opts.share=true] {boolean} if true use global object as storage
+     * @param [opts.share=false] {boolean} if true use global object as storage
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
      * @param [opts.nullIfNotFound=true] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
      * @param [opts.global] {Object} **deprecated:** global record configuration
@@ -48,7 +48,7 @@ class InCache {
             maxAge: 0,
             expires: null,
             silent: false,
-            share: true,
+            share: false,
             autoRemovePeriod: 0,
             nullIfNotFound: false,
             global: {

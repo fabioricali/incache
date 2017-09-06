@@ -3,8 +3,10 @@ const cache = new InCache();
 const be = require('bejs');
 
 cache.setConfig({
+    storeName: 'incache-save',
     save: true,
-    filePath: './test/.incache-save'
+    filePath: './test/.incache-save',
+    share: true
 });
 
 describe('cache-save', function () {

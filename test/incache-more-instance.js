@@ -43,7 +43,8 @@ describe('cache-save-more-instance', function () {
 
             const cache = new InCache({
                 storeName: 'new',
-                filePath: './test/.incache-save-more-instance-1'
+                filePath: './test/.incache-save-more-instance-1',
+                share: true
             });
 
             let result;

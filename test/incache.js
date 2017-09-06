@@ -2,7 +2,8 @@ const fs = require('fs');
 const InCache = require('../src/incache');
 const cache = new InCache({
     save: true,
-    filePath: './test/.incache'
+    filePath: './test/.incache',
+    share: true
 });
 const be = require('bejs');
 const typis = require('typis');
