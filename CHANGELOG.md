@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
+- Added
+    - Options
+        - `autoload`
+        - `autosave`
+    - Methods
+        - `load()`
+        - `save()`    
 
 ## [5.2.0] - 2017-09-06
 - **Important:** 
