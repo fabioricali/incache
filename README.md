@@ -34,6 +34,9 @@ store.set('my key', 'my value');
 // Update 'my key'
 store.set('my key', {a: 1, b: 2});
 
+// Get key
+store.get('my key');
+
 // Remove 'my key'
 store.remove('my key');
 
@@ -47,10 +50,10 @@ incache.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
 ```
 
 ### Save on disk
-This operation is running when the process is terminated
+This operation is running before the process is terminated
 ```javascript
 const store = new InCache({
-    save: true
+    autosave: true
 });
 ```
 
