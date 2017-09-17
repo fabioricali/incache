@@ -11,7 +11,9 @@ class InCache {
      * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`)
      * @param [opts.silent=false] {boolean} if true no event will be triggered
-     * @param [opts.save=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
+     * @param [opts.autoload=true] {boolean} load cache from disk when instance is created. (server only)
+     * @param [opts.autosave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
+     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autosave` instead. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true use global object as storage
@@ -43,6 +45,8 @@ class InCache {
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
+            autoload: true,
+            autosave: false,
             save: false,
             filePath: '.incache',
             maxAge: 0,
@@ -65,7 +69,9 @@ class InCache {
         this._onUpdated = () => {
         };
 
-        if (helper.isServer()) {
+        this.setConfig(opts);
+
+        if (helper.isServer() && (opts.autosave || opts.save)) {
             process.stdin.resume();
             process.on('exit', () => {
                 this._write()
@@ -75,27 +81,64 @@ class InCache {
             });
         }
 
-        this.setConfig(opts);
+
     }
 
     _write() {
         let {config, data} = this._memory;
-        if (config.save) {
-            let content = JSON.stringify(data);
+        let content = JSON.stringify(data);
+        try {
             fs.writeFileSync(config.filePath, content);
+            return true;
+        } catch (e) {
+            return false;
         }
     }
 
     _read() {
         let config = this._memory.config;
-        if (config.save && fs.existsSync(config.filePath)) {
+        if (fs.existsSync(config.filePath)) {
             let content = fs.readFileSync(config.filePath);
             try {
                 this._storage = this._memory.data = JSON.parse(content);
             } catch (e) {
                 this._storage = this._memory.data = {};
             }
-        }
+            return true;
+        } else
+            return false;
+    }
+
+    /**
+     * Load cache from disk
+     * @returns {Promise}
+     */
+    load() {
+        return new Promise(
+            (resolve, reject) => {
+                if (opts.autoload) {
+                    if (this._read())
+                        resolve();
+                    else
+                        reject('cache file not found');
+                } else
+                    resolve()
+            }
+        )
+    }
+
+    save() {
+        return new Promise(
+            (resolve, reject) => {
+                if (opts.autosave) {
+                    if (this._write())
+                        resolve();
+                    else
+                        reject('error during save');
+                } else
+                    resolve()
+            }
+        )
     }
 
     /**
@@ -158,7 +201,7 @@ class InCache {
         if (opts.autoRemovePeriod) {
             this._timerExpiryCheck = setInterval(() => {
                 let expired = this.removeExpired();
-                if(expired.length){
+                if (expired.length) {
                     this._emitter.fire('expired', expired);
                 }
             }, opts.autoRemovePeriod * 1000);
