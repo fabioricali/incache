@@ -7,6 +7,8 @@
 * [InCache](#InCache)
     * [new InCache([opts])](#new_InCache_new)
     * _instance_
+        * [.load()](#InCache+load) ⇒ <code>Promise</code>
+        * [.save()](#InCache+save) ⇒ <code>Promise</code>
         * [.setConfig([opts])](#InCache+setConfig)
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
         * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code>
@@ -71,7 +73,13 @@ Create instance
     <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
 </td>
     </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
+    <td>[opts.autoload]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created. (server only)</p>
+</td>
+    </tr><tr>
+    <td>[opts.autosave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
+</td>
+    </tr><tr>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true saves cache in disk when the process is terminated. Use <code>autosave</code> instead. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
@@ -100,6 +108,20 @@ Create instance
     </tr>  </tbody>
 </table>
 
+<a name="InCache+load"></a>
+
+### inCache.load() ⇒ <code>Promise</code>
+Load cache from disk
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.0.0  
+<a name="InCache+save"></a>
+
+### inCache.save() ⇒ <code>Promise</code>
+Save cache into disk
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.0.0  
 <a name="InCache+setConfig"></a>
 
 ### inCache.setConfig([opts])
