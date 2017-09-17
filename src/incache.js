@@ -70,18 +70,6 @@ class InCache {
         };
 
         this.setConfig(opts);
-
-        if (helper.isServer() && (opts.autosave || opts.save)) {
-            process.stdin.resume();
-            process.on('exit', () => {
-                this._write()
-            });
-            process.on('SIGINT', () => {
-                this._write()
-            });
-        }
-
-
     }
 
     _write() {
@@ -112,6 +100,7 @@ class InCache {
     /**
      * Load cache from disk
      * @returns {Promise}
+     * @since 6.0.0
      */
     load() {
         return new Promise(
@@ -127,6 +116,11 @@ class InCache {
         )
     }
 
+    /**
+     * Save cache into disk
+     * @returns {Promise}
+     * @since 6.0.0
+     */
     save() {
         return new Promise(
             (resolve, reject) => {
@@ -190,8 +184,28 @@ class InCache {
         this._storage = this._memory.data;
 
         /* istanbul ignore else  */
-        if (helper.isServer())
-            this._read();
+        if (helper.isServer()) {
+            if (opts.autoload)
+                this._read();
+
+            if (opts.autosave || opts.save) {
+
+                let self = this;
+
+                // Wrap function
+                function pWrite() {
+                    self._write();
+                }
+
+                // Remove if event already exists
+                process.removeListener('exit', pWrite);
+                process.removeListener('SIGINT', pWrite);
+
+                process.stdin.resume();
+                process.on('exit', pWrite);
+                process.on('SIGINT', pWrite);
+            }
+        }
 
         if (this._timerExpiryCheck) {
             clearInterval(this._timerExpiryCheck);
