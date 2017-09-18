@@ -197,7 +197,7 @@ class InCache {
         /* istanbul ignore else  */
         if (helper.isServer()) {
             if (opts.autoLoad)
-                this.load().then();
+                this.load().then().catch((e)=>{});
 
             if (opts.autoSave || opts.save) {
 
@@ -205,7 +205,7 @@ class InCache {
 
                 // Wrap function
                 function pWrite() {
-                    self.save().then();
+                    self.save().then().catch((e)=>{});
                 }
 
                 // Remove if event already exists
@@ -246,6 +246,7 @@ class InCache {
      * @typedef {Object} InCache~record
      * @property {string} id - uuid
      * @property {boolean} isNew - indicates if is a new record
+     * @property {boolean} isPreserved - indicates if record will no longer be editable once created
      * @property {Date|null} createdOn - creation date
      * @property {Date|null} updatedOn - update date
      * @property {Date|null} expiresOn - expiry date
@@ -281,7 +282,7 @@ class InCache {
 
         opts = helper.defaults(opts, this._opts);
 
-        if (opts.preserve && this.has(key)) {
+        if (this.isPreserved(key)) {
             return;
         }
 
@@ -445,15 +446,19 @@ class InCache {
      * Given a key that has value like an array adds value to end of array
      * @param key {*}
      * @param value {*}
-     * @returns {InCache~record}
+     * @returns {InCache~record|undefined}
      * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
      * @since 3.0.0
      */
     addTo(key, value) {
-        if (!this.has(key)) return null;
+        if (!this.has(key)) return;
         let record = this.get(key);
+
+        if (record.isPreserved) {
+            return;
+        }
 
         if (!helper.is(record, 'array'))
             throw new Error('object must be an array');
@@ -467,15 +472,19 @@ class InCache {
      * Given a key that has value like an array adds value to beginning of array
      * @param key {*}
      * @param value {*}
-     * @returns {InCache~record}
+     * @returns {InCache~record|undefined}
      * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
      * @since 3.0.0
      */
     prependTo(key, value) {
-        if (!this.has(key)) return null;
+        if (!this.has(key)) return;
         let record = this.get(key);
+
+        if (record.isPreserved) {
+            return;
+        }
 
         if (!helper.is(record, 'array'))
             throw new Error('object must be an array');
@@ -500,7 +509,7 @@ class InCache {
      * @since 3.0.0
      */
     updateIn(key, value, where) {
-        if (!this.has(key)) return null;
+        if (!this.has(key)) return;
 
         if (helper.is(value, 'undefined'))
             throw new Error('value cannot be undefined');
@@ -509,6 +518,10 @@ class InCache {
             throw new Error('where cannot be undefined');
 
         let recordValue = this.get(key);
+
+        if (recordValue.isPreserved) {
+            return;
+        }
 
         if (!helper.is(recordValue, 'array'))
             throw new Error('value must be an array');
@@ -682,6 +695,16 @@ class InCache {
      */
     destroy(...args) {
         this.remove.apply(this, args);
+    }
+
+    /**
+     * Check if record is preserved
+     * @param key
+     * @since 6.0.0
+     * @returns {boolean}
+     */
+    isPreserved(key) {
+        return this.has(key) && this._storage[key].isPreserved;
     }
 
     /**
