@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     - options
         - `autoLoad`
         - `autoSave`
+        - `clone`
     - methods
         - `load()`
         - `save()` 
