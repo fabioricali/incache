@@ -2,6 +2,7 @@ const helper = require('./helper');
 const Flak = require('flak');
 const fs = require('fs');
 const uuid = require('uuid/v1');
+const clone = require('clone');
 
 class InCache {
 
@@ -16,7 +17,8 @@ class InCache {
      * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
-     * @param [opts.share=false] {boolean} if true use global object as storage
+     * @param [opts.share=false] {boolean} if true, use global object as storage
+     * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
      * @param [opts.nullIfNotFound=false] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
      * @param [opts.global] {Object} **deprecated:** global record configuration
@@ -48,6 +50,7 @@ class InCache {
             autoLoad: true,
             autoSave: false,
             save: false,
+            clone: false,
             filePath: '.incache',
             maxAge: 0,
             expires: null,
@@ -254,6 +257,7 @@ class InCache {
      * @param [opts] {Object} options object
      * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
      * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
+     * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwrites global configuration)
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
      * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
      * @returns {InCache~record|*}
@@ -272,6 +276,11 @@ class InCache {
             return;
         }
 
+        opts = helper.defaults(opts, this._opts);
+
+        if(opts.clone)
+            value = clone(value);
+
         let record = {
             id: null,
             isNew: true,
@@ -280,8 +289,6 @@ class InCache {
             expiresOn: null,
             value: value
         };
-
-        opts = helper.defaults(opts, this.DEFAULT_CONFIG);
 
         if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
             record.expiresOn = new Date(opts.expires);
