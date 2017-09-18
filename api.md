@@ -90,7 +90,10 @@ Create instance
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>
 </td>
     </tr><tr>
-    <td>[opts.share]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true use global object as storage</p>
+    <td>[opts.share]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, use global object as storage</p>
+</td>
+    </tr><tr>
+    <td>[opts.clone]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, the object will be cloned before to put it in storage</p>
 </td>
     </tr><tr>
     <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won&#39;t run</p>
@@ -179,6 +182,9 @@ Set/update record
 </td>
     </tr><tr>
     <td>[opts.maxAge]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age in milliseconds. If 0 not expire. (overwrites global configuration)</p>
+</td>
+    </tr><tr>
+    <td>[opts.clone]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, the object will be cloned before to put it in storage. (overwrites global configuration)</p>
 </td>
     </tr><tr>
     <td>[opts.expires]</td><td><code>Date</code> | <code>string</code></td><td></td><td><p>a Date for expiration. (overwrites global configuration and <code>opts.maxAge</code>)</p>
