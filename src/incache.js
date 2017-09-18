@@ -105,10 +105,14 @@ class InCache {
     load() {
         return new Promise(
             (resolve, reject) => {
-                if (this._read())
+                if (this._read()) {
                     resolve();
-                else
-                    reject('cache file not found');
+                    this._emitter.fire('load', null);
+                } else {
+                    let err = 'cache file not found';
+                    reject(err);
+                    this._emitter.fire('load', err);
+                }
             }
         )
     }
@@ -180,7 +184,7 @@ class InCache {
         /* istanbul ignore else  */
         if (helper.isServer()) {
             if (opts.autoLoad)
-                this._read();
+                this.load().then();
 
             if (opts.autoSave || opts.save) {
 
@@ -188,7 +192,7 @@ class InCache {
 
                 // Wrap function
                 function pWrite() {
-                    self._write();
+                    self.save().then();
                 }
 
                 // Remove if event already exists
