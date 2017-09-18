@@ -103,18 +103,19 @@ class InCache {
      * @since 6.0.0
      */
     load() {
-        return new Promise(
-            (resolve, reject) => {
-                if (this._read()) {
-                    resolve();
-                    this._emitter.fire('load', null);
-                } else {
-                    let err = 'cache file not found';
-                    reject(err);
-                    this._emitter.fire('load', err);
+        if(helper.isServer())
+            return new Promise(
+                (resolve, reject) => {
+                    if (this._read()) {
+                        resolve();
+                        this._emitter.fire('load', null);
+                    } else {
+                        let err = 'cache file not found';
+                        reject(err);
+                        this._emitter.fire('load', err);
+                    }
                 }
-            }
-        )
+            )
     }
 
     /**
@@ -123,18 +124,19 @@ class InCache {
      * @since 6.0.0
      */
     save() {
-        return new Promise(
-            (resolve, reject) => {
-                if (this._write()) {
-                    resolve();
-                    this._emitter.fire('save', null);
-                } else {
-                    let err = 'error during save';
-                    reject(err);
-                    this._emitter.fire('save', err);
+        if(helper.isServer())
+            return new Promise(
+                (resolve, reject) => {
+                    if (this._write()) {
+                        resolve();
+                        this._emitter.fire('save', null);
+                    } else {
+                        let err = 'error during save';
+                        reject(err);
+                        this._emitter.fire('save', err);
+                    }
                 }
-            }
-        )
+            )
     }
 
     /**
