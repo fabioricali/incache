@@ -11,9 +11,9 @@ class InCache {
      * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`)
      * @param [opts.silent=false] {boolean} if true no event will be triggered
-     * @param [opts.autoload=true] {boolean} load cache from disk when instance is created. (server only)
-     * @param [opts.autosave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
-     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autosave` instead. (server only)
+     * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
+     * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
+     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true use global object as storage
@@ -45,8 +45,8 @@ class InCache {
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
-            autoload: true,
-            autosave: false,
+            autoLoad: true,
+            autoSave: false,
             save: false,
             filePath: '.incache',
             maxAge: 0,
@@ -105,7 +105,7 @@ class InCache {
     load() {
         return new Promise(
             (resolve, reject) => {
-                if (opts.autoload) {
+                if (opts.autoLoad) {
                     if (this._read())
                         resolve();
                     else
@@ -124,7 +124,7 @@ class InCache {
     save() {
         return new Promise(
             (resolve, reject) => {
-                if (opts.autosave) {
+                if (opts.autoSave) {
                     if (this._write())
                         resolve();
                     else
@@ -185,10 +185,10 @@ class InCache {
 
         /* istanbul ignore else  */
         if (helper.isServer()) {
-            if (opts.autoload)
+            if (opts.autoLoad)
                 this._read();
 
-            if (opts.autosave || opts.save) {
+            if (opts.autoSave || opts.save) {
 
                 let self = this;
 
