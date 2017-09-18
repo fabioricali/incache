@@ -16,8 +16,8 @@
         * [.remove(key, [silent])](#InCache+remove)
         * [.removeFrom(key, where)](#InCache+removeFrom)
         * [.removeExpired()](#InCache+removeExpired) ⇒ <code>Array</code>
-        * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record)
-        * [.prependTo(key, value)](#InCache+prependTo) ⇒ [<code>record</code>](#InCache..record)
+        * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
+        * [.prependTo(key, value)](#InCache+prependTo) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
         * [.updateIn(key, value, where)](#InCache+updateIn)
         * [.bulkSet(records, [silent])](#InCache+bulkSet)
         * [.bulkRemove(keys, [silent])](#InCache+bulkRemove)
@@ -27,6 +27,7 @@
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
+        * [.isPreserved(key)](#InCache+isPreserved) ⇒ <code>boolean</code>
         * [.on(eventName, callback)](#InCache+on)
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
@@ -94,6 +95,9 @@ Create instance
 </td>
     </tr><tr>
     <td>[opts.clone]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, the object will be cloned before to put it in storage</p>
+</td>
+    </tr><tr>
+    <td>[opts.preserve]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, you will no longer be able to update the record once created</p>
 </td>
     </tr><tr>
     <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won&#39;t run</p>
@@ -185,6 +189,9 @@ Set/update record
 </td>
     </tr><tr>
     <td>[opts.clone]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, the object will be cloned before to put it in storage. (overwrites global configuration)</p>
+</td>
+    </tr><tr>
+    <td>[opts.preserve]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, you will no longer be able to update the record once created. (overwrites global configuration)</p>
 </td>
     </tr><tr>
     <td>[opts.expires]</td><td><code>Date</code> | <code>string</code></td><td></td><td><p>a Date for expiration. (overwrites global configuration and <code>opts.maxAge</code>)</p>
@@ -289,7 +296,7 @@ inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge
 ```
 <a name="InCache+addTo"></a>
 
-### inCache.addTo(key, value) ⇒ [<code>record</code>](#InCache..record)
+### inCache.addTo(key, value) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
 Given a key that has value like an array adds value to end of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -314,7 +321,7 @@ inCache.set('myArray', ['hello', 'world']);inCache.addTo('myArray', 'ciao'); //
 ```
 <a name="InCache+prependTo"></a>
 
-### inCache.prependTo(key, value) ⇒ [<code>record</code>](#InCache..record)
+### inCache.prependTo(key, value) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
 Given a key that has value like an array adds value to beginning of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -509,6 +516,25 @@ Alias of `remove`
   <tbody>
 <tr>
     <td>...args</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+isPreserved"></a>
+
+### inCache.isPreserved(key) ⇒ <code>boolean</code>
+Check if record is preserved
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td>
     </tr>  </tbody>
 </table>
 
@@ -901,6 +927,9 @@ InCache record
 </td>
     </tr><tr>
     <td>isNew</td><td><code>boolean</code></td><td><p>indicates if is a new record</p>
+</td>
+    </tr><tr>
+    <td>isPreserved</td><td><code>boolean</code></td><td><p>indicates if record will no longer be editable once created</p>
 </td>
     </tr><tr>
     <td>createdOn</td><td><code>Date</code> | <code>null</code></td><td><p>creation date</p>
