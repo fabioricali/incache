@@ -99,6 +99,7 @@ class InCache {
 
     /**
      * Load cache from disk
+     * @fires InCache#load
      * @returns {Promise}
      * @since 6.0.0
      */
@@ -120,6 +121,7 @@ class InCache {
 
     /**
      * Save cache into disk
+     * @fires InCache#save
      * @returns {Promise}
      * @since 6.0.0
      */
@@ -756,6 +758,19 @@ class InCache {
      * @since 5.0.0
      */
 
+    /**
+     * Triggered after load invocation
+     * @event InCache#load
+     * @param err {null|string} error message, if no errors occurred is null
+     * @since 6.0.0
+     */
+
+    /**
+     * Triggered after save invocation
+     * @event InCache#save
+     * @param err {null|string} error message, if no errors occurred is null
+     * @since 6.0.0
+     */
     /***************************** DEPRECATED ********************************/
 
     /**
