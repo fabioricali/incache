@@ -96,7 +96,7 @@ Create instance
     <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won&#39;t run</p>
 </td>
     </tr><tr>
-    <td>[opts.nullIfNotFound]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>calling <code>get</code> if the key is not found returns <code>null</code>. If false returns <code>undefined</code></p>
+    <td>[opts.nullIfNotFound]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>calling <code>get</code> if the key is not found returns <code>null</code>. If false returns <code>undefined</code></p>
 </td>
     </tr><tr>
     <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p><strong>deprecated:</strong> global record configuration</p>
