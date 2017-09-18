@@ -53,8 +53,20 @@ incache.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
 This operation is running before the process is terminated
 ```javascript
 const store = new InCache({
-    autosave: true
+    autoSave: true
 });
+```
+
+### Save manually
+```javascript
+const store = new InCache({
+    filePath: 'my-path/my-store.json'
+});
+
+store.set('a key', 'a value');
+
+// This method returns a Promise
+store.save();
 ```
 
 ### Events
