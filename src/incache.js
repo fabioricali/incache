@@ -125,10 +125,14 @@ class InCache {
     save() {
         return new Promise(
             (resolve, reject) => {
-                if (this._write())
+                if (this._write()) {
                     resolve();
-                else
-                    reject('error during save');
+                    this._emitter.fire('save', null);
+                } else {
+                    let err = 'error during save';
+                    reject(err);
+                    this._emitter.fire('save', err);
+                }
             }
         )
     }
