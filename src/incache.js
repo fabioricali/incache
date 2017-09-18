@@ -105,13 +105,10 @@ class InCache {
     load() {
         return new Promise(
             (resolve, reject) => {
-                if (opts.autoLoad) {
-                    if (this._read())
-                        resolve();
-                    else
-                        reject('cache file not found');
-                } else
-                    resolve()
+                if (this._read())
+                    resolve();
+                else
+                    reject('cache file not found');
             }
         )
     }
@@ -124,13 +121,10 @@ class InCache {
     save() {
         return new Promise(
             (resolve, reject) => {
-                if (opts.autoSave) {
-                    if (this._write())
-                        resolve();
-                    else
-                        reject('error during save');
-                } else
-                    resolve()
+                if (this._write())
+                    resolve();
+                else
+                    reject('error during save');
             }
         )
     }
