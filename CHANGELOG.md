@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [unreleased]
 - Added
     - Options
-        - `autoload`
-        - `autosave`
+        - `autoLoad`
+        - `autoSave`
     - Methods
         - `load()`
         - `save()`    
