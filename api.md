@@ -42,6 +42,8 @@
         * ["beforeBulkRemove" (keys)](#InCache+event_beforeBulkRemove)
         * ["bulkRemove" (keys)](#InCache+event_bulkRemove)
         * ["expired" (keys)](#InCache+event_expired)
+        * ["load" (err)](#InCache+event_load)
+        * ["save" (err)](#InCache+event_save)
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
         * <del>[~removedCallback](#InCache..removedCallback) : <code>function</code></del>
@@ -73,13 +75,13 @@ Create instance
     <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
 </td>
     </tr><tr>
-    <td>[opts.autoload]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created. (server only)</p>
+    <td>[opts.autoLoad]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created. (server only)</p>
 </td>
     </tr><tr>
-    <td>[opts.autosave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
+    <td>[opts.autoSave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
 </td>
     </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true saves cache in disk when the process is terminated. Use <code>autosave</code> instead. (server only)</p>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true saves cache in disk when the process is terminated. Use <code>autoSave</code> instead. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
@@ -114,6 +116,7 @@ Create instance
 Load cache from disk
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Emits**: [<code>load</code>](#InCache+event_load)  
 **Since**: 6.0.0  
 <a name="InCache+save"></a>
 
@@ -121,6 +124,7 @@ Load cache from disk
 Save cache into disk
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Emits**: [<code>save</code>](#InCache+event_save)  
 **Since**: 6.0.0  
 <a name="InCache+setConfig"></a>
 
@@ -827,6 +831,46 @@ Triggered when records are expired and `opts.autoRemovePeriod` is set
   <tbody>
 <tr>
     <td>keys</td><td><code>array</code></td><td><p>array of keys expired</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_load"></a>
+
+### "load" (err)
+Triggered after load invocation
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 6.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>err</td><td><code>null</code> | <code>string</code></td><td><p>error message, if no errors occurred is null</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_save"></a>
+
+### "save" (err)
+Triggered after save invocation
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 6.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>err</td><td><code>null</code> | <code>string</code></td><td><p>error message, if no errors occurred is null</p>
 </td>
     </tr>  </tbody>
 </table>
