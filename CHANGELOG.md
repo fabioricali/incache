@@ -6,12 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 - Added
-    - Options
+    - options
         - `autoLoad`
         - `autoSave`
-    - Methods
+    - methods
         - `load()`
-        - `save()`    
+        - `save()` 
+    - events
+        - `load`
+        - `save`    
 
 ## [5.2.0] - 2017-09-06
 - **Important:** 
@@ -25,17 +28,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added
     - method`on`
     - events:
-        - beforeSet
-        - set
-        - create
-        - update
-        - beforeRemove
-        - remove
-        - beforeBulkSet
-        - bulkSet
-        - beforeBulkRemove
-        - bulkRemove
-        - expired
+        - `beforeSet`
+        - `set`
+        - `create`
+        - `update`
+        - `beforeRemove`
+        - `remove`
+        - `beforeBulkSet`
+        - `bulkSet`
+        - `beforeBulkRemove`
+        - `bulkRemove`
+        - `expired`
     - options: 
         - `autoRemovePeriod`, now InCache can remove automatically expired records without calling any methods
         - `nullIfNotFound`
