@@ -2,7 +2,7 @@
 <br/><br/>
 <img width="268" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?1" title="incache"/>
 <br/><br/>
-Simple key/value in-memory storage or on disk to persist some data
+Powerful key/value in-memory storage or on disk to persist some data
 <br/><br/>
 <a href="https://travis-ci.org/fabioricali/incache" target="_blank"><img src="https://travis-ci.org/fabioricali/incache.svg?branch=master" title="Build Status"/></a>
 <a href="https://coveralls.io/github/fabioricali/incache?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/fabioricali/incache/badge.svg?branch=master" title="Coverage Status"/></a>

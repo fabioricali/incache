@@ -1,7 +1,7 @@
 {
     "name": "incache",
     "version": "5.2.1",
-    "description": "Simple key/value in-memory storage or on disk to persist some data",
+    "description": "Powerful key/value in-memory storage or on disk to persist some data",
     "main": "index.js",
     "scripts": {
         "version:major": "webpack --env.major && npm run-script doc && version-to-tag.sh && npm publish",
