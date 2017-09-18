@@ -19,6 +19,7 @@ class InCache {
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage
+     * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
      * @param [opts.nullIfNotFound=false] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
      * @param [opts.global] {Object} **deprecated:** global record configuration
@@ -51,6 +52,7 @@ class InCache {
             autoSave: false,
             save: false,
             clone: false,
+            preserve: false,
             filePath: '.incache',
             maxAge: 0,
             expires: null,
@@ -107,7 +109,7 @@ class InCache {
      * @since 6.0.0
      */
     load() {
-        if(helper.isServer())
+        if (helper.isServer())
             return new Promise(
                 (resolve, reject) => {
                     if (this._read()) {
@@ -129,7 +131,7 @@ class InCache {
      * @since 6.0.0
      */
     save() {
-        if(helper.isServer())
+        if (helper.isServer())
             return new Promise(
                 (resolve, reject) => {
                     if (this._write()) {
@@ -258,6 +260,7 @@ class InCache {
      * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
      * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwrites global configuration)
+     * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwrites global configuration)
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
      * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
      * @returns {InCache~record|*}
@@ -278,12 +281,18 @@ class InCache {
 
         opts = helper.defaults(opts, this._opts);
 
-        if(opts.clone)
+        if (opts.preserve && this.has(key)) {
+            return;
+        }
+
+        if (opts.clone) {
             value = clone(value);
+        }
 
         let record = {
             id: null,
             isNew: true,
+            isPreserved: opts.preserve,
             createdOn: null,
             updatedOn: null,
             expiresOn: null,
@@ -778,6 +787,7 @@ class InCache {
      * @param err {null|string} error message, if no errors occurred is null
      * @since 6.0.0
      */
+
     /***************************** DEPRECATED ********************************/
 
     /**

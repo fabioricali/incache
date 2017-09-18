@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
         - `autoLoad`
         - `autoSave`
         - `clone`
+        - `preserve`
     - methods
         - `load()`
         - `save()` 
