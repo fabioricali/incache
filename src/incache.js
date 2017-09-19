@@ -37,7 +37,9 @@ class InCache {
             '_storage': {writable: true, enumerable: false},
             '_memory': {writable: true, enumerable: false},
             '_emitter': {writable: true, enumerable: false},
-            '_opts': {writable: true, enumerable: false}
+            '_opts': {writable: true, enumerable: false},
+            '_timerExpiryCheck': {writable: true, enumerable: false},
+            'GLOBAL_KEY': {writable: true, enumerable: false}
         });
 
         this._emitter = new Flak();
