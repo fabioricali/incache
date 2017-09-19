@@ -33,13 +33,13 @@ class InCache {
     constructor(opts = {}) {
 
         Object.defineProperties(this, {
-            '_root': {writable: true, enumerable: false},
-            '_storage': {writable: true, enumerable: false},
-            '_memory': {writable: true, enumerable: false},
-            '_emitter': {writable: true, enumerable: false},
-            '_opts': {writable: true, enumerable: false},
-            '_timerExpiryCheck': {writable: true, enumerable: false},
-            'GLOBAL_KEY': {writable: true, enumerable: false}
+            _root: {writable: true, enumerable: false},
+            _storage: {writable: true, enumerable: false},
+            _memory: {writable: true, enumerable: false},
+            _emitter: {writable: true, enumerable: false},
+            _opts: {writable: true, enumerable: false},
+            _timerExpiryCheck: {writable: true, enumerable: false},
+            GLOBAL_KEY: {writable: true, enumerable: false}
         });
 
         this._emitter = new Flak();
@@ -119,7 +119,7 @@ class InCache {
         let keys = Object.keys(this._storage);
         /* istanbul ignore else  */
         if(helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber){
-            let diff = Math.abs(this._opts.maxRecordNumber - keys.length);
+            let diff = keys.length - this._opts.maxRecordNumber;
             this.bulkRemove(keys.slice(0, diff), true);
         }
     }
