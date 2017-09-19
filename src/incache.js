@@ -775,6 +775,7 @@ class InCache {
      * @since 6.0.0
      */
     count() {
+        this.removeExpired();
         return Object.keys(this._storage).length;
     }
 
