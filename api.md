@@ -12,7 +12,7 @@
         * [.setConfig([opts])](#InCache+setConfig)
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
         * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code>
-        * [.get(key, [onlyValue])](#InCache+get) ⇒ <code>\*</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
+        * [.get(key, [onlyValue])](#InCache+get) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code> \| <code>null</code> \| <code>undefined</code>
         * [.remove(key, [silent])](#InCache+remove)
         * [.removeFrom(key, where)](#InCache+removeFrom)
         * [.removeExpired()](#InCache+removeExpired) ⇒ <code>Array</code>
@@ -94,9 +94,6 @@ Create instance
     <td>[opts.autoSave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
 </td>
     </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true saves cache in disk when the process is terminated. Use <code>autoSave</code> instead. (server only)</p>
-</td>
-    </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
 </td>
     </tr><tr>
@@ -110,6 +107,9 @@ Create instance
 </td>
     </tr><tr>
     <td>[opts.nullIfNotFound]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>calling <code>get</code> if the key is not found returns <code>null</code>. If false returns <code>undefined</code></p>
+</td>
+    </tr><tr>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true saves cache in disk when the process is terminated. Use <code>autoSave</code> instead. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p><strong>deprecated:</strong> global record configuration</p>
@@ -217,7 +217,7 @@ inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCac
 ```
 <a name="InCache+get"></a>
 
-### inCache.get(key, [onlyValue]) ⇒ <code>\*</code> \| <code>null</code> \| [<code>record</code>](#InCache..record)
+### inCache.get(key, [onlyValue]) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code> \| <code>null</code> \| <code>undefined</code>
 Get record by key
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  

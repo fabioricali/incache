@@ -684,6 +684,7 @@ class InCache {
     /**
      * Returns total of records in storage
      * @returns {Number}
+     * @since 6.0.0
      */
     count() {
         return Object.keys(this._storage).length;
