@@ -400,11 +400,11 @@ class InCache {
         if (helper.is(where, 'undefined'))
             throw new Error('where cannot be undefined');
 
-        let recordValue = this.get(key);
-
         if (this.isPreserved(key)) {
             return;
         }
+
+        let recordValue = this.get(key);
 
         if (!helper.is(recordValue, 'array'))
             throw new Error('value must be an array');
@@ -493,11 +493,12 @@ class InCache {
      */
     prependTo(key, value) {
         if (!this.has(key)) return;
-        let record = this.get(key);
 
         if (this.isPreserved(key)) {
             return;
         }
+
+        let record = this.get(key);
 
         if (!helper.is(record, 'array'))
             throw new Error('object must be an array');
@@ -530,11 +531,11 @@ class InCache {
         if (helper.is(where, 'undefined'))
             throw new Error('where cannot be undefined');
 
-        let recordValue = this.get(key);
-
         if (this.isPreserved(key)) {
             return;
         }
+
+        let recordValue = this.get(key);
 
         if (!helper.is(recordValue, 'array'))
             throw new Error('value must be an array');
