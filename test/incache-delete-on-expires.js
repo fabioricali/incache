@@ -40,6 +40,8 @@ describe('delete on expires', function () {
 
         cache.set('k0', 'v0');
 
+        console.log(cache);
+
         setTimeout(function () {
             cache.get('k0');
             be.err(done).equal(cache.count(), 0);

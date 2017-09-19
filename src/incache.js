@@ -32,6 +32,14 @@ class InCache {
      */
     constructor(opts = {}) {
 
+        Object.defineProperties(this, {
+            '_root': {writable: true, enumerable: false},
+            '_storage': {writable: true, enumerable: false},
+            '_memory': {writable: true, enumerable: false},
+            '_emitter': {writable: true, enumerable: false},
+            '_opts': {writable: true, enumerable: false}
+        });
+
         this._emitter = new Flak();
 
         this._timerExpiryCheck = null;
