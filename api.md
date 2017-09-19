@@ -469,6 +469,7 @@ Fetch all records
 Returns total of records in storage
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.0.0  
 <a name="InCache+expired"></a>
 
 ### inCache.expired(key) ⇒ <code>boolean</code>
