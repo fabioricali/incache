@@ -33,18 +33,61 @@ class InCache {
     constructor(opts = {}) {
 
         Object.defineProperties(this, {
-            _root: {writable: true, enumerable: false},
-            _storage: {writable: true, enumerable: false},
-            _memory: {writable: true, enumerable: false},
-            _emitter: {writable: true, enumerable: false},
-            _opts: {writable: true, enumerable: false},
-            _timerExpiryCheck: {writable: true, enumerable: false},
-            GLOBAL_KEY: {writable: true, enumerable: false}
+            _root: {
+                writable: true,
+                enumerable: false
+            },
+            _storage: {
+                writable: true,
+                enumerable: false
+            },
+            _memory: {
+                writable: true,
+                enumerable: false
+            },
+            _emitter: {
+                value: new Flak()
+            },
+            _opts: {
+                writable: true,
+                enumerable: false
+            },
+            _timerExpiryCheck: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            GLOBAL_KEY: {
+                writable: true,
+                enumerable: false
+            },
+            SAVE_MODE: {
+                value: {
+                    terminate: 'onTerminate',
+                    timer: 'onTimer'
+                },
+                enumerable: true
+            },
+            toSave: {
+                value: false,
+                writable: true,
+                enumerable: false
+            }
         });
 
-        this._emitter = new Flak();
+        /**
+         * @constant InCache~SAVE_MODE
+         */
 
-        this._timerExpiryCheck = null;
+        /**
+         * @memberOf InCache~SAVE_MODE
+         * @name terminate
+         */
+
+        /**
+         * @memberOf InCache~SAVE_MODE
+         * @name timer
+         */
 
         /**
          * Global key
@@ -56,12 +99,14 @@ class InCache {
         /**
          * InCache default configuration
          * @ignore
-         * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, share: boolean, global: {silent: boolean, life: number}}}
+         * @type {{storeName: string, autoLoad: boolean, autoSave: boolean, autoSaveMode, autoSavePeriod: number, save: boolean, clone: boolean, preserve: boolean, deleteOnExpires: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, share: boolean, autoRemovePeriod: number, nullIfNotFound: boolean, global: {silent: boolean, life: number}}}
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
             autoLoad: true,
             autoSave: false,
+            autoSaveMode: this.SAVE_MODE.terminate,
+            autoSavePeriod: 5,
             save: false,
             clone: false,
             preserve: false,
@@ -118,7 +163,7 @@ class InCache {
     _checkExceeded() {
         let keys = Object.keys(this._storage);
         /* istanbul ignore else  */
-        if(helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber){
+        if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
             let diff = keys.length - this._opts.maxRecordNumber;
             this.bulkRemove(keys.slice(0, diff), true);
         }
@@ -222,7 +267,8 @@ class InCache {
         /* istanbul ignore else  */
         if (helper.isServer()) {
             if (opts.autoLoad)
-                this.load().then().catch((e)=>{});
+                this.load().then().catch((e) => {
+                });
 
             /* istanbul ignore else  */
             if (opts.autoSave || opts.save) {
@@ -231,7 +277,8 @@ class InCache {
 
                 // Wrap function
                 function pWrite() {
-                    self.save().then().catch((e)=>{});
+                    self.save().then().catch((e) => {
+                    });
                 }
 
                 // Remove if event already exists
