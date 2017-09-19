@@ -23,6 +23,7 @@
         * [.bulkRemove(keys, [silent])](#InCache+bulkRemove)
         * [.clean(key)](#InCache+clean)
         * [.all()](#InCache+all) ⇒ <code>Array</code>
+        * [.count()](#InCache+count) ⇒ <code>Number</code>
         * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
@@ -66,13 +67,25 @@ Create instance
     <td>[opts]</td><td><code>Object</code></td><td></td><td><p>configuration object</p>
 </td>
     </tr><tr>
-    <td>[opts.maxAge]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age in milliseconds. If 0 not expire</p>
+    <td>[opts.maxAge]</td><td><code>number</code></td><td><code>0</code></td><td><p>max age in milliseconds. If 0 not expire. (overwritable by <code>set</code>)</p>
 </td>
     </tr><tr>
-    <td>[opts.expires]</td><td><code>Date</code> | <code>string</code></td><td></td><td><p>a Date for expiration. (overwrites <code>opts.maxAge</code>)</p>
+    <td>[opts.expires]</td><td><code>Date</code> | <code>string</code></td><td></td><td><p>a Date for expiration. (overwrites <code>opts.maxAge</code>, overwritable by <code>set</code>)</p>
 </td>
     </tr><tr>
-    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
+    <td>[opts.silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered. (overwritable by <code>set</code>)</p>
+</td>
+    </tr><tr>
+    <td>[opts.deleteOnExpires]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false, the record will not be deleted after expiry. (overwritable by <code>set</code>)</p>
+</td>
+    </tr><tr>
+    <td>[opts.clone]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, the object will be cloned before to put it in storage. (overwritable by <code>set</code>)</p>
+</td>
+    </tr><tr>
+    <td>[opts.preserve]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, you will no longer be able to update the record once created. (overwritable by <code>set</code>)</p>
+</td>
+    </tr><tr>
+    <td>[opts.maxRecordNumber]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled</p>
 </td>
     </tr><tr>
     <td>[opts.autoLoad]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created. (server only)</p>
@@ -91,15 +104,6 @@ Create instance
 </td>
     </tr><tr>
     <td>[opts.share]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, use global object as storage</p>
-</td>
-    </tr><tr>
-    <td>[opts.deleteOnExpires]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false, the record will not be deleted after expiry</p>
-</td>
-    </tr><tr>
-    <td>[opts.clone]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, the object will be cloned before to put it in storage</p>
-</td>
-    </tr><tr>
-    <td>[opts.preserve]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, you will no longer be able to update the record once created</p>
 </td>
     </tr><tr>
     <td>[opts.autoRemovePeriod]</td><td><code>number</code></td><td><code>0</code></td><td><p>period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won&#39;t run</p>
@@ -418,7 +422,7 @@ Delete multiple records
   </thead>
   <tbody>
 <tr>
-    <td>keys</td><td><code>array</code></td><td></td><td><p>an array of keys</p>
+    <td>keys</td><td><code>Array</code></td><td></td><td><p>an array of keys</p>
 </td>
     </tr><tr>
     <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
@@ -457,6 +461,12 @@ inCache.set('/api/users/foo', 'Mario Rossi');inCache.set('/api/users/bar', 'Ant
 
 ### inCache.all() ⇒ <code>Array</code>
 Fetch all records
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+<a name="InCache+count"></a>
+
+### inCache.count() ⇒ <code>Number</code>
+Returns total of records in storage
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <a name="InCache+expired"></a>

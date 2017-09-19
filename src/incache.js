@@ -18,12 +18,12 @@ class InCache {
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
-     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
      * @param [opts.nullIfNotFound=false] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
+     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
      * @param [opts.global] {Object} **deprecated:** global record configuration
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
@@ -366,7 +366,7 @@ class InCache {
      * Get record by key
      * @param key {*}
      * @param [onlyValue=true] {boolean} if false get InCache record
-     * @returns {*|null|InCache~record}
+     * @returns {InCache~record|*|null|undefined}
      * @example
      * inCache.get('my key');
      */
