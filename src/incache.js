@@ -402,6 +402,10 @@ class InCache {
 
         let recordValue = this.get(key);
 
+        if (this.isPreserved(key)) {
+            return;
+        }
+
         if (!helper.is(recordValue, 'array'))
             throw new Error('value must be an array');
 
@@ -491,7 +495,7 @@ class InCache {
         if (!this.has(key)) return;
         let record = this.get(key);
 
-        if (record.isPreserved) {
+        if (this.isPreserved(key)) {
             return;
         }
 
@@ -528,7 +532,7 @@ class InCache {
 
         let recordValue = this.get(key);
 
-        if (recordValue.isPreserved) {
+        if (this.isPreserved(key)) {
             return;
         }
 
