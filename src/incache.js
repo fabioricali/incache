@@ -18,6 +18,7 @@ class InCache {
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
+     * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage
      * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
@@ -53,6 +54,7 @@ class InCache {
             save: false,
             clone: false,
             preserve: false,
+            deleteOnExpires: true,
             filePath: '.incache',
             maxAge: 0,
             expires: null,
@@ -253,6 +255,7 @@ class InCache {
      * @property {string} id - uuid
      * @property {boolean} isNew - indicates if is a new record
      * @property {boolean} isPreserved - indicates if record will no longer be editable once created
+     * @property {boolean} toDelete - indicates if record will be deleted after expiry
      * @property {Date|null} createdOn - creation date
      * @property {Date|null} updatedOn - update date
      * @property {Date|null} expiresOn - expiry date
@@ -269,6 +272,7 @@ class InCache {
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwrites global configuration)
      * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwrites global configuration)
      * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
+     * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwrites global configuration)
      * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
      * @returns {InCache~record|*}
      * @fires InCache#beforeSet
@@ -290,7 +294,7 @@ class InCache {
         opts = helper.defaults(opts, this._opts);
 
         /* istanbul ignore else  */
-        if (this.isPreserved(key)) {
+        if (this.has(key) && this._storage[key].isPreserved) {
             return;
         }
 
@@ -303,6 +307,7 @@ class InCache {
             id: null,
             isNew: true,
             isPreserved: opts.preserve,
+            toDelete: opts.deleteOnExpires,
             createdOn: null,
             updatedOn: null,
             expiresOn: null,
@@ -355,7 +360,7 @@ class InCache {
      */
     get(key, onlyValue = true) {
         if (this.has(key)) {
-            if (!this._opts.autoRemovePeriod && this.expired(key)) {
+            if (!this._opts.autoRemovePeriod && this.expired(key) && this._storage[key].toDelete) {
                 this.remove(key, true);
                 return (this._opts.nullIfNotFound ? null : undefined);
             }
@@ -400,7 +405,7 @@ class InCache {
         if (helper.is(where, 'undefined'))
             throw new Error('where cannot be undefined');
 
-        if (this.isPreserved(key)) {
+        if (this._storage[key].isPreserved) {
             return;
         }
 
@@ -447,7 +452,7 @@ class InCache {
     removeExpired() {
         const expired = [];
         for (let key in this._storage) {
-            if (this._storage.hasOwnProperty(key) && this.expired(key)) {
+            if (this._storage.hasOwnProperty(key) && this.expired(key) && this._storage[key].toDelete) {
                 this.remove(key, true);
                 expired.push(key);
             }
@@ -494,7 +499,7 @@ class InCache {
     prependTo(key, value) {
         if (!this.has(key)) return;
 
-        if (this.isPreserved(key)) {
+        if (this._storage[key].isPreserved) {
             return;
         }
 
@@ -531,7 +536,7 @@ class InCache {
         if (helper.is(where, 'undefined'))
             throw new Error('where cannot be undefined');
 
-        if (this.isPreserved(key)) {
+        if (this._storage[key].isPreserved) {
             return;
         }
 
@@ -650,7 +655,7 @@ class InCache {
 
         for (let key in this._storage) {
             if (this._storage.hasOwnProperty(key)) {
-                if (!this._opts.autoRemovePeriod && this.expired(key)) {
+                if (!this._opts.autoRemovePeriod && this.expired(key) && this._storage[key].toDelete) {
                     this.remove(key, true);
                 } else {
                     records.push({
@@ -709,16 +714,6 @@ class InCache {
      */
     destroy(...args) {
         this.remove.apply(this, args);
-    }
-
-    /**
-     * Check if record is preserved
-     * @param key
-     * @since 6.0.0
-     * @returns {boolean}
-     */
-    isPreserved(key) {
-        return this.has(key) && this._storage[key].isPreserved;
     }
 
     /**

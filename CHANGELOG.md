@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
         - `autoSave`
         - `clone`
         - `preserve`
+        - `deleteOnExpires`
     - methods
         - `load()`
         - `save()` 

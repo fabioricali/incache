@@ -39,7 +39,7 @@ describe('preserve', function () {
 
         cache.set('k', 'v');
 
-        let result = cache.isPreserved('k');
+        let result = cache.get('k', false).isPreserved;
 
         be.err.true(result);
     });
@@ -51,7 +51,7 @@ describe('preserve', function () {
 
         cache.set('k', 'v');
 
-        let result = cache.isPreserved('k');
+        let result = cache.get('k', false).isPreserved;
 
         be.err.false(result);
     });
