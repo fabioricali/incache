@@ -27,7 +27,6 @@
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
-        * [.isPreserved(key)](#InCache+isPreserved) ⇒ <code>boolean</code>
         * [.on(eventName, callback)](#InCache+on)
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
@@ -92,6 +91,9 @@ Create instance
 </td>
     </tr><tr>
     <td>[opts.share]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, use global object as storage</p>
+</td>
+    </tr><tr>
+    <td>[opts.deleteOnExpires]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false, the record will not be deleted after expiry</p>
 </td>
     </tr><tr>
     <td>[opts.clone]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, the object will be cloned before to put it in storage</p>
@@ -195,6 +197,9 @@ Set/update record
 </td>
     </tr><tr>
     <td>[opts.expires]</td><td><code>Date</code> | <code>string</code></td><td></td><td><p>a Date for expiration. (overwrites global configuration and <code>opts.maxAge</code>)</p>
+</td>
+    </tr><tr>
+    <td>[opts.deleteOnExpires]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false, the record will not be deleted after expiry. (overwrites global configuration)</p>
 </td>
     </tr><tr>
     <td>[opts.life]</td><td><code>number</code></td><td><code>0</code></td><td><p><strong>deprecated:</strong> max age in seconds. If 0 not expire. (overwrites global configuration)</p>
@@ -516,25 +521,6 @@ Alias of `remove`
   <tbody>
 <tr>
     <td>...args</td>
-    </tr>  </tbody>
-</table>
-
-<a name="InCache+isPreserved"></a>
-
-### inCache.isPreserved(key) ⇒ <code>boolean</code>
-Check if record is preserved
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Since**: 6.0.0  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>key</td>
     </tr>  </tbody>
 </table>
 
@@ -930,6 +916,9 @@ InCache record
 </td>
     </tr><tr>
     <td>isPreserved</td><td><code>boolean</code></td><td><p>indicates if record will no longer be editable once created</p>
+</td>
+    </tr><tr>
+    <td>toDelete</td><td><code>boolean</code></td><td><p>indicates if record will be deleted after expiry</p>
 </td>
     </tr><tr>
     <td>createdOn</td><td><code>Date</code> | <code>null</code></td><td><p>creation date</p>
