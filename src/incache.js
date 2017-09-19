@@ -109,6 +109,7 @@ class InCache {
      * @since 6.0.0
      */
     load() {
+        /* istanbul ignore else  */
         if (helper.isServer())
             return new Promise(
                 (resolve, reject) => {
@@ -131,6 +132,7 @@ class InCache {
      * @since 6.0.0
      */
     save() {
+        /* istanbul ignore else  */
         if (helper.isServer())
             return new Promise(
                 (resolve, reject) => {
@@ -174,6 +176,7 @@ class InCache {
                 : window
             : {};
 
+        /* istanbul ignore else  */
         if (opts.storeName)
             this.GLOBAL_KEY += opts.storeName;
 
@@ -199,6 +202,7 @@ class InCache {
             if (opts.autoLoad)
                 this.load().then().catch((e)=>{});
 
+            /* istanbul ignore else  */
             if (opts.autoSave || opts.save) {
 
                 let self = this;
@@ -218,11 +222,13 @@ class InCache {
             }
         }
 
+        /* istanbul ignore else  */
         if (this._timerExpiryCheck) {
             clearInterval(this._timerExpiryCheck);
             this._timerExpiryCheck = null;
         }
 
+        /* istanbul ignore else  */
         if (opts.autoRemovePeriod) {
             this._timerExpiryCheck = setInterval(() => {
                 let expired = this.removeExpired();
@@ -276,16 +282,19 @@ class InCache {
      */
     set(key, value, opts = {}) {
 
+        /* istanbul ignore else  */
         if (!opts.silent && this._emitter.fireTheFirst('beforeSet', key, value) === false) {
             return;
         }
 
         opts = helper.defaults(opts, this._opts);
 
+        /* istanbul ignore else  */
         if (this.isPreserved(key)) {
             return;
         }
 
+        /* istanbul ignore else  */
         if (opts.clone) {
             value = clone(value);
         }
