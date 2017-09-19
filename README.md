@@ -44,9 +44,40 @@ store.remove('my key');
 store.clear();
 
 // Expires after 2 seconds
-incache.set('my string', 'hello world', {maxAge: 2000});
+store.set('my string', 'hello world', {maxAge: 2000});
 // Or expires on...
-incache.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
+store.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
+```
+
+### Auto remove expired records
+```javascript
+const store = new InCache({
+    autoRemovePeriod: 2 //check every 2 seconds
+});
+
+store.set('my string', 'hello world', {maxAge: 4000});
+
+setTimeout(()=>{
+    console.log(store.count()) //=> 0
+}, 6000);
+```
+
+### Max cache size
+```javascript
+const store = new InCache({
+    maxRecordNumber: 5
+});
+
+store.set('k0', 'v0');
+store.set('k1', 'v1');
+store.set('k2', 'v2');
+store.set('k3', 'v3');
+store.set('k4', 'v4');
+store.set('k5', 'v5');
+
+console.log(store.count()); //=> 5
+console.log(store.has('k0')); //=> false
+
 ```
 
 ### Save on disk

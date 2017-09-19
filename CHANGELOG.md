@@ -12,9 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
         - `clone`
         - `preserve`
         - `deleteOnExpires`
+        - `maxRecordNumber`
     - methods
         - `load()`
         - `save()` 
+        - `count()` 
     - events
         - `load`
         - `save`    

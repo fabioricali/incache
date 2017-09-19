@@ -9,18 +9,19 @@ class InCache {
     /**
      * Create instance
      * @param [opts] {Object} configuration object
-     * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire
-     * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`)
-     * @param [opts.silent=false] {boolean} if true no event will be triggered
+     * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwritable by `set`)
+     * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`, overwritable by `set`)
+     * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwritable by `set`)
+     * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwritable by `set`)
+     * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwritable by `set`)
+     * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwritable by `set`)
+     * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
      * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
-     * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry
-     * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage
-     * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
      * @param [opts.nullIfNotFound=false] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
      * @param [opts.global] {Object} **deprecated:** global record configuration
@@ -102,6 +103,15 @@ class InCache {
             return true;
         } else
             return false;
+    }
+
+    _checkExceeded() {
+        let keys = Object.keys(this._storage);
+        /* istanbul ignore else  */
+        if(helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber){
+            let diff = Math.abs(this._opts.maxRecordNumber - keys.length);
+            this.bulkRemove(keys.slice(0, diff), true);
+        }
     }
 
     /**
@@ -346,6 +356,8 @@ class InCache {
         if (!opts.silent) {
             this._emitter.fire('set', key, record);
         }
+
+        this._checkExceeded();
 
         return record;
     }
@@ -604,7 +616,7 @@ class InCache {
 
     /**
      * Delete multiple records
-     * @param keys {array} an array of keys
+     * @param keys {Array} an array of keys
      * @param [silent=false] {boolean} if true no event will be triggered
      * @fires InCache#beforeBulkRemove
      * @fires InCache#bulkRemove
@@ -667,6 +679,14 @@ class InCache {
         }
 
         return records;
+    }
+
+    /**
+     * Returns total of records in storage
+     * @returns {Number}
+     */
+    count() {
+        return Object.keys(this._storage).length;
     }
 
     /**
