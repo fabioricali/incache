@@ -1,3 +1,17 @@
+## Classes
+
+<dl>
+<dt><a href="#InCache">InCache</a></dt>
+<dd></dd>
+</dl>
+
+## Constants
+
+<dl>
+<dt><a href="#SAVE_MODE">SAVE_MODE</a></dt>
+<dd></dd>
+</dl>
+
 <a name="InCache"></a>
 
 ## InCache
@@ -46,9 +60,6 @@
         * ["load" (err)](#InCache+event_load)
         * ["save" (err)](#InCache+event_save)
     * _inner_
-        * [~SAVE_MODE](#InCache..SAVE_MODE)
-            * [.terminate](#InCache..SAVE_MODE.terminate)
-            * [.timer](#InCache..SAVE_MODE.timer)
         * [~record](#InCache..record) : <code>Object</code>
         * <del>[~removedCallback](#InCache..removedCallback) : <code>function</code></del>
         * <del>[~createdCallback](#InCache..createdCallback) : <code>function</code></del>
@@ -907,23 +918,6 @@ Triggered after save invocation
     </tr>  </tbody>
 </table>
 
-<a name="InCache..SAVE_MODE"></a>
-
-### InCache~SAVE_MODE
-**Kind**: inner constant of [<code>InCache</code>](#InCache)  
-
-* [~SAVE_MODE](#InCache..SAVE_MODE)
-    * [.terminate](#InCache..SAVE_MODE.terminate)
-    * [.timer](#InCache..SAVE_MODE.timer)
-
-<a name="InCache..SAVE_MODE.terminate"></a>
-
-#### SAVE_MODE.terminate
-**Kind**: static property of [<code>SAVE_MODE</code>](#InCache..SAVE_MODE)  
-<a name="InCache..SAVE_MODE.timer"></a>
-
-#### SAVE_MODE.timer
-**Kind**: static property of [<code>SAVE_MODE</code>](#InCache..SAVE_MODE)  
 <a name="InCache..record"></a>
 
 ### InCache~record : <code>Object</code>
@@ -1035,3 +1029,20 @@ onUpdated callback
     </tr>  </tbody>
 </table>
 
+<a name="SAVE_MODE"></a>
+
+## SAVE_MODE
+**Kind**: global constant  
+
+* [SAVE_MODE](#SAVE_MODE)
+    * [.terminate](#SAVE_MODE.terminate)
+    * [.timer](#SAVE_MODE.timer)
+
+<a name="SAVE_MODE.terminate"></a>
+
+### SAVE_MODE.terminate
+**Kind**: static property of [<code>SAVE_MODE</code>](#SAVE_MODE)  
+<a name="SAVE_MODE.timer"></a>
+
+### SAVE_MODE.timer
+**Kind**: static property of [<code>SAVE_MODE</code>](#SAVE_MODE)  

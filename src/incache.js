@@ -4,6 +4,32 @@ const fs = require('fs');
 const uuid = require('uuid/v1');
 const clone = require('clone');
 
+/**
+ * @constant SAVE_MODE
+ */
+
+/**
+ * @memberOf SAVE_MODE
+ * @name terminate
+ */
+
+/**
+ * @memberOf SAVE_MODE
+ * @name timer
+ */
+const SAVE_MODE = {};
+
+Object.defineProperties(SAVE_MODE, {
+    terminate: {
+        value: 'onTerminate',
+        enumerable: true
+    },
+    timer: {
+        value: 'onTimer',
+        enumerable: true
+    }
+});
+
 class InCache {
 
     /**
@@ -57,16 +83,14 @@ class InCache {
                 writable: true,
                 enumerable: false
             },
-            GLOBAL_KEY: {
+            _timerSaveCheck: {
+                value: null,
                 writable: true,
                 enumerable: false
             },
-            SAVE_MODE: {
-                value: {
-                    terminate: 'onTerminate',
-                    timer: 'onTimer'
-                },
-                enumerable: true
+            GLOBAL_KEY: {
+                writable: true,
+                enumerable: false
             },
             toSave: {
                 value: false,
@@ -74,20 +98,6 @@ class InCache {
                 enumerable: false
             }
         });
-
-        /**
-         * @constant InCache~SAVE_MODE
-         */
-
-        /**
-         * @memberOf InCache~SAVE_MODE
-         * @name terminate
-         */
-
-        /**
-         * @memberOf InCache~SAVE_MODE
-         * @name timer
-         */
 
         /**
          * Global key
@@ -99,13 +109,12 @@ class InCache {
         /**
          * InCache default configuration
          * @ignore
-         * @type {{storeName: string, autoLoad: boolean, autoSave: boolean, autoSaveMode, autoSavePeriod: number, save: boolean, clone: boolean, preserve: boolean, deleteOnExpires: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, share: boolean, autoRemovePeriod: number, nullIfNotFound: boolean, global: {silent: boolean, life: number}}}
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
             autoLoad: true,
             autoSave: false,
-            autoSaveMode: this.SAVE_MODE.terminate,
+            autoSaveMode: SAVE_MODE.terminate,
             autoSavePeriod: 5,
             save: false,
             clone: false,
@@ -131,6 +140,10 @@ class InCache {
         };
         this._onUpdated = () => {
         };
+
+        this.on('_change', () => {
+            this.toSave = true;
+        });
 
         this.setConfig(opts);
     }
@@ -306,6 +319,21 @@ class InCache {
                 }
             }, opts.autoRemovePeriod * 1000);
         }
+
+        /* istanbul ignore else  */
+        if (this._timerSaveCheck) {
+            clearInterval(this._timerSaveCheck);
+            this._timerSaveCheck = null;
+        }
+
+        /* istanbul ignore else  */
+        if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.timer) {
+            this._timerSaveCheck = setInterval(() => {
+                if (this.toSave) {
+
+                }
+            }, opts.autoSavePeriod * 1000);
+        }
     }
 
     /**
@@ -416,6 +444,8 @@ class InCache {
 
         this._checkExceeded();
 
+        this._emitter.fire('_change');
+
         return record;
     }
 
@@ -457,6 +487,7 @@ class InCache {
             this._onRemoved.call(this, key);
             this._emitter.fire('remove', key);
         }
+        this._emitter.fire('_change');
     }
 
     /**
@@ -967,3 +998,4 @@ class InCache {
  * Expose module
  */
 module.exports = InCache;
+module.exports.SAVE_MODE = SAVE_MODE;
