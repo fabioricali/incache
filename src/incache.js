@@ -209,7 +209,7 @@ class InCache {
                     lastSave: null
                 },
                 data: {},
-                config: this.DEFAULT_CONFIG
+                config: this._opts
             };
         }
 
