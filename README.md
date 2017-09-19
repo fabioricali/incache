@@ -52,7 +52,7 @@ store.set('my string', 'hello world', {expires: '2028-08-22 12:00:00'});
 ### Auto remove expired records
 ```javascript
 const store = new InCache({
-    autoRemovePeriod: 2 //check every 2 seconds
+    autoRemovePeriod: 2 //checks every 2 seconds
 });
 
 store.set('my string', 'hello world', {maxAge: 4000});
@@ -77,7 +77,6 @@ store.set('k5', 'v5');
 
 console.log(store.count()); //=> 5
 console.log(store.has('k0')); //=> false
-
 ```
 
 ### Save on disk
