@@ -73,6 +73,66 @@ describe('cache-events', function () {
                 cache.set('myKeyBBB', 'myValue');
             });
         });
+        describe('load', function () {
+            it('should be return done, file not found', (done)=>{
+                const cache = new InCache();
+
+                cache.on('load', (err)=>{
+                    console.log('load with', 'error', err);
+                    if(err)
+                        done();
+                });
+            });
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    filePath: './test/.incache-save2'
+                });
+
+                cache.on('load', (err)=>{
+                    console.log('load with', 'error', err);
+                    if(err === null)
+                        done();
+                });
+            });
+            it('should be return done, autoLoad false', (done)=>{
+                const cache = new InCache({
+                    autoLoad: false,
+                    filePath: './test/.incache-save2'
+                });
+
+                cache.load().then(()=>{
+                    console.log('loaded');
+                }).catch(e => {
+                    console.log(e);
+                });
+
+                cache.on('load', (err)=>{
+                    console.log('load with', 'error', err);
+                    if(err === null)
+                        done();
+                });
+            });
+        });
+        describe('save', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    autoSave: false,
+                    filePath: './test/.incache-save2'
+                });
+
+                cache.save().then(()=>{
+                    console.log('saved');
+                }).catch(e => {
+                    console.log(e);
+                });
+
+                cache.on('save', (err)=>{
+                    console.log('save with', 'error', err);
+                    if(err === null)
+                        done();
+                });
+            });
+        });
         describe('remove', function () {
             it('should be return done', (done)=>{
                 const cache = new InCache({

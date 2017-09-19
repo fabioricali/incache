@@ -114,11 +114,11 @@ class InCache {
                 (resolve, reject) => {
                     if (this._read()) {
                         resolve();
-                        this._emitter.fire('load', null);
+                        this._emitter.fireAsync('load', null);
                     } else {
                         let err = 'cache file not found';
                         reject(err);
-                        this._emitter.fire('load', err);
+                        this._emitter.fireAsync('load', err);
                     }
                 }
             )
@@ -136,11 +136,11 @@ class InCache {
                 (resolve, reject) => {
                     if (this._write()) {
                         resolve();
-                        this._emitter.fire('save', null);
+                        this._emitter.fireAsync('save', null);
                     } else {
                         let err = 'error during save';
                         reject(err);
-                        this._emitter.fire('save', err);
+                        this._emitter.fireAsync('save', err);
                     }
                 }
             )
