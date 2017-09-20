@@ -94,7 +94,17 @@ class InCache {
                 writable: true,
                 enumerable: false
             },
-            toSave: {
+            lastChange: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            lastSave: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            saving: {
                 value: false,
                 writable: true,
                 enumerable: false
@@ -144,7 +154,7 @@ class InCache {
         };
 
         this.on('_change', () => {
-            this.toSave = true;
+            this.lastChange = (new Date()).getTime();
         });
 
         this.setConfig(opts);
@@ -215,13 +225,16 @@ class InCache {
      */
     save() {
         /* istanbul ignore else  */
-        if (helper.isServer())
+        if (helper.isServer() && !this.saving)
             return new Promise(
                 (resolve, reject) => {
+                    this.saving = true;
                     if (this._write()) {
+                        this.saving = false;
                         resolve();
                         this._emitter.fireAsync('save', null);
                     } else {
+                        this.saving = false;
                         let err = 'error during save';
                         reject(err);
                         this._emitter.fireAsync('save', err);
@@ -316,7 +329,7 @@ class InCache {
                     /* istanbul ignore else  */
                     if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.timer) {
                         this._timerSaveCheck = setInterval(() => {
-                            if (this.toSave) {
+                            if (this.lastChange) {
 
                             }
                         }, opts.autoSavePeriod * 1000);
