@@ -345,7 +345,7 @@ class InCache {
                     }
 
                     /* istanbul ignore else  */
-                    if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.TIMER) {
+                    if (opts.autoSavePeriod) {
                         this._timerSaveCheck = setInterval(() => {
                             if (this._lastChange !== this._lastChangeDetected) {
                                 this._lastChangeDetected = this._lastChange;
