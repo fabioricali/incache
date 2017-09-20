@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     - options
         - `autoLoad`
         - `autoSave`
+        - `autoSaveMode`
+        - `autoSavePeriod`
         - `clone`
         - `preserve`
         - `deleteOnExpires`
