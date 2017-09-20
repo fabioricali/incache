@@ -213,17 +213,17 @@ class InCache {
     load() {
         return new Promise(
             (resolve, reject) => {
-                if (helper.isServer()) return reject('operation not allowed');
+                if (!helper.isServer()) return reject('operation not allowed');
                 if (this._loading) return reject('loading locked');
 
                 this._loading = true;
 
                 if (this._read()) {
-                    this._loading = true;
+                    this._loading = false;
                     resolve();
                     this._emitter.fireAsync('load', null);
                 } else {
-                    this._loading = true;
+                    this._loading = false;
                     let err = 'cache file not found';
                     reject(err);
                     this._emitter.fireAsync('load', err);
@@ -241,7 +241,7 @@ class InCache {
     save() {
         return new Promise(
             (resolve, reject) => {
-                if (helper.isServer()) return reject('operation not allowed');
+                if (!helper.isServer()) return reject('operation not allowed');
                 if (this._saving) return reject('saving locked');
 
                 this._saving = true;
