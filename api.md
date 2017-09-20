@@ -108,6 +108,12 @@ Create instance
     <td>[opts.autoSave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
 </td>
     </tr><tr>
+    <td>[opts.autoSaveMode]</td><td><code>string</code></td><td><code>&quot;&#x27;onTerminate&#x27;&quot;</code></td><td><p>there are 2 modes -&gt; onTerminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)</p>
+</td>
+    </tr><tr>
+    <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;onTimer&#39; mode. (server only)</p>
+</td>
+    </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
 </td>
     </tr><tr>
