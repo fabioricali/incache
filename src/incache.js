@@ -780,8 +780,10 @@ class InCache {
             throw new Error('key must be a string');
 
         for (let k in this._storage) {
-            if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1)
+            if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) {
                 delete this._storage[k];
+                this._emitter.fire('_change');
+            }
         }
     }
 
@@ -842,6 +844,7 @@ class InCache {
          * @ignore
          */
         this._storage = this._memory.data = {};
+        this._emitter.fire('_change');
     }
 
     /**
