@@ -10,21 +10,21 @@ const clone = require('clone');
 
 /**
  * @memberOf SAVE_MODE
- * @name terminate
+ * @name TERMINATE
  */
 
 /**
  * @memberOf SAVE_MODE
- * @name timer
+ * @name TIMER
  */
 const SAVE_MODE = {};
 
 Object.defineProperties(SAVE_MODE, {
-    terminate: {
+    TERMINATE: {
         value: 'onTerminate',
         enumerable: true
     },
-    timer: {
+    TIMER: {
         value: 'onTimer',
         enumerable: true
     }
@@ -136,7 +136,7 @@ class InCache {
             storeName: '',
             autoLoad: true,
             autoSave: false,
-            autoSaveMode: SAVE_MODE.terminate,
+            autoSaveMode: SAVE_MODE.TERMINATE,
             autoSavePeriod: 5,
             save: false,
             clone: false,
@@ -320,7 +320,7 @@ class InCache {
             if (opts.autoSave || opts.save) {
 
                 /* istanbul ignore else  */
-                if (opts.autoSaveMode === SAVE_MODE.terminate) {
+                if (opts.autoSaveMode === SAVE_MODE.TERMINATE) {
                     let self = this;
 
                     // Wrap function
@@ -337,7 +337,7 @@ class InCache {
                     process.on('exit', pWrite);
                     process.on('SIGINT', pWrite);
 
-                } else if (opts.autoSaveMode === SAVE_MODE.timer) {
+                } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
                     /* istanbul ignore else  */
                     if (this._timerSaveCheck) {
                         clearInterval(this._timerSaveCheck);
@@ -345,7 +345,7 @@ class InCache {
                     }
 
                     /* istanbul ignore else  */
-                    if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.timer) {
+                    if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.TIMER) {
                         this._timerSaveCheck = setInterval(() => {
                             if (this._lastChange !== this._lastChangeDetected) {
                                 this._lastChangeDetected = this._lastChange;
