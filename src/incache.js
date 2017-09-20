@@ -99,6 +99,11 @@ class InCache {
                 writable: true,
                 enumerable: false
             },
+            lastChangeDetected: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
             lastSave: {
                 value: null,
                 writable: true,
