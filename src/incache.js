@@ -45,7 +45,7 @@ class InCache {
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
      * @param [opts.autoSaveMode='onTerminate'] {string} there are 2 modes -> onTerminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)
-     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk (server only)
+     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'onTimer' mode. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
