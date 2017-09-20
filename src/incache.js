@@ -286,21 +286,41 @@ class InCache {
             /* istanbul ignore else  */
             if (opts.autoSave || opts.save) {
 
-                let self = this;
+                /* istanbul ignore else  */
+                if (opts.autoSaveMode === SAVE_MODE.terminate) {
+                    let self = this;
 
-                // Wrap function
-                function pWrite() {
-                    self.save().then().catch((e) => {
-                    });
+                    // Wrap function
+                    function pWrite() {
+                        self.save().then().catch((e) => {
+                        });
+                    }
+
+                    // Remove if event already exists
+                    process.removeListener('exit', pWrite);
+                    process.removeListener('SIGINT', pWrite);
+
+                    process.stdin.resume();
+                    process.on('exit', pWrite);
+                    process.on('SIGINT', pWrite);
+
+                } else if (opts.autoSaveMode === SAVE_MODE.timer) {
+                    /* istanbul ignore else  */
+                    if (this._timerSaveCheck) {
+                        clearInterval(this._timerSaveCheck);
+                        this._timerSaveCheck = null;
+                    }
+
+                    /* istanbul ignore else  */
+                    if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.timer) {
+                        this._timerSaveCheck = setInterval(() => {
+                            if (this.toSave) {
+
+                            }
+                        }, opts.autoSavePeriod * 1000);
+                    }
                 }
 
-                // Remove if event already exists
-                process.removeListener('exit', pWrite);
-                process.removeListener('SIGINT', pWrite);
-
-                process.stdin.resume();
-                process.on('exit', pWrite);
-                process.on('SIGINT', pWrite);
             }
         }
 
@@ -318,21 +338,6 @@ class InCache {
                     this._emitter.fire('expired', expired);
                 }
             }, opts.autoRemovePeriod * 1000);
-        }
-
-        /* istanbul ignore else  */
-        if (this._timerSaveCheck) {
-            clearInterval(this._timerSaveCheck);
-            this._timerSaveCheck = null;
-        }
-
-        /* istanbul ignore else  */
-        if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.timer) {
-            this._timerSaveCheck = setInterval(() => {
-                if (this.toSave) {
-
-                }
-            }, opts.autoSavePeriod * 1000);
         }
     }
 
