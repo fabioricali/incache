@@ -44,8 +44,8 @@ class InCache {
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
-     * @param [opts.autoSaveMode='onTerminate'] {string} (server only)
-     * @param [opts.autoSavePeriod=5] {number} (server only)
+     * @param [opts.autoSaveMode='onTerminate'] {string} there are 2 modes -> onTerminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)
+     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
@@ -94,22 +94,27 @@ class InCache {
                 writable: true,
                 enumerable: false
             },
-            lastChange: {
+            _lastChange: {
                 value: null,
                 writable: true,
                 enumerable: false
             },
-            lastChangeDetected: {
+            _lastChangeDetected: {
                 value: null,
                 writable: true,
                 enumerable: false
             },
-            lastSave: {
+            _lastSave: {
                 value: null,
                 writable: true,
                 enumerable: false
             },
-            saving: {
+            _saving: {
+                value: false,
+                writable: true,
+                enumerable: false
+            },
+            _loading: {
                 value: false,
                 writable: true,
                 enumerable: false
@@ -159,7 +164,7 @@ class InCache {
         };
 
         this.on('_change', () => {
-            this.lastChange = (new Date()).getTime();
+            this._lastChange = (new Date()).getTime();
         });
 
         this.setConfig(opts);
@@ -206,20 +211,25 @@ class InCache {
      * @since 6.0.0
      */
     load() {
-        /* istanbul ignore else  */
-        if (helper.isServer())
-            return new Promise(
-                (resolve, reject) => {
-                    if (this._read()) {
-                        resolve();
-                        this._emitter.fireAsync('load', null);
-                    } else {
-                        let err = 'cache file not found';
-                        reject(err);
-                        this._emitter.fireAsync('load', err);
-                    }
+        return new Promise(
+            (resolve, reject) => {
+                if (helper.isServer()) return reject('operation not allowed');
+                if (this._loading) return reject('loading locked');
+
+                this._loading = true;
+
+                if (this._read()) {
+                    this._loading = true;
+                    resolve();
+                    this._emitter.fireAsync('load', null);
+                } else {
+                    this._loading = true;
+                    let err = 'cache file not found';
+                    reject(err);
+                    this._emitter.fireAsync('load', err);
                 }
-            )
+            }
+        )
     }
 
     /**
@@ -229,23 +239,26 @@ class InCache {
      * @since 6.0.0
      */
     save() {
-        /* istanbul ignore else  */
-        if (helper.isServer() && !this.saving)
-            return new Promise(
-                (resolve, reject) => {
-                    this.saving = true;
-                    if (this._write()) {
-                        this.saving = false;
-                        resolve();
-                        this._emitter.fireAsync('save', null);
-                    } else {
-                        this.saving = false;
-                        let err = 'error during save';
-                        reject(err);
-                        this._emitter.fireAsync('save', err);
-                    }
+        return new Promise(
+            (resolve, reject) => {
+                if (helper.isServer()) return reject('operation not allowed');
+                if (this._saving) return reject('saving locked');
+
+                this._saving = true;
+
+                if (this._write()) {
+                    this._saving = false;
+                    this._lastSave = (new Date()).getTime();
+                    resolve();
+                    this._emitter.fireAsync('save', null);
+                } else {
+                    this._saving = false;
+                    let err = 'error during save';
+                    reject(err);
+                    this._emitter.fireAsync('save', err);
                 }
-            )
+            }
+        )
     }
 
     /**
@@ -284,7 +297,7 @@ class InCache {
         if (!this._root[this.GLOBAL_KEY]) {
             this._root[this.GLOBAL_KEY] = {
                 metadata: {
-                    lastSave: null
+                    _lastSave: null
                 },
                 data: {},
                 config: this._opts
@@ -334,8 +347,9 @@ class InCache {
                     /* istanbul ignore else  */
                     if (opts.autoSavePeriod && opts.autoSaveMode === SAVE_MODE.timer) {
                         this._timerSaveCheck = setInterval(() => {
-                            if (this.lastChange) {
-
+                            if (this._lastChange !== this._lastChangeDetected) {
+                                this._lastChangeDetected = this._lastChange;
+                                this.save().then().catch(e => {});
                             }
                         }, opts.autoSavePeriod * 1000);
                     }
