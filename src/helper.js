@@ -57,7 +57,8 @@ helper.addMSToNow = (ms) => {
  * @returns {boolean}
  */
 helper.isServer = () => {
-    return typeof process === 'object' && typeof process.pid !== 'undefined';
+    //return typeof process === 'object' && typeof process.pid !== 'undefined';
+    return typeof window === 'undefined';
 };
 
 /**
