@@ -613,7 +613,7 @@ class InCache {
         if (!this.has(key)) return;
         let record = this.get(key);
 
-        if (record.isPreserved) {
+        if (this._storage[key].isPreserved) {
             return;
         }
 
