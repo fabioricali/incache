@@ -24,7 +24,12 @@
         "object",
         "global",
         "storage",
-        "share"
+        "share",
+        "node-cache",
+        "localstorage",
+        "session",
+        "database",
+        "db"
     ],
     "author": "Fabio Ricali",
     "license": "MIT",
