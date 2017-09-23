@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 5.2.1  
+// [AIV]  InCache Build version: 6.0.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -62,7 +62,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -102,203 +102,10 @@ module.exports = g;
 "use strict";
 
 
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout() {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-})();
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch (e) {
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch (e) {
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e) {
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e) {
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while (len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) {
-    return [];
-};
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () {
-    return '/';
-};
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function () {
-    return 0;
-};
+module.exports = __webpack_require__(2);
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(3);
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -314,6 +121,32 @@ var fs = __webpack_require__(9);
 var uuid = __webpack_require__(10);
 var clone = __webpack_require__(13);
 
+/**
+ * @constant SAVE_MODE
+ */
+
+/**
+ * @memberOf SAVE_MODE
+ * @name TERMINATE
+ */
+
+/**
+ * @memberOf SAVE_MODE
+ * @name TIMER
+ */
+var SAVE_MODE = {};
+
+Object.defineProperties(SAVE_MODE, {
+    TERMINATE: {
+        value: 'onTerminate',
+        enumerable: true
+    },
+    TIMER: {
+        value: 'onTimer',
+        enumerable: true
+    }
+});
+
 var InCache = function () {
 
     /**
@@ -328,6 +161,8 @@ var InCache = function () {
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
+     * @param [opts.autoSaveMode=onTerminate] {string} there are 2 modes -> onTerminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)
+     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'onTimer' mode. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
@@ -341,13 +176,72 @@ var InCache = function () {
      * @constructor
      */
     function InCache() {
+        var _this = this;
+
         var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
         _classCallCheck(this, InCache);
 
-        this._emitter = new Flak();
-
-        this._timerExpiryCheck = null;
+        Object.defineProperties(this, {
+            _root: {
+                writable: true,
+                enumerable: false
+            },
+            _storage: {
+                writable: true,
+                enumerable: false
+            },
+            _memory: {
+                writable: true,
+                enumerable: false
+            },
+            _emitter: {
+                value: new Flak()
+            },
+            _opts: {
+                writable: true,
+                enumerable: false
+            },
+            _timerExpiryCheck: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _timerSaveCheck: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            GLOBAL_KEY: {
+                writable: true,
+                enumerable: false
+            },
+            _lastChange: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _lastChangeDetected: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _lastSave: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _saving: {
+                value: false,
+                writable: true,
+                enumerable: false
+            },
+            _loading: {
+                value: false,
+                writable: true,
+                enumerable: false
+            }
+        });
 
         /**
          * Global key
@@ -359,12 +253,13 @@ var InCache = function () {
         /**
          * InCache default configuration
          * @ignore
-         * @type {{storeName: string, save: boolean, filePath: string, maxAge: number, expires: null, silent: boolean, share: boolean, global: {silent: boolean, life: number}}}
          */
         this.DEFAULT_CONFIG = {
             storeName: '',
             autoLoad: true,
             autoSave: false,
+            autoSaveMode: SAVE_MODE.TERMINATE,
+            autoSavePeriod: 5,
             save: false,
             clone: false,
             preserve: false,
@@ -386,6 +281,10 @@ var InCache = function () {
         this._onRemoved = function () {};
         this._onCreated = function () {};
         this._onUpdated = function () {};
+
+        this.on('_change', function () {
+            _this._lastChange = new Date().getTime();
+        });
 
         this.setConfig(opts);
     }
@@ -425,7 +324,7 @@ var InCache = function () {
             var keys = Object.keys(this._storage);
             /* istanbul ignore else  */
             if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
-                var diff = Math.abs(this._opts.maxRecordNumber - keys.length);
+                var diff = keys.length - this._opts.maxRecordNumber;
                 this.bulkRemove(keys.slice(0, diff), true);
             }
         }
@@ -440,17 +339,23 @@ var InCache = function () {
     }, {
         key: 'load',
         value: function load() {
-            var _this = this;
+            var _this2 = this;
 
-            /* istanbul ignore else  */
-            if (helper.isServer()) return new Promise(function (resolve, reject) {
-                if (_this._read()) {
+            return new Promise(function (resolve, reject) {
+                if (!helper.isServer()) return reject('operation not allowed');
+                if (_this2._loading) return reject('loading locked');
+
+                _this2._loading = true;
+
+                if (_this2._read()) {
+                    _this2._loading = false;
                     resolve();
-                    _this._emitter.fireAsync('load', null);
+                    _this2._emitter.fireAsync('load', null);
                 } else {
+                    _this2._loading = false;
                     var err = 'cache file not found';
                     reject(err);
-                    _this._emitter.fireAsync('load', err);
+                    _this2._emitter.fireAsync('load', err);
                 }
             });
         }
@@ -465,17 +370,24 @@ var InCache = function () {
     }, {
         key: 'save',
         value: function save() {
-            var _this2 = this;
+            var _this3 = this;
 
-            /* istanbul ignore else  */
-            if (helper.isServer()) return new Promise(function (resolve, reject) {
-                if (_this2._write()) {
+            return new Promise(function (resolve, reject) {
+                if (!helper.isServer()) return reject('operation not allowed');
+                if (_this3._saving) return reject('saving locked');
+
+                _this3._saving = true;
+
+                if (_this3._write()) {
+                    _this3._saving = false;
+                    _this3._lastSave = new Date().getTime();
                     resolve();
-                    _this2._emitter.fireAsync('save', null);
+                    _this3._emitter.fireAsync('save', null);
                 } else {
+                    _this3._saving = false;
                     var err = 'error during save';
                     reject(err);
-                    _this2._emitter.fireAsync('save', err);
+                    _this3._emitter.fireAsync('save', err);
                 }
             });
         }
@@ -490,7 +402,7 @@ var InCache = function () {
     }, {
         key: 'setConfig',
         value: function setConfig() {
-            var _this3 = this;
+            var _this4 = this;
 
             var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -518,10 +430,10 @@ var InCache = function () {
             if (!this._root[this.GLOBAL_KEY]) {
                 this._root[this.GLOBAL_KEY] = {
                     metadata: {
-                        lastSave: null
+                        _lastSave: null
                     },
                     data: {},
-                    config: this.DEFAULT_CONFIG
+                    config: this._opts
                 };
             }
 
@@ -538,20 +450,40 @@ var InCache = function () {
                 /* istanbul ignore else  */
                 if (opts.autoSave || opts.save) {
 
-                    // Wrap function
-                    var pWrite = function pWrite() {
-                        self.save().then().catch(function (e) {});
-                    };
+                    /* istanbul ignore else  */
+                    if (opts.autoSaveMode === SAVE_MODE.TERMINATE) {
 
-                    // Remove if event already exists
+                        // Wrap function
+                        var pWrite = function pWrite() {
+                            self.save().then().catch(function (e) {});
+                        };
+
+                        // Remove if event already exists
 
 
-                    var self = this;process.removeListener('exit', pWrite);
-                    process.removeListener('SIGINT', pWrite);
+                        var self = this;process.removeListener('exit', pWrite);
+                        process.removeListener('SIGINT', pWrite);
 
-                    process.stdin.resume();
-                    process.on('exit', pWrite);
-                    process.on('SIGINT', pWrite);
+                        process.stdin.resume();
+                        process.on('exit', pWrite);
+                        process.on('SIGINT', pWrite);
+                    } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
+                        /* istanbul ignore else  */
+                        if (this._timerSaveCheck) {
+                            clearInterval(this._timerSaveCheck);
+                            this._timerSaveCheck = null;
+                        }
+
+                        /* istanbul ignore else  */
+                        if (opts.autoSavePeriod) {
+                            this._timerSaveCheck = setInterval(function () {
+                                if (_this4._lastChange !== _this4._lastChangeDetected) {
+                                    _this4._lastChangeDetected = _this4._lastChange;
+                                    _this4.save().then().catch(function (e) {});
+                                }
+                            }, opts.autoSavePeriod * 1000);
+                        }
+                    }
                 }
             }
 
@@ -564,9 +496,9 @@ var InCache = function () {
             /* istanbul ignore else  */
             if (opts.autoRemovePeriod) {
                 this._timerExpiryCheck = setInterval(function () {
-                    var expired = _this3.removeExpired();
+                    var expired = _this4.removeExpired();
                     if (expired.length) {
-                        _this3._emitter.fire('expired', expired);
+                        _this4._emitter.fire('expired', expired);
                     }
                 }, opts.autoRemovePeriod * 1000);
             }
@@ -688,6 +620,8 @@ var InCache = function () {
 
             this._checkExceeded();
 
+            this._emitter.fire('_change');
+
             return record;
         }
 
@@ -739,6 +673,7 @@ var InCache = function () {
                 this._onRemoved.call(this, key);
                 this._emitter.fire('remove', key);
             }
+            this._emitter.fire('_change');
         }
 
         /**
@@ -827,7 +762,7 @@ var InCache = function () {
             if (!this.has(key)) return;
             var record = this.get(key);
 
-            if (record.isPreserved) {
+            if (this._storage[key].isPreserved) {
                 return;
             }
 
@@ -997,7 +932,10 @@ var InCache = function () {
             if (!helper.is(key, 'string')) throw new Error('key must be a string');
 
             for (var k in this._storage) {
-                if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) delete this._storage[k];
+                if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) {
+                    delete this._storage[k];
+                    this._emitter.fire('_change');
+                }
             }
         }
 
@@ -1030,11 +968,13 @@ var InCache = function () {
         /**
          * Returns total of records in storage
          * @returns {Number}
+         * @since 6.0.0
          */
 
     }, {
         key: 'count',
         value: function count() {
+            this.removeExpired();
             return Object.keys(this._storage).length;
         }
 
@@ -1068,6 +1008,7 @@ var InCache = function () {
              * @ignore
              */
             this._storage = this._memory.data = {};
+            this._emitter.fire('_change');
         }
 
         /**
@@ -1292,14 +1233,208 @@ var InCache = function () {
 
 
 module.exports = InCache;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)))
+module.exports.SAVE_MODE = SAVE_MODE;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(3)))
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout() {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+})();
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch (e) {
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e) {
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while (len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) {
+    return [];
+};
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () {
+    return '/';
+};
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function () {
+    return 0;
+};
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
+
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -1361,7 +1496,8 @@ helper.addMSToNow = function (ms) {
  * @returns {boolean}
  */
 helper.isServer = function () {
-    return (typeof process === 'undefined' ? 'undefined' : _typeof(process)) === 'object' && typeof process.pid !== 'undefined';
+    //return typeof process === 'object' && typeof process.pid !== 'undefined';
+    return typeof window === 'undefined';
 };
 
 /**
@@ -1381,7 +1517,6 @@ helper.deprecated = function (prop, msg) {
 };
 
 module.exports = helper;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 5 */

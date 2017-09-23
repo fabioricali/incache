@@ -233,9 +233,7 @@ Set/update record
 
 **Example**  
 ```js
-inCache.set('my key', 'my value');
-inCache.set('my object', {a: 1, b: 2});
-inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
+inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
 ```
 <a name="InCache+get"></a>
 
@@ -311,8 +309,7 @@ Given a key that has value like an array removes key(s) if `where` is satisfied
 
 **Example**  
 ```js
-inCache.set('myArray', ['hello', 'world']);
-inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+inCache.set('myArray', ['hello', 'world']);inCache.removeFrom('myArray', 'hello'); //-> ['world'];
 ```
 <a name="InCache+removeExpired"></a>
 
@@ -324,13 +321,7 @@ Remove expired records
 **Since**: 4.1.0  
 **Example**  
 ```js
-inCache.set('my key 1', 'my value');
-inCache.set('my key 2', 'my value', {maxAge: 1000});
-inCache.set('my key 3', 'my value', {maxAge: 1500});
-setTimeout(()=>{
-     inCache.removeExpired();
-     inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]
-}, 2000)
+inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge: 1000});inCache.set('my key 3', 'my value', {maxAge: 1500});setTimeout(()=>{     inCache.removeExpired();     inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]}, 2000)
 ```
 <a name="InCache+addTo"></a>
 
@@ -355,8 +346,7 @@ Given a key that has value like an array adds value to end of array
 
 **Example**  
 ```js
-inCache.set('myArray', ['hello', 'world']);
-inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
+inCache.set('myArray', ['hello', 'world']);inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
 ```
 <a name="InCache+prependTo"></a>
 
@@ -381,8 +371,7 @@ Given a key that has value like an array adds value to beginning of array
 
 **Example**  
 ```js
-inCache.set('myArray', ['hello', 'world']);
-inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
+inCache.set('myArray', ['hello', 'world']);inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
 ```
 <a name="InCache+updateIn"></a>
 
@@ -409,11 +398,7 @@ Given a key that has value like an array updates key(s) if `where` is satisfied
 
 **Example**  
 ```js
-inCache.set('myArray', ['hello', 'world']);
-inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
-
-inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});
-inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
+inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
 ```
 <a name="InCache+bulkSet"></a>
 
@@ -440,12 +425,7 @@ Set/update multiple records. This method not trigger any event.
 
 **Example**  
 ```js
-inCache.bulkSet([
-     {key: 'my key 1', value: 'my value 1'},
-     {key: 'my key 2', value: 'my value 2'},
-     {key: 'my key 3', value: 'my value 3'},
-     {key: 'my key 4', value: 'my value 4'}
-]);
+inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
 ```
 <a name="InCache+bulkRemove"></a>
 
@@ -495,9 +475,7 @@ Delete multiple records that contain the passed keyword
 
 **Example**  
 ```js
-inCache.set('/api/users/foo', 'Mario Rossi');
-inCache.set('/api/users/bar', 'Antonio Bianchi');
-inCache.clean('/api/users');
+inCache.set('/api/users/foo', 'Mario Rossi');inCache.set('/api/users/bar', 'Antonio Bianchi');inCache.clean('/api/users');
 ```
 <a name="InCache+all"></a>
 
@@ -622,9 +600,7 @@ Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('r
 
 **Example**  
 ```js
-inCache.onRemoved((key)=>{
-     console.log('removed', key);
-});
+inCache.onRemoved((key)=>{     console.log('removed', key);});
 ```
 <a name="InCache+onCreated"></a>
 
@@ -649,9 +625,7 @@ Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('c
 
 **Example**  
 ```js
-inCache.onCreated((key, record)=>{
-     console.log('created', key, record);
-});
+inCache.onCreated((key, record)=>{     console.log('created', key, record);});
 ```
 <a name="InCache+onUpdated"></a>
 
@@ -676,9 +650,7 @@ Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('u
 
 **Example**  
 ```js
-inCache.onUpdated((key, record)=>{
-     console.log('updated', key, record);
-});
+inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
 <a name="InCache+event_beforeSet"></a>
 
@@ -1069,8 +1041,8 @@ onUpdated callback
 **Kind**: global constant  
 
 * [SAVE_MODE](#SAVE_MODE)
-    * [.TERMINATE](#SAVE_MODE.terminate)
-    * [.TIMER](#SAVE_MODE.timer)
+    * [.TERMINATE](#SAVE_MODE.TERMINATE)
+    * [.TIMER](#SAVE_MODE.TIMER)
 
 <a name="SAVE_MODE.TERMINATE"></a>
 
