@@ -43,6 +43,9 @@ describe('cache-save-more-instance', function () {
         });
         it('should be equal', ()=>{
 
+            if(typeof window !== 'undefined')
+                delete window;
+
             const cache = new InCache({
                 storeName: 'new',
                 filePath: './test/.incache-save-more-instance-1',

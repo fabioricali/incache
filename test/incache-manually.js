@@ -36,6 +36,7 @@ describe('manually', function () {
         });
         it('in browser fails', (done)=>{
             require('browser-env')();
+            //delete process.pid;
 
             const cache = new InCache({
                 autoLoad: false,
@@ -57,6 +58,9 @@ describe('manually', function () {
                 autoSave: false,
                 filePath: './test/.incache-save2'
             });
+
+            if(typeof window !== 'undefined')
+                delete window;
 
             cache.save().then(()=>{
                 console.log('saved');
@@ -84,6 +88,7 @@ describe('manually', function () {
 
         it('in browser fails', (done)=>{
             require('browser-env')();
+            //delete process.pid;
 
             const cache = new InCache({
                 autoSave: false,
