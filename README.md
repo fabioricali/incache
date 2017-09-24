@@ -91,7 +91,7 @@ Save when data is changed
 ```javascript
 const store = new InCache({
     autoSave: true,
-    autoSaveMode: InCache.SAVE_MODE.TIMER
+    autoSaveMode: 'timer'
 });
 ```
 

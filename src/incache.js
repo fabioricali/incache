@@ -56,6 +56,7 @@ class InCache {
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
      * @fires InCache#expired
+     * @fires InCache#change
      * @constructor
      */
     constructor(opts = {}) {
@@ -163,8 +164,10 @@ class InCache {
         this._onUpdated = () => {
         };
 
-        this.on('_change', () => {
+        this.on('_change', (by) => {
             this._lastChange = (new Date()).getTime();
+            if (!this._opts.silent)
+                this._emitter.fire('change', by);
         });
 
         this.setConfig(opts);
@@ -349,7 +352,8 @@ class InCache {
                         this._timerSaveCheck = setInterval(() => {
                             if (this._lastChange !== this._lastChangeDetected) {
                                 this._lastChangeDetected = this._lastChange;
-                                this.save().then().catch(e => {});
+                                this.save().then().catch(e => {
+                                });
                             }
                         }, opts.autoSavePeriod * 1000);
                     }
@@ -483,7 +487,7 @@ class InCache {
 
         this._checkExceeded();
 
-        this._emitter.fire('_change');
+        this._emitter.fire('_change', 'set');
 
         return record;
     }
@@ -526,7 +530,7 @@ class InCache {
             this._onRemoved.call(this, key);
             this._emitter.fire('remove', key);
         }
-        this._emitter.fire('_change');
+        this._emitter.fire('_change', 'remove');
     }
 
     /**
@@ -782,7 +786,7 @@ class InCache {
         for (let k in this._storage) {
             if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) {
                 delete this._storage[k];
-                this._emitter.fire('_change');
+                this._emitter.fire('_change', 'clean');
             }
         }
     }
@@ -844,7 +848,7 @@ class InCache {
          * @ignore
          */
         this._storage = this._memory.data = {};
-        this._emitter.fire('_change');
+        this._emitter.fire('_change', 'clear');
     }
 
     /**
@@ -956,6 +960,13 @@ class InCache {
      * @event InCache#expired
      * @param keys {array} array of keys expired
      * @since 5.0.0
+     */
+
+    /**
+     * Triggered when data is changed
+     * @event InCache#change
+     * @param by {string} event called by `set`,`remove`,`clear` or `clean`
+     * @since 6.1.0
      */
 
     /**
