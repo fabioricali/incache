@@ -21,11 +21,11 @@ const SAVE_MODE = {};
 
 Object.defineProperties(SAVE_MODE, {
     TERMINATE: {
-        value: 'onTerminate',
+        value: 'terminate',
         enumerable: true
     },
     TIMER: {
-        value: 'onTimer',
+        value: 'timer',
         enumerable: true
     }
 });
@@ -44,7 +44,7 @@ class InCache {
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
-     * @param [opts.autoSaveMode=onTerminate] {string} there are 2 modes -> onTerminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)
+     * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> terminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)
      * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'onTimer' mode. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
