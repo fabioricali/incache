@@ -1,6 +1,7 @@
 <div align="center">
 <br/><br/>
-<img width="268" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?2" title="incache"/>
+<img width="300" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?2" title="incache"/>
+<br/><br/>
 <br/><br/>
 Powerful key/value in-memory storage or on disk to persist some data
 <br/><br/>
@@ -8,6 +9,7 @@ Powerful key/value in-memory storage or on disk to persist some data
 <a href="https://coveralls.io/github/fabioricali/incache?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/fabioricali/incache/badge.svg?branch=master&1" title="Coverage Status"/></a>
 <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" title="License: MIT"/></a>
 <img src="https://img.shields.io/badge/team-terrons-orange.svg" title="Team Terrons"/>
+<br/><br/>
 </div>
 
 ## What does?
