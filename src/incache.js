@@ -57,6 +57,7 @@ class InCache {
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
      * @fires InCache#expired
      * @fires InCache#change
+     * @fires InCache#exceed
      * @constructor
      */
     constructor(opts = {}) {
@@ -203,6 +204,7 @@ class InCache {
         /* istanbul ignore else  */
         if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
             let diff = keys.length - this._opts.maxRecordNumber;
+            this._emitter.fire('exceed', diff);
             this.bulkRemove(keys.slice(0, diff), true);
         }
     }
@@ -963,13 +965,6 @@ class InCache {
      */
 
     /**
-     * Triggered when data is changed
-     * @event InCache#change
-     * @param by {string} event called by `set`,`remove`,`clear` or `clean`
-     * @since 6.1.0
-     */
-
-    /**
      * Triggered after load invocation
      * @event InCache#load
      * @param err {null|string} error message, if no errors occurred is null
@@ -981,6 +976,20 @@ class InCache {
      * @event InCache#save
      * @param err {null|string} error message, if no errors occurred is null
      * @since 6.0.0
+     */
+
+    /**
+     * Triggered when data is changed
+     * @event InCache#change
+     * @param by {string} event called by `set`,`remove`,`clear` or `clean`
+     * @since 6.1.0
+     */
+
+    /**
+     * Triggered when data exceed max size
+     * @event InCache#exceed
+     * @param diff {number} exceeded by record number
+     * @since 6.1.0
      */
 
     /***************************** DEPRECATED ********************************/
