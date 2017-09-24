@@ -16,7 +16,7 @@
 
 ## InCache
 **Kind**: global class  
-**Emits**: [<code>expired</code>](#InCache+event_expired)  
+**Emits**: [<code>expired</code>](#InCache+event_expired), [<code>change</code>](#InCache+event_change), [<code>exceed</code>](#InCache+event_exceed)  
 
 * [InCache](#InCache)
     * [new InCache([opts])](#new_InCache_new)
@@ -59,6 +59,8 @@
         * ["expired" (keys)](#InCache+event_expired)
         * ["load" (err)](#InCache+event_load)
         * ["save" (err)](#InCache+event_save)
+        * ["change" (by)](#InCache+event_change)
+        * ["exceed" (diff)](#InCache+event_exceed)
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
         * <del>[~removedCallback](#InCache..removedCallback) : <code>function</code></del>
@@ -108,7 +110,7 @@ Create instance
     <td>[opts.autoSave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
 </td>
     </tr><tr>
-    <td>[opts.autoSaveMode]</td><td><code>string</code></td><td><code>&quot;onTerminate&quot;</code></td><td><p>there are 2 modes -&gt; onTerminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)</p>
+    <td>[opts.autoSaveMode]</td><td><code>string</code></td><td><code>&quot;terminate&quot;</code></td><td><p>there are 2 modes -&gt; terminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;onTimer&#39; mode. (server only)</p>
@@ -920,6 +922,46 @@ Triggered after save invocation
   <tbody>
 <tr>
     <td>err</td><td><code>null</code> | <code>string</code></td><td><p>error message, if no errors occurred is null</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_change"></a>
+
+### "change" (by)
+Triggered when data is changed
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 6.1.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>by</td><td><code>string</code></td><td><p>event called by <code>set</code>,<code>remove</code>,<code>clear</code> or <code>clean</code></p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+event_exceed"></a>
+
+### "exceed" (diff)
+Triggered when data exceed max size
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 6.1.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>diff</td><td><code>number</code></td><td><p>exceeded by record number</p>
 </td>
     </tr>  </tbody>
 </table>
