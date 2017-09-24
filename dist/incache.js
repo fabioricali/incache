@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 6.0.0  
+// [AIV]  InCache Build version: 6.1.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -138,11 +138,11 @@ var SAVE_MODE = {};
 
 Object.defineProperties(SAVE_MODE, {
     TERMINATE: {
-        value: 'onTerminate',
+        value: 'terminate',
         enumerable: true
     },
     TIMER: {
-        value: 'onTimer',
+        value: 'timer',
         enumerable: true
     }
 });
@@ -161,7 +161,7 @@ var InCache = function () {
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
-     * @param [opts.autoSaveMode=onTerminate] {string} there are 2 modes -> onTerminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)
+     * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> terminate: saves before the process is terminated. onTimer: every n seconds checks for new changes and save on disk. (server only)
      * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'onTimer' mode. (server only)
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
@@ -173,6 +173,8 @@ var InCache = function () {
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
      * @fires InCache#expired
+     * @fires InCache#change
+     * @fires InCache#exceed
      * @constructor
      */
     function InCache() {
@@ -282,8 +284,9 @@ var InCache = function () {
         this._onCreated = function () {};
         this._onUpdated = function () {};
 
-        this.on('_change', function () {
+        this.on('_change', function (by) {
             _this._lastChange = new Date().getTime();
+            if (!_this._opts.silent) _this._emitter.fire('change', by);
         });
 
         this.setConfig(opts);
@@ -325,6 +328,7 @@ var InCache = function () {
             /* istanbul ignore else  */
             if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
                 var diff = keys.length - this._opts.maxRecordNumber;
+                this._emitter.fire('exceed', diff);
                 this.bulkRemove(keys.slice(0, diff), true);
             }
         }
@@ -620,7 +624,7 @@ var InCache = function () {
 
             this._checkExceeded();
 
-            this._emitter.fire('_change');
+            this._emitter.fire('_change', 'set');
 
             return record;
         }
@@ -673,7 +677,7 @@ var InCache = function () {
                 this._onRemoved.call(this, key);
                 this._emitter.fire('remove', key);
             }
-            this._emitter.fire('_change');
+            this._emitter.fire('_change', 'remove');
         }
 
         /**
@@ -934,7 +938,7 @@ var InCache = function () {
             for (var k in this._storage) {
                 if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) {
                     delete this._storage[k];
-                    this._emitter.fire('_change');
+                    this._emitter.fire('_change', 'clean');
                 }
             }
         }
@@ -1008,7 +1012,7 @@ var InCache = function () {
              * @ignore
              */
             this._storage = this._memory.data = {};
-            this._emitter.fire('_change');
+            this._emitter.fire('_change', 'clear');
         }
 
         /**
@@ -1147,6 +1151,20 @@ var InCache = function () {
          * @event InCache#save
          * @param err {null|string} error message, if no errors occurred is null
          * @since 6.0.0
+         */
+
+        /**
+         * Triggered when data is changed
+         * @event InCache#change
+         * @param by {string} event called by `set`,`remove`,`clear` or `clean`
+         * @since 6.1.0
+         */
+
+        /**
+         * Triggered when data exceed max size
+         * @event InCache#exceed
+         * @param diff {number} exceeded by record number
+         * @since 6.1.0
          */
 
         /***************************** DEPRECATED ********************************/
