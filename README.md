@@ -131,6 +131,18 @@ incache.on('create', (key, record) => {
 incache.on('update', (key, record) => {
     console.log(key, record);
 });
+
+//Triggered when the cache is saved on disk
+incache.on('save', () => {
+    console.log('saved on disk');
+});
+
+//Triggered when the cache exceed max size
+incache.on('exceed', (diff) => {
+    console.log(`exceeded for ${diff}`);
+});
+
+//... for more events see the documentation
 ```
 
 ### API

@@ -212,6 +212,38 @@ describe('cache-events', function () {
                 cache.set('myKeyBBB', 'myValue 2');
             });
         });
+        describe('change', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    save: false
+                });
+
+                cache.on('change', by => {
+                    console.log('change', by);
+                    done();
+                });
+
+                cache.set('myKeyBBB', 'myValue');
+            });
+        });
+        describe('exceed', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    save: false,
+                    maxRecordNumber: 2
+                });
+
+                cache.on('exceed', diff => {
+                    console.log('exceed', diff);
+                    if(diff === 1)
+                        done();
+                });
+
+                cache.set('myKeyBBB1', 'myValue');
+                cache.set('myKeyBBB2', 'myValue');
+                cache.set('myKeyBBB3', 'myValue');
+            });
+        });
 
     });
 });
