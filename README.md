@@ -80,10 +80,18 @@ console.log(store.has('k0')); //=> false
 ```
 
 ### Save on disk
-This operation is running before the process is terminated
+By default this operation is running before the process is terminated
 ```javascript
 const store = new InCache({
     autoSave: true
+});
+```
+
+Save when data is changed
+```javascript
+const store = new InCache({
+    autoSave: true,
+    autoSaveMode: InCache.SAVE_MODE.TIMER
 });
 ```
 
