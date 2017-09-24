@@ -1,6 +1,6 @@
 <div align="center">
 <br/><br/>
-<img width="268" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?1" title="incache"/>
+<img width="268" src="https://raw.githubusercontent.com/fabioricali/incache/master/extra/logo.png?2" title="incache"/>
 <br/><br/>
 Powerful key/value in-memory storage or on disk to persist some data
 <br/><br/>
