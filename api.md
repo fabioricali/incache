@@ -21,8 +21,8 @@
 * [InCache](#InCache)
     * [new InCache([opts])](#new_InCache_new)
     * _instance_
-        * [.load()](#InCache+load) ⇒ <code>Promise</code>
-        * [.save()](#InCache+save) ⇒ <code>Promise</code>
+        * [.load([path])](#InCache+load) ⇒ <code>Promise</code>
+        * [.save([path])](#InCache+save) ⇒ <code>Promise</code>
         * [.setConfig([opts])](#InCache+setConfig)
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
         * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code>
@@ -147,20 +147,46 @@ Create instance
 
 <a name="InCache+load"></a>
 
-### inCache.load() ⇒ <code>Promise</code>
+### inCache.load([path]) ⇒ <code>Promise</code>
 Load cache from disk
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Emits**: [<code>load</code>](#InCache+event_load)  
 **Since**: 6.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[path]</td><td><code>string</code></td><td><code>&quot;opts.filePath&quot;</code></td><td><p>file path</p>
+</td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache+save"></a>
 
-### inCache.save() ⇒ <code>Promise</code>
+### inCache.save([path]) ⇒ <code>Promise</code>
 Save cache into disk
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Emits**: [<code>save</code>](#InCache+event_save)  
 **Since**: 6.0.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[path]</td><td><code>string</code></td><td><code>&quot;opts.filePath&quot;</code></td><td><p>file path</p>
+</td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache+setConfig"></a>
 
 ### inCache.setConfig([opts])
