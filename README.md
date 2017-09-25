@@ -81,6 +81,20 @@ console.log(store.count()); //=> 5
 console.log(store.has('k0')); //=> false
 ```
 
+### Load manually
+```javascript
+const store = new InCache({
+    autoLoad: false
+});
+
+// This method returns a Promise
+store.load('my-path/my-store.json').then(() => {
+    console.log('loaded');
+}).catch(err => {
+    console.log(err);
+});
+```
+
 ### Save on disk
 By default this operation is running before the process is terminated
 ```javascript
@@ -107,6 +121,14 @@ store.set('a key', 'a value');
 
 // This method returns a Promise
 store.save();
+
+// or specify a path
+store.save('a-path/a-file.json').then(()=>{
+    console.log('saved');
+    store.load('a-path/a-file.json');
+}).catch(err => {
+    console.log(err);
+});
 ```
 
 ### Events
