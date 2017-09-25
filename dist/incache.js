@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 6.1.1  
+// [AIV]  InCache Build version: 6.2.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -293,35 +293,6 @@ var InCache = function () {
     }
 
     _createClass(InCache, [{
-        key: '_write',
-        value: function _write() {
-            var _memory = this._memory,
-                config = _memory.config,
-                data = _memory.data;
-
-            var content = JSON.stringify(data);
-            try {
-                fs.writeFileSync(config.filePath, content);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-    }, {
-        key: '_read',
-        value: function _read() {
-            var config = this._memory.config;
-            if (fs.existsSync(config.filePath)) {
-                var content = fs.readFileSync(config.filePath);
-                try {
-                    this._storage = this._memory.data = JSON.parse(content);
-                } catch (e) {
-                    this._storage = this._memory.data = {};
-                }
-                return true;
-            } else return false;
-        }
-    }, {
         key: '_checkExceeded',
         value: function _checkExceeded() {
             var keys = Object.keys(this._storage);
@@ -335,6 +306,7 @@ var InCache = function () {
 
         /**
          * Load cache from disk
+         * @param [path=opts.filePath] {string} file path
          * @fires InCache#load
          * @returns {Promise}
          * @since 6.0.0
@@ -345,19 +317,23 @@ var InCache = function () {
         value: function load() {
             var _this2 = this;
 
+            var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
+
             return new Promise(function (resolve, reject) {
                 if (!helper.isServer()) return reject('operation not allowed');
                 if (_this2._loading) return reject('loading locked');
 
                 _this2._loading = true;
 
-                if (_this2._read()) {
+                try {
+                    var content = fs.readFileSync(path);
+                    _this2._storage = _this2._memory.data = JSON.parse(content.toString());
                     _this2._loading = false;
                     resolve();
                     _this2._emitter.fireAsync('load', null);
-                } else {
+                } catch (err) {
+                    err = err.message;
                     _this2._loading = false;
-                    var err = 'cache file not found';
                     reject(err);
                     _this2._emitter.fireAsync('load', err);
                 }
@@ -366,6 +342,7 @@ var InCache = function () {
 
         /**
          * Save cache into disk
+         * @param [path=opts.filePath] {string} file path
          * @fires InCache#save
          * @returns {Promise}
          * @since 6.0.0
@@ -376,20 +353,23 @@ var InCache = function () {
         value: function save() {
             var _this3 = this;
 
+            var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
+
             return new Promise(function (resolve, reject) {
                 if (!helper.isServer()) return reject('operation not allowed');
                 if (_this3._saving) return reject('saving locked');
 
                 _this3._saving = true;
 
-                if (_this3._write()) {
-                    _this3._saving = false;
+                try {
+                    fs.writeFileSync(path, JSON.stringify(_this3._memory.data));
                     _this3._lastSave = new Date().getTime();
+                    _this3._saving = false;
                     resolve();
                     _this3._emitter.fireAsync('save', null);
-                } else {
+                } catch (err) {
+                    err = err.message;
                     _this3._saving = false;
-                    var err = 'error during save';
                     reject(err);
                     _this3._emitter.fireAsync('save', err);
                 }
