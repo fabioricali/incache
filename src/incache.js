@@ -259,14 +259,19 @@ class InCache {
 
                 this._saving = true;
 
-                if (this._write(path)) {
+                path = path || this._opts.filePath;
+
+                try {
+                    if (path) {
+                        fs.writeFileSync(path, JSON.stringify(this._memory.data));
+                        this._lastSave = (new Date()).getTime();
+                    }
                     this._saving = false;
-                    this._lastSave = (new Date()).getTime();
                     resolve();
                     this._emitter.fireAsync('save', null);
-                } else {
+                } catch (err) {
+                    err = err.message;
                     this._saving = false;
-                    let err = 'error during save';
                     reject(err);
                     this._emitter.fireAsync('save', err);
                 }
