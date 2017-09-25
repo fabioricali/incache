@@ -75,7 +75,9 @@ describe('cache-events', function () {
         });
         describe('load', function () {
             it('should be return done, file not found', (done)=>{
-                const cache = new InCache();
+                const cache = new InCache({
+                    filePath: 'no-found'
+                });
 
                 cache.on('load', (err)=>{
                     console.log('load with', 'error', err);
