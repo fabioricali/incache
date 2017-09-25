@@ -186,20 +186,18 @@ class InCache {
 
     /**
      * Load cache from disk
-     * @param path {string}
+     * @param [path=opts.filePath] {string} file path
      * @fires InCache#load
      * @returns {Promise}
      * @since 6.0.0
      */
-    load(path) {
+    load(path = this._opts.filePath) {
         return new Promise(
             (resolve, reject) => {
                 if (!helper.isServer()) return reject('operation not allowed');
                 if (this._loading) return reject('loading locked');
 
                 this._loading = true;
-
-                path = path || this._opts.filePath;
 
                 try {
                     let content = fs.readFileSync(path);
@@ -219,12 +217,12 @@ class InCache {
 
     /**
      * Save cache into disk
-     * @param path {string}
+     * @param [path=opts.filePath] {string} file path
      * @fires InCache#save
      * @returns {Promise}
      * @since 6.0.0
      */
-    save(path) {
+    save(path = this._opts.filePath) {
         return new Promise(
             (resolve, reject) => {
                 if (!helper.isServer()) return reject('operation not allowed');
@@ -232,13 +230,9 @@ class InCache {
 
                 this._saving = true;
 
-                path = path || this._opts.filePath;
-
                 try {
-                    if (path) {
-                        fs.writeFileSync(path, JSON.stringify(this._memory.data));
-                        this._lastSave = (new Date()).getTime();
-                    }
+                    fs.writeFileSync(path, JSON.stringify(this._memory.data));
+                    this._lastSave = (new Date()).getTime();
                     this._saving = false;
                     resolve();
                     this._emitter.fireAsync('save', null);
