@@ -224,13 +224,19 @@ class InCache {
 
                 this._loading = true;
 
-                if (this._read(path)) {
+                path = path || this._opts.filePath;
+
+                try {
+                    if(fs.existsSync(path)){
+                        let content = fs.readFileSync(path);
+                        this._storage = this._memory.data = JSON.parse(content.toString());
+                    }
                     this._loading = false;
                     resolve();
                     this._emitter.fireAsync('load', null);
-                } else {
+                } catch (err) {
+                    err = err.message;
                     this._loading = false;
-                    let err = 'cache file not found';
                     reject(err);
                     this._emitter.fireAsync('load', err);
                 }
