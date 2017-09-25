@@ -174,21 +174,21 @@ class InCache {
         this.setConfig(opts);
     }
 
-    _write() {
+    _write(path) {
         let {config, data} = this._memory;
         let content = JSON.stringify(data);
         try {
-            fs.writeFileSync(config.filePath, content);
+            fs.writeFileSync(path || config.filePath, content);
             return true;
         } catch (e) {
             return false;
         }
     }
 
-    _read() {
+    _read(path) {
         let config = this._memory.config;
         if (fs.existsSync(config.filePath)) {
-            let content = fs.readFileSync(config.filePath);
+            let content = fs.readFileSync(path || config.filePath);
             try {
                 this._storage = this._memory.data = JSON.parse(content);
             } catch (e) {
@@ -211,11 +211,12 @@ class InCache {
 
     /**
      * Load cache from disk
+     * @param path {string}
      * @fires InCache#load
      * @returns {Promise}
      * @since 6.0.0
      */
-    load() {
+    load(path) {
         return new Promise(
             (resolve, reject) => {
                 if (!helper.isServer()) return reject('operation not allowed');
@@ -223,7 +224,7 @@ class InCache {
 
                 this._loading = true;
 
-                if (this._read()) {
+                if (this._read(path)) {
                     this._loading = false;
                     resolve();
                     this._emitter.fireAsync('load', null);
@@ -239,11 +240,12 @@ class InCache {
 
     /**
      * Save cache into disk
+     * @param path {string}
      * @fires InCache#save
      * @returns {Promise}
      * @since 6.0.0
      */
-    save() {
+    save(path) {
         return new Promise(
             (resolve, reject) => {
                 if (!helper.isServer()) return reject('operation not allowed');
@@ -251,7 +253,7 @@ class InCache {
 
                 this._saving = true;
 
-                if (this._write()) {
+                if (this._write(path)) {
                     this._saving = false;
                     this._lastSave = (new Date()).getTime();
                     resolve();
