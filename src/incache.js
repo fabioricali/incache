@@ -174,31 +174,6 @@ class InCache {
         this.setConfig(opts);
     }
 
-    _write(path) {
-        let {config, data} = this._memory;
-        let content = JSON.stringify(data);
-        try {
-            fs.writeFileSync(path || config.filePath, content);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
-    _read(path) {
-        let config = this._memory.config;
-        if (fs.existsSync(config.filePath)) {
-            let content = fs.readFileSync(path || config.filePath);
-            try {
-                this._storage = this._memory.data = JSON.parse(content);
-            } catch (e) {
-                this._storage = this._memory.data = {};
-            }
-            return true;
-        } else
-            return false;
-    }
-
     _checkExceeded() {
         let keys = Object.keys(this._storage);
         /* istanbul ignore else  */
@@ -227,10 +202,8 @@ class InCache {
                 path = path || this._opts.filePath;
 
                 try {
-                    if(fs.existsSync(path)){
-                        let content = fs.readFileSync(path);
-                        this._storage = this._memory.data = JSON.parse(content.toString());
-                    }
+                    let content = fs.readFileSync(path);
+                    this._storage = this._memory.data = JSON.parse(content.toString());
                     this._loading = false;
                     resolve();
                     this._emitter.fireAsync('load', null);
