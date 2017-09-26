@@ -43,6 +43,7 @@
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
         * [.on(eventName, callback)](#InCache+on)
+        * [.stats()](#InCache+stats) ⇒ <code>Object</code>
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
         * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
@@ -605,6 +606,12 @@ Adds listener to instance
     </tr>  </tbody>
 </table>
 
+<a name="InCache+stats"></a>
+
+### inCache.stats() ⇒ <code>Object</code>
+Returns stats of storage
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
 <a name="InCache+onRemoved"></a>
 
 ### <del>inCache.onRemoved(callback)</del>
@@ -1018,6 +1025,9 @@ InCache record
 </td>
     </tr><tr>
     <td>toDelete</td><td><code>boolean</code></td><td><p>indicates if record will be deleted after expiry</p>
+</td>
+    </tr><tr>
+    <td>hits</td><td><code>number</code></td><td><p>how many times it has been used</p>
 </td>
     </tr><tr>
     <td>createdOn</td><td><code>Date</code> | <code>null</code></td><td><p>creation date</p>
