@@ -3,6 +3,7 @@ const Flak = require('flak');
 const fs = require('fs');
 const uuid = require('uuid/v1');
 const clone = require('clone');
+const sizeOf = require('object-sizeof');
 
 /**
  * @constant SAVE_MODE
@@ -865,6 +866,17 @@ class InCache {
      */
     on(eventName, callback) {
         this._emitter.on.call(this._emitter, eventName, callback);
+    }
+
+    /**
+     * Returns stats of storage
+     * @returns {{count: Number, size: Number}}
+     */
+    stats() {
+        return {
+            count: this.count(),
+            size: sizeOf(this._storage)
+        }
     }
 
     /**
