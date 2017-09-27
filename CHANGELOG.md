@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 - Added 
-    - record property `hits`
+    - options
+        - `maxSize`
+    - record property 
+        - `hits`
+        - `lastHit`
     - `stats` method
 
 ## [6.2.0] - 2017-09-25
