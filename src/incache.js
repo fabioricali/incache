@@ -179,6 +179,7 @@ class InCache {
     }
 
     _checkExceeded() {
+        //todo add maxSize check
         let keys = Object.keys(this._storage);
         /* istanbul ignore else  */
         if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
