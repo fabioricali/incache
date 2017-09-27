@@ -22,14 +22,13 @@ describe('cache-hits', function () {
 
         console.log(record);
         be.err.equal(record.hits, 1);
-        be.err.equal(record.lastHit.getTime(), new Date().getTime());
+        be.err.date(record.lastHit);
 
 
         record = cache.get(`myKey`, false);
 
         console.log(record);
         be.err.equal(record.hits, 2);
-        be.err.equal(record.lastHit.getTime(), new Date().getTime());
     });
 
 });
