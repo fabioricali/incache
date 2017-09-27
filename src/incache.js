@@ -42,6 +42,7 @@ class InCache {
      * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwritable by `set`)
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwritable by `set`)
      * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwritable by `set`)
+     * @param [opts.maxSize=0] {number} the maximum bytes of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
@@ -147,6 +148,8 @@ class InCache {
             deleteOnExpires: true,
             filePath: '.incache',
             maxAge: 0,
+            maxSize: 0,
+            maxRecordNumber: 0,
             expires: null,
             silent: false,
             share: false,
@@ -871,6 +874,7 @@ class InCache {
     /**
      * Returns stats of storage
      * @returns {{count: Number, size: Number}}
+     * @since 6.3.0
      */
     stats() {
         return {
