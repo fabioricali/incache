@@ -1,5 +1,5 @@
 const InCache = require('../src/incache');
-const fs = require('fs');
+const be = require('bejs');
 
 describe('cache-stats', function () {
     this.timeout(10000);
@@ -13,7 +13,10 @@ describe('cache-stats', function () {
         for(let i = 0; i < 2000; i++)
             cache.set(`myKey${i}`, `hello${i}`);
 
-        console.log(cache.stats());
+        let result = cache.stats();
+        console.log(result);
+        be.err.equal(result.count, 2000);
+        be.err.equal(result.size, 527560);
     });
 
 });
