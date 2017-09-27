@@ -381,6 +381,7 @@ class InCache {
      * @property {boolean} isPreserved - indicates if record will no longer be editable once created
      * @property {boolean} toDelete - indicates if record will be deleted after expiry
      * @property {number} hits - how many times it has been used
+     * @property {Date|null} lastHit - last usage
      * @property {Date|null} createdOn - creation date
      * @property {Date|null} updatedOn - update date
      * @property {Date|null} expiresOn - expiry date
@@ -434,6 +435,7 @@ class InCache {
             isPreserved: opts.preserve,
             toDelete: opts.deleteOnExpires,
             hits: 0,
+            lastHit: null,
             createdOn: null,
             updatedOn: null,
             expiresOn: null,
@@ -496,6 +498,7 @@ class InCache {
                 return (this._opts.nullIfNotFound ? null : undefined);
             }
             this._storage[key].hits += 1;
+            this._storage[key].lastHit = new Date();
             return onlyValue ? this._storage[key].value : this._storage[key];
         } else {
             return (this._opts.nullIfNotFound ? null : undefined);
