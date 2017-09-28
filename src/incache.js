@@ -4,6 +4,7 @@ const fs = require('fs');
 const uuid = require('uuid/v1');
 const clone = require('clone');
 const sizeOf = require('object-sizeof');
+const {SAVE_MODE, REMOVE_EXCEED} = require('./constants');
 
 /**
  * @constant SAVE_MODE
@@ -32,9 +33,7 @@ const sizeOf = require('object-sizeof');
  * @memberOf REMOVE_EXCEED
  * @name USAGE
  */
-
-const {SAVE_MODE, REMOVE_EXCEED} = require('./constants');
-
+    
 class InCache {
 
     /**
@@ -187,7 +186,7 @@ class InCache {
     _checkExceeded() {
         //todo add maxSize check
         //todo REMOVE_EXCEED.USAGE
-        let keys = Object.keys(this._storage);
+        let keys = Object.keys(this._memory.data);
         /* istanbul ignore else  */
         if(this._opts.removeExceededBy === REMOVE_EXCEED.OLDER) {
             if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
@@ -217,7 +216,7 @@ class InCache {
 
                 try {
                     let content = fs.readFileSync(path);
-                    this._storage = this._memory.data = JSON.parse(content.toString());
+                    this._memory.data = JSON.parse(content.toString());
                     this._loading = false;
                     resolve();
                     this._emitter.fireAsync('load', null);
@@ -309,7 +308,7 @@ class InCache {
 
         this._memory = this._root[this.GLOBAL_KEY];
 
-        this._storage = this._memory.data;
+        this._memory.data;
 
         /* istanbul ignore else  */
         if (helper.isServer()) {
@@ -432,7 +431,7 @@ class InCache {
         opts = helper.defaults(opts, this._opts);
 
         /* istanbul ignore else  */
-        if (this.has(key) && this._storage[key].isPreserved) {
+        if (this.has(key) && this._memory.data[key].isPreserved) {
             return;
         }
 
@@ -465,9 +464,9 @@ class InCache {
 
         if (this.has(key)) {
             record.isNew = false;
-            record.hits = this._storage[key].hits;
-            record.id = this._storage[key].id;
-            record.createdOn = this._storage[key].createdOn;
+            record.hits = this._memory.data[key].hits;
+            record.id = this._memory.data[key].id;
+            record.createdOn = this._memory.data[key].createdOn;
             record.updatedOn = new Date();
             if (!opts.silent) {
                 this._onUpdated.call(this, key, record);
@@ -482,7 +481,7 @@ class InCache {
             }
         }
 
-        this._storage[key] = record;
+        this._memory.data[key] = record;
 
         if (!opts.silent) {
             this._emitter.fire('set', key, record);
@@ -505,13 +504,13 @@ class InCache {
      */
     get(key, onlyValue = true) {
         if (this.has(key)) {
-            if (!this._opts.autoRemovePeriod && this.expired(key) && this._storage[key].toDelete) {
+            if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
                 this.remove(key, true);
                 return (this._opts.nullIfNotFound ? null : undefined);
             }
-            this._storage[key].hits += 1;
-            this._storage[key].lastHit = new Date();
-            return onlyValue ? this._storage[key].value : this._storage[key];
+            this._memory.data[key].hits += 1;
+            this._memory.data[key].lastHit = new Date();
+            return onlyValue ? this._memory.data[key].value : this._memory.data[key];
         } else {
             return (this._opts.nullIfNotFound ? null : undefined);
         }
@@ -530,7 +529,7 @@ class InCache {
         if (!silent && this._emitter.fireTheFirst('beforeRemove', key) === false) {
             return;
         }
-        delete this._storage[key];
+        delete this._memory.data[key];
         if (!silent) {
             this._onRemoved.call(this, key);
             this._emitter.fire('remove', key);
@@ -553,7 +552,7 @@ class InCache {
         if (helper.is(where, 'undefined'))
             throw new Error('where cannot be undefined');
 
-        if (this._storage[key].isPreserved) {
+        if (this._memory.data[key].isPreserved) {
             return;
         }
 
@@ -599,8 +598,8 @@ class InCache {
      */
     removeExpired() {
         const expired = [];
-        for (let key in this._storage) {
-            if (this._storage.hasOwnProperty(key) && this.expired(key) && this._storage[key].toDelete) {
+        for (let key in this._memory.data) {
+            if (this._memory.data.hasOwnProperty(key) && this.expired(key) && this._memory.data[key].toDelete) {
                 this.remove(key, true);
                 expired.push(key);
             }
@@ -622,7 +621,7 @@ class InCache {
         if (!this.has(key)) return;
         let record = this.get(key);
 
-        if (this._storage[key].isPreserved) {
+        if (this._memory.data[key].isPreserved) {
             return;
         }
 
@@ -647,7 +646,7 @@ class InCache {
     prependTo(key, value) {
         if (!this.has(key)) return;
 
-        if (this._storage[key].isPreserved) {
+        if (this._memory.data[key].isPreserved) {
             return;
         }
 
@@ -684,7 +683,7 @@ class InCache {
         if (helper.is(where, 'undefined'))
             throw new Error('where cannot be undefined');
 
-        if (this._storage[key].isPreserved) {
+        if (this._memory.data[key].isPreserved) {
             return;
         }
 
@@ -788,9 +787,9 @@ class InCache {
         if (!helper.is(key, 'string'))
             throw new Error('key must be a string');
 
-        for (let k in this._storage) {
-            if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) {
-                delete this._storage[k];
+        for (let k in this._memory.data) {
+            if (this._memory.data.hasOwnProperty(k) && k.indexOf(key) !== -1) {
+                delete this._memory.data[k];
                 this._emitter.fire('_change', 'clean');
             }
         }
@@ -803,14 +802,14 @@ class InCache {
     all() {
         let records = [];
 
-        for (let key in this._storage) {
-            if (this._storage.hasOwnProperty(key)) {
-                if (!this._opts.autoRemovePeriod && this.expired(key) && this._storage[key].toDelete) {
+        for (let key in this._memory.data) {
+            if (this._memory.data.hasOwnProperty(key)) {
+                if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
                     this.remove(key, true);
                 } else {
                     records.push({
                         key: key,
-                        value: this._storage[key].value
+                        value: this._memory.data[key].value
                     });
                 }
             }
@@ -826,7 +825,7 @@ class InCache {
      */
     count() {
         this.removeExpired();
-        return Object.keys(this._storage).length;
+        return Object.keys(this._memory.data).length;
     }
 
     /**
@@ -835,9 +834,9 @@ class InCache {
      * @returns {boolean}
      */
     expired(key) {
-        if (this._storage[key] && this._storage[key].expiresOn) {
+        if (this._memory.data[key] && this._memory.data[key].expiresOn) {
             let now = new Date();
-            let expiry = new Date(this._storage[key].expiresOn);
+            let expiry = new Date(this._memory.data[key].expiresOn);
             return now > expiry;
         } else {
             return false;
@@ -852,7 +851,7 @@ class InCache {
          * Reset object
          * @ignore
          */
-        this._storage = this._memory.data = {};
+        this._memory.data = {};
         this._emitter.fire('_change', 'clear');
     }
 
@@ -864,7 +863,7 @@ class InCache {
      * inCache.has('my key');
      */
     has(key) {
-        return this._storage.hasOwnProperty(key);
+        return this._memory.data.hasOwnProperty(key);
     }
 
     /**
@@ -894,7 +893,7 @@ class InCache {
     stats() {
         return {
             count: this.count(),
-            size: sizeOf(this._storage)
+            size: sizeOf(this._memory.data)
         }
     }
 
