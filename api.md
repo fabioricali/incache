@@ -122,7 +122,7 @@ Create instance
     <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;timer&#39; mode. (server only)</p>
 </td>
     </tr><tr>
-    <td>[opts.removeExceededBy]</td><td><code>string</code></td><td><code>&quot;older&quot;</code></td><td><p>there are 2 modes -&gt; &quot;older&quot;: remove older records. &quot;usage&quot;: remove less used records.</p>
+    <td>[opts.removeExceededBy]</td><td><code>string</code></td><td><code>&quot;older&quot;</code></td><td><p>there are 2 modes -&gt; &quot;older&quot;: remove older records. &quot;usage&quot;: remove less used records. Works only if <code>opts.maxSize</code> or <code>opts.maxRecordNumber</code> are set.</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
