@@ -299,16 +299,11 @@ class InCache {
                 metadata: {
                     _lastSave: null
                 },
-                data: {},
-                config: this._opts
+                data: {}
             };
         }
 
-        this._root[this.GLOBAL_KEY].config = opts;
-
         this._memory = this._root[this.GLOBAL_KEY];
-
-        this._memory.data;
 
         /* istanbul ignore else  */
         if (helper.isServer()) {
@@ -381,7 +376,7 @@ class InCache {
      * @returns {*}
      */
     getConfig() {
-        return this._memory.config;
+        return this._opts;
     }
 
     /**
