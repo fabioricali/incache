@@ -10,6 +10,8 @@
 <dl>
 <dt><a href="#SAVE_MODE">SAVE_MODE</a></dt>
 <dd></dd>
+<dt><a href="#REMOVE_EXCEED">REMOVE_EXCEED</a></dt>
+<dd></dd>
 </dl>
 
 <a name="InCache"></a>
@@ -102,6 +104,9 @@ Create instance
     <td>[opts.preserve]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, you will no longer be able to update the record once created. (overwritable by <code>set</code>)</p>
 </td>
     </tr><tr>
+    <td>[opts.maxSize]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum bytes of the cache, if exceeded the older records will be deleted. If 0 is disabled</p>
+</td>
+    </tr><tr>
     <td>[opts.maxRecordNumber]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled</p>
 </td>
     </tr><tr>
@@ -111,10 +116,13 @@ Create instance
     <td>[opts.autoSave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
 </td>
     </tr><tr>
-    <td>[opts.autoSaveMode]</td><td><code>string</code></td><td><code>&quot;terminate&quot;</code></td><td><p>there are 2 modes -&gt; terminate: saves before the process is terminated. timer: every n seconds checks for new changes and save on disk. (server only)</p>
+    <td>[opts.autoSaveMode]</td><td><code>string</code></td><td><code>&quot;terminate&quot;</code></td><td><p>there are 2 modes -&gt; &quot;terminate&quot;: saves before the process is terminated. &quot;timer&quot;: every n seconds checks for new changes and save on disk. (server only)</p>
 </td>
     </tr><tr>
     <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;timer&#39; mode. (server only)</p>
+</td>
+    </tr><tr>
+    <td>[opts.removeExceededBy]</td><td><code>string</code></td><td><code>&quot;older&quot;</code></td><td><p>there are 2 modes -&gt; &quot;older&quot;: remove older records. &quot;usage&quot;: remove less used records.</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
@@ -612,6 +620,7 @@ Adds listener to instance
 Returns stats of storage
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.3.0  
 <a name="InCache+onRemoved"></a>
 
 ### <del>inCache.onRemoved(callback)</del>
@@ -1030,6 +1039,9 @@ InCache record
     <td>hits</td><td><code>number</code></td><td><p>how many times it has been used</p>
 </td>
     </tr><tr>
+    <td>lastHit</td><td><code>Date</code> | <code>null</code></td><td><p>last usage</p>
+</td>
+    </tr><tr>
     <td>createdOn</td><td><code>Date</code> | <code>null</code></td><td><p>creation date</p>
 </td>
     </tr><tr>
@@ -1130,3 +1142,20 @@ onUpdated callback
 
 ### SAVE_MODE.TIMER
 **Kind**: static property of [<code>SAVE_MODE</code>](#SAVE_MODE)  
+<a name="REMOVE_EXCEED"></a>
+
+## REMOVE_EXCEED
+**Kind**: global constant  
+
+* [REMOVE_EXCEED](#REMOVE_EXCEED)
+    * [.OLDER](#REMOVE_EXCEED.OLDER)
+    * [.USAGE](#REMOVE_EXCEED.USAGE)
+
+<a name="REMOVE_EXCEED.OLDER"></a>
+
+### REMOVE_EXCEED.OLDER
+**Kind**: static property of [<code>REMOVE_EXCEED</code>](#REMOVE_EXCEED)  
+<a name="REMOVE_EXCEED.USAGE"></a>
+
+### REMOVE_EXCEED.USAGE
+**Kind**: static property of [<code>REMOVE_EXCEED</code>](#REMOVE_EXCEED)  
