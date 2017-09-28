@@ -18,18 +18,22 @@ const sizeOf = require('object-sizeof');
  * @memberOf SAVE_MODE
  * @name TIMER
  */
-const SAVE_MODE = {};
 
-Object.defineProperties(SAVE_MODE, {
-    TERMINATE: {
-        value: 'terminate',
-        enumerable: true
-    },
-    TIMER: {
-        value: 'timer',
-        enumerable: true
-    }
-});
+/**
+ * @constant REMOVE_EXCEED
+ */
+
+/**
+ * @memberOf REMOVE_EXCEED
+ * @name OLDER
+ */
+
+/**
+ * @memberOf REMOVE_EXCEED
+ * @name USAGE
+ */
+
+const {SAVE_MODE, REMOVE_EXCEED} = require('./constants');
 
 class InCache {
 
@@ -151,7 +155,7 @@ class InCache {
             maxAge: 0,
             maxSize: 0,
             maxRecordNumber: 0,
-            removeExceededBy: 'older',
+            removeExceededBy: REMOVE_EXCEED.OLDER,
             expires: null,
             silent: false,
             share: false,
@@ -184,10 +188,14 @@ class InCache {
         //todo add maxSize check
         let keys = Object.keys(this._storage);
         /* istanbul ignore else  */
-        if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
-            let diff = keys.length - this._opts.maxRecordNumber;
-            this._emitter.fire('exceed', diff);
-            this.bulkRemove(keys.slice(0, diff), true);
+        if(this._opts.removeExceededBy === REMOVE_EXCEED.OLDER) {
+            if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
+                let diff = keys.length - this._opts.maxRecordNumber;
+                this._emitter.fire('exceed', diff);
+                this.bulkRemove(keys.slice(0, diff), true);
+            }
+        } else if (this._opts.removeExceededBy === REMOVE_EXCEED.USAGE){
+
         }
     }
 
@@ -1068,3 +1076,4 @@ class InCache {
  */
 module.exports = InCache;
 module.exports.SAVE_MODE = SAVE_MODE;
+module.exports.REMOVE_EXCEED = REMOVE_EXCEED;
