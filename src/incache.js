@@ -186,6 +186,7 @@ class InCache {
 
     _checkExceeded() {
         //todo add maxSize check
+        //todo REMOVE_EXCEED.USAGE
         let keys = Object.keys(this._storage);
         /* istanbul ignore else  */
         if(this._opts.removeExceededBy === REMOVE_EXCEED.OLDER) {
