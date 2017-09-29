@@ -304,9 +304,6 @@ class InCache {
         /* istanbul ignore else  */
         if (!this._root[this.GLOBAL_KEY]) {
             this._root[this.GLOBAL_KEY] = {
-                metadata: {
-                    _lastSave: null
-                },
                 data: {}
             };
         }
