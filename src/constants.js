@@ -17,5 +17,9 @@ exports.REMOVE_EXCEED = Object.defineProperties({}, {
     USAGE: {
         value: 'usage',
         enumerable: true
+    },
+    NONE: {
+        value: 'none',
+        enumerable: true
     }
 });
