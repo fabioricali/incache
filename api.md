@@ -102,7 +102,7 @@ Create instance
     <td>[opts.preserve]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, you will no longer be able to update the record once created. (overwritable by <code>set</code>)</p>
 </td>
     </tr><tr>
-    <td>[opts.maxRecordNumber]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum of record number of the cache, if exceeded some records will be deleted based on <code>opts.removeExceededBy</code>. If 0 is disabled</p>
+    <td>[opts.maxRecordNumber]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum of record number of the cache, if exceeded some records will be deleted. If 0 is disabled</p>
 </td>
     </tr><tr>
     <td>[opts.autoLoad]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created. (server only)</p>
