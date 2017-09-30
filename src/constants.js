@@ -1,3 +1,5 @@
+/* istanbul ignore */
+
 exports.SAVE_MODE = Object.defineProperties({}, {
     TERMINATE: {
         value: 'terminate',
