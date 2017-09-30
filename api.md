@@ -10,8 +10,6 @@
 <dl>
 <dt><a href="#SAVE_MODE">SAVE_MODE</a></dt>
 <dd></dd>
-<dt><a href="#REMOVE_EXCEED">REMOVE_EXCEED</a></dt>
-<dd></dd>
 </dl>
 
 <a name="InCache"></a>
@@ -104,10 +102,7 @@ Create instance
     <td>[opts.preserve]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true, you will no longer be able to update the record once created. (overwritable by <code>set</code>)</p>
 </td>
     </tr><tr>
-    <td>[opts.maxSize]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum bytes of the cache, if exceeded the older records will be deleted. If 0 is disabled</p>
-</td>
-    </tr><tr>
-    <td>[opts.maxRecordNumber]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled</p>
+    <td>[opts.maxRecordNumber]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum of record number of the cache, if exceeded some records will be deleted based on <code>opts.removeExceededBy</code>. If 0 is disabled</p>
 </td>
     </tr><tr>
     <td>[opts.autoLoad]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created. (server only)</p>
@@ -120,9 +115,6 @@ Create instance
 </td>
     </tr><tr>
     <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;timer&#39; mode. (server only)</p>
-</td>
-    </tr><tr>
-    <td>[opts.removeExceededBy]</td><td><code>string</code></td><td><code>&quot;older&quot;</code></td><td><p>there are 3 modes -&gt; &quot;older&quot;: remove older records; &quot;usage&quot;: remove less used records; &quot;none&quot;: do not remove and add any record. Works only if <code>opts.maxSize</code> or <code>opts.maxRecordNumber</code> are set.</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
@@ -1142,25 +1134,3 @@ onUpdated callback
 
 ### SAVE_MODE.TIMER
 **Kind**: static property of [<code>SAVE_MODE</code>](#SAVE_MODE)  
-<a name="REMOVE_EXCEED"></a>
-
-## REMOVE_EXCEED
-**Kind**: global constant  
-
-* [REMOVE_EXCEED](#REMOVE_EXCEED)
-    * [.OLDER](#REMOVE_EXCEED.OLDER)
-    * [.USAGE](#REMOVE_EXCEED.USAGE)
-    * [.NONE](#REMOVE_EXCEED.NONE)
-
-<a name="REMOVE_EXCEED.OLDER"></a>
-
-### REMOVE_EXCEED.OLDER
-**Kind**: static property of [<code>REMOVE_EXCEED</code>](#REMOVE_EXCEED)  
-<a name="REMOVE_EXCEED.USAGE"></a>
-
-### REMOVE_EXCEED.USAGE
-**Kind**: static property of [<code>REMOVE_EXCEED</code>](#REMOVE_EXCEED)  
-<a name="REMOVE_EXCEED.NONE"></a>
-
-### REMOVE_EXCEED.NONE
-**Kind**: static property of [<code>REMOVE_EXCEED</code>](#REMOVE_EXCEED)  
