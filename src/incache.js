@@ -34,11 +34,6 @@ const {SAVE_MODE, REMOVE_EXCEED} = require('./constants');
  * @name USAGE
  */
 
-/**
- * @memberOf REMOVE_EXCEED
- * @name NONE
- */
-    
 class InCache {
 
     /**
@@ -50,13 +45,13 @@ class InCache {
      * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwritable by `set`)
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwritable by `set`)
      * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwritable by `set`)
-     * @param [opts.maxSize=0] {number} the maximum bytes of the cache, if exceeded the older records will be deleted. If 0 is disabled
-     * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
+     * @param [opts.maxSize=0] {number} the maximum bytes of the cache, if exceeded some records will be deleted based on `opts.removeExceededBy`. If 0 is disabled
+     * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded some records will be deleted based on `opts.removeExceededBy`. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
      * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> "terminate": saves before the process is terminated. "timer": every n seconds checks for new changes and save on disk. (server only)
      * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode. (server only)
-     * @param [opts.removeExceededBy=older] {string} there are 3 modes -> "older": remove older records; "usage": remove less used records; "none": do not remove and add any record. Works only if `opts.maxSize` or `opts.maxRecordNumber` are set.
+     * @param [opts.removeExceededBy=older] {string} there are 3 modes -> "older": remove older records; "usage": remove less used records. Works only if `opts.maxSize` or `opts.maxRecordNumber` are set.
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
@@ -201,8 +196,6 @@ class InCache {
                 this.bulkRemove(keys.slice(0, diff), true);
             }
         } else if (this._opts.removeExceededBy === REMOVE_EXCEED.USAGE){
-
-        } else if (this._opts.removeExceededBy === REMOVE_EXCEED.NONE){
 
         }
     }
