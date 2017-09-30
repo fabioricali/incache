@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 6.2.0  
+// [AIV]  InCache Build version: 6.3.0  
  var incache =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -62,7 +62,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -97,2426 +97,6 @@ module.exports = g;
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(2);
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global, process) {
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var helper = __webpack_require__(4);
-var Flak = __webpack_require__(5);
-var fs = __webpack_require__(9);
-var uuid = __webpack_require__(10);
-var clone = __webpack_require__(13);
-
-/**
- * @constant SAVE_MODE
- */
-
-/**
- * @memberOf SAVE_MODE
- * @name TERMINATE
- */
-
-/**
- * @memberOf SAVE_MODE
- * @name TIMER
- */
-var SAVE_MODE = {};
-
-Object.defineProperties(SAVE_MODE, {
-    TERMINATE: {
-        value: 'terminate',
-        enumerable: true
-    },
-    TIMER: {
-        value: 'timer',
-        enumerable: true
-    }
-});
-
-var InCache = function () {
-
-    /**
-     * Create instance
-     * @param [opts] {Object} configuration object
-     * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwritable by `set`)
-     * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`, overwritable by `set`)
-     * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwritable by `set`)
-     * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwritable by `set`)
-     * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwritable by `set`)
-     * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwritable by `set`)
-     * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded the older records will be deleted. If 0 is disabled
-     * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
-     * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
-     * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> terminate: saves before the process is terminated. timer: every n seconds checks for new changes and save on disk. (server only)
-     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode. (server only)
-     * @param [opts.filePath=.incache] {string} cache file path
-     * @param [opts.storeName] {string} store name
-     * @param [opts.share=false] {boolean} if true, use global object as storage
-     * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
-     * @param [opts.nullIfNotFound=false] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
-     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
-     * @param [opts.global] {Object} **deprecated:** global record configuration
-     * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
-     * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
-     * @fires InCache#expired
-     * @fires InCache#change
-     * @fires InCache#exceed
-     * @constructor
-     */
-    function InCache() {
-        var _this = this;
-
-        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-        _classCallCheck(this, InCache);
-
-        Object.defineProperties(this, {
-            _root: {
-                writable: true,
-                enumerable: false
-            },
-            _storage: {
-                writable: true,
-                enumerable: false
-            },
-            _memory: {
-                writable: true,
-                enumerable: false
-            },
-            _emitter: {
-                value: new Flak()
-            },
-            _opts: {
-                writable: true,
-                enumerable: false
-            },
-            _timerExpiryCheck: {
-                value: null,
-                writable: true,
-                enumerable: false
-            },
-            _timerSaveCheck: {
-                value: null,
-                writable: true,
-                enumerable: false
-            },
-            GLOBAL_KEY: {
-                writable: true,
-                enumerable: false
-            },
-            _lastChange: {
-                value: null,
-                writable: true,
-                enumerable: false
-            },
-            _lastChangeDetected: {
-                value: null,
-                writable: true,
-                enumerable: false
-            },
-            _lastSave: {
-                value: null,
-                writable: true,
-                enumerable: false
-            },
-            _saving: {
-                value: false,
-                writable: true,
-                enumerable: false
-            },
-            _loading: {
-                value: false,
-                writable: true,
-                enumerable: false
-            }
-        });
-
-        /**
-         * Global key
-         * @type {string}
-         * @ignore
-         */
-        this.GLOBAL_KEY = '___InCache___storage___global___key___';
-
-        /**
-         * InCache default configuration
-         * @ignore
-         */
-        this.DEFAULT_CONFIG = {
-            storeName: '',
-            autoLoad: true,
-            autoSave: false,
-            autoSaveMode: SAVE_MODE.TERMINATE,
-            autoSavePeriod: 5,
-            save: false,
-            clone: false,
-            preserve: false,
-            deleteOnExpires: true,
-            filePath: '.incache',
-            maxAge: 0,
-            expires: null,
-            silent: false,
-            share: false,
-            autoRemovePeriod: 0,
-            nullIfNotFound: false,
-            global: {
-                silent: false,
-                life: 0
-            }
-        };
-
-        // Defines callback private
-        this._onRemoved = function () {};
-        this._onCreated = function () {};
-        this._onUpdated = function () {};
-
-        this.on('_change', function (by) {
-            _this._lastChange = new Date().getTime();
-            if (!_this._opts.silent) _this._emitter.fire('change', by);
-        });
-
-        this.setConfig(opts);
-    }
-
-    _createClass(InCache, [{
-        key: '_checkExceeded',
-        value: function _checkExceeded() {
-            var keys = Object.keys(this._storage);
-            /* istanbul ignore else  */
-            if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
-                var diff = keys.length - this._opts.maxRecordNumber;
-                this._emitter.fire('exceed', diff);
-                this.bulkRemove(keys.slice(0, diff), true);
-            }
-        }
-
-        /**
-         * Load cache from disk
-         * @param [path=opts.filePath] {string} file path
-         * @fires InCache#load
-         * @returns {Promise}
-         * @since 6.0.0
-         */
-
-    }, {
-        key: 'load',
-        value: function load() {
-            var _this2 = this;
-
-            var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
-
-            return new Promise(function (resolve, reject) {
-                if (!helper.isServer()) return reject('operation not allowed');
-                if (_this2._loading) return reject('loading locked');
-
-                _this2._loading = true;
-
-                try {
-                    var content = fs.readFileSync(path);
-                    _this2._storage = _this2._memory.data = JSON.parse(content.toString());
-                    _this2._loading = false;
-                    resolve();
-                    _this2._emitter.fireAsync('load', null);
-                } catch (err) {
-                    err = err.message;
-                    _this2._loading = false;
-                    reject(err);
-                    _this2._emitter.fireAsync('load', err);
-                }
-            });
-        }
-
-        /**
-         * Save cache into disk
-         * @param [path=opts.filePath] {string} file path
-         * @fires InCache#save
-         * @returns {Promise}
-         * @since 6.0.0
-         */
-
-    }, {
-        key: 'save',
-        value: function save() {
-            var _this3 = this;
-
-            var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
-
-            return new Promise(function (resolve, reject) {
-                if (!helper.isServer()) return reject('operation not allowed');
-                if (_this3._saving) return reject('saving locked');
-
-                _this3._saving = true;
-
-                try {
-                    fs.writeFileSync(path, JSON.stringify(_this3._memory.data));
-                    _this3._lastSave = new Date().getTime();
-                    _this3._saving = false;
-                    resolve();
-                    _this3._emitter.fireAsync('save', null);
-                } catch (err) {
-                    err = err.message;
-                    _this3._saving = false;
-                    reject(err);
-                    _this3._emitter.fireAsync('save', err);
-                }
-            });
-        }
-
-        /**
-         * Set configuration
-         * @param [opts] {Object} configuration object
-         * @see {@link constructor} for further information
-         * @since 3.0.0
-         */
-
-    }, {
-        key: 'setConfig',
-        value: function setConfig() {
-            var _this4 = this;
-
-            var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-
-            /* istanbul ignore if  */
-            if (opts.global) {
-                helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
-                helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
-            }
-
-            helper.defaults(opts, this.DEFAULT_CONFIG);
-
-            this._opts = opts;
-
-            /**
-             * Root object
-             * @ignore
-             */
-            this._root = opts.share ? helper.isServer() ? global : window : {};
-
-            /* istanbul ignore else  */
-            if (opts.storeName) this.GLOBAL_KEY += opts.storeName;
-
-            /* istanbul ignore else  */
-            if (!this._root[this.GLOBAL_KEY]) {
-                this._root[this.GLOBAL_KEY] = {
-                    metadata: {
-                        _lastSave: null
-                    },
-                    data: {},
-                    config: this._opts
-                };
-            }
-
-            this._root[this.GLOBAL_KEY].config = opts;
-
-            this._memory = this._root[this.GLOBAL_KEY];
-
-            this._storage = this._memory.data;
-
-            /* istanbul ignore else  */
-            if (helper.isServer()) {
-                if (opts.autoLoad) this.load().then().catch(function (e) {});
-
-                /* istanbul ignore else  */
-                if (opts.autoSave || opts.save) {
-
-                    /* istanbul ignore else  */
-                    if (opts.autoSaveMode === SAVE_MODE.TERMINATE) {
-
-                        // Wrap function
-                        var pWrite = function pWrite() {
-                            self.save().then().catch(function (e) {});
-                        };
-
-                        // Remove if event already exists
-
-
-                        var self = this;process.removeListener('exit', pWrite);
-                        process.removeListener('SIGINT', pWrite);
-
-                        process.stdin.resume();
-                        process.on('exit', pWrite);
-                        process.on('SIGINT', pWrite);
-                    } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
-                        /* istanbul ignore else  */
-                        if (this._timerSaveCheck) {
-                            clearInterval(this._timerSaveCheck);
-                            this._timerSaveCheck = null;
-                        }
-
-                        /* istanbul ignore else  */
-                        if (opts.autoSavePeriod) {
-                            this._timerSaveCheck = setInterval(function () {
-                                if (_this4._lastChange !== _this4._lastChangeDetected) {
-                                    _this4._lastChangeDetected = _this4._lastChange;
-                                    _this4.save().then().catch(function (e) {});
-                                }
-                            }, opts.autoSavePeriod * 1000);
-                        }
-                    }
-                }
-            }
-
-            /* istanbul ignore else  */
-            if (this._timerExpiryCheck) {
-                clearInterval(this._timerExpiryCheck);
-                this._timerExpiryCheck = null;
-            }
-
-            /* istanbul ignore else  */
-            if (opts.autoRemovePeriod) {
-                this._timerExpiryCheck = setInterval(function () {
-                    var expired = _this4.removeExpired();
-                    if (expired.length) {
-                        _this4._emitter.fire('expired', expired);
-                    }
-                }, opts.autoRemovePeriod * 1000);
-            }
-        }
-
-        /**
-         * Get configuration
-         * @returns {*}
-         */
-
-    }, {
-        key: 'getConfig',
-        value: function getConfig() {
-            return this._memory.config;
-        }
-
-        /**
-         * InCache record
-         * @typedef {Object} InCache~record
-         * @property {string} id - uuid
-         * @property {boolean} isNew - indicates if is a new record
-         * @property {boolean} isPreserved - indicates if record will no longer be editable once created
-         * @property {boolean} toDelete - indicates if record will be deleted after expiry
-         * @property {Date|null} createdOn - creation date
-         * @property {Date|null} updatedOn - update date
-         * @property {Date|null} expiresOn - expiry date
-         * @property {*} value - record value
-         */
-
-        /**
-         * Set/update record
-         * @param key {*}
-         * @param value {*}
-         * @param [opts] {Object} options object
-         * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
-         * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
-         * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwrites global configuration)
-         * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwrites global configuration)
-         * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
-         * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwrites global configuration)
-         * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
-         * @returns {InCache~record|*}
-         * @fires InCache#beforeSet
-         * @fires InCache#create
-         * @fires InCache#update
-         * @fires InCache#set
-         * @example
-         * inCache.set('my key', 'my value');
-         * inCache.set('my object', {a: 1, b: 2});
-         * inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
-         */
-
-    }, {
-        key: 'set',
-        value: function set(key, value) {
-            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-
-            /* istanbul ignore else  */
-            if (!opts.silent && this._emitter.fireTheFirst('beforeSet', key, value) === false) {
-                return;
-            }
-
-            opts = helper.defaults(opts, this._opts);
-
-            /* istanbul ignore else  */
-            if (this.has(key) && this._storage[key].isPreserved) {
-                return;
-            }
-
-            /* istanbul ignore else  */
-            if (opts.clone) {
-                value = clone(value);
-            }
-
-            var record = {
-                id: null,
-                isNew: true,
-                isPreserved: opts.preserve,
-                toDelete: opts.deleteOnExpires,
-                createdOn: null,
-                updatedOn: null,
-                expiresOn: null,
-                value: value
-            };
-
-            if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
-                record.expiresOn = new Date(opts.expires);
-            } else if (opts.maxAge && helper.is(opts.maxAge, 'number')) {
-                record.expiresOn = helper.addMSToNow(opts.maxAge);
-            } else if (opts.life && helper.is(opts.life, 'number')) {
-                helper.deprecated(opts.life, 'life is deprecated use maxAge instead');
-                record.expiresOn = helper.addSecondsToNow(opts.life);
-            }
-
-            if (this.has(key)) {
-                record.isNew = false;
-                record.id = this._storage[key].id;
-                record.createdOn = this._storage[key].createdOn;
-                record.updatedOn = new Date();
-                if (!opts.silent) {
-                    this._onUpdated.call(this, key, record);
-                    this._emitter.fire('update', key, record);
-                }
-            } else {
-                record.id = uuid();
-                record.createdOn = new Date();
-                if (!opts.silent) {
-                    this._onCreated.call(this, key, record);
-                    this._emitter.fire('create', key, record);
-                }
-            }
-
-            this._storage[key] = record;
-
-            if (!opts.silent) {
-                this._emitter.fire('set', key, record);
-            }
-
-            this._checkExceeded();
-
-            this._emitter.fire('_change', 'set');
-
-            return record;
-        }
-
-        /**
-         * Get record by key
-         * @param key {*}
-         * @param [onlyValue=true] {boolean} if false get InCache record
-         * @returns {InCache~record|*|null|undefined}
-         * @example
-         * inCache.get('my key');
-         */
-
-    }, {
-        key: 'get',
-        value: function get(key) {
-            var onlyValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-            if (this.has(key)) {
-                if (!this._opts.autoRemovePeriod && this.expired(key) && this._storage[key].toDelete) {
-                    this.remove(key, true);
-                    return this._opts.nullIfNotFound ? null : undefined;
-                }
-                return onlyValue ? this._storage[key].value : this._storage[key];
-            } else {
-                return this._opts.nullIfNotFound ? null : undefined;
-            }
-        }
-
-        /**
-         * Delete a record
-         * @param key {*}
-         * @param [silent=false] {boolean} if true no event will be triggered
-         * @fires InCache#beforeRemove
-         * @fires InCache#remove
-         * @example
-         * inCache.remove('my key');
-         */
-
-    }, {
-        key: 'remove',
-        value: function remove(key) {
-            var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-            if (!silent && this._emitter.fireTheFirst('beforeRemove', key) === false) {
-                return;
-            }
-            delete this._storage[key];
-            if (!silent) {
-                this._onRemoved.call(this, key);
-                this._emitter.fire('remove', key);
-            }
-            this._emitter.fire('_change', 'remove');
-        }
-
-        /**
-         * Given a key that has value like an array removes key(s) if `where` is satisfied
-         * @param key {*}
-         * @param where {*}
-         * @example
-         * inCache.set('myArray', ['hello', 'world']);
-         * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
-         * @since 3.0.0
-         */
-
-    }, {
-        key: 'removeFrom',
-        value: function removeFrom(key, where) {
-            if (!this.has(key)) return null;
-
-            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
-
-            if (this._storage[key].isPreserved) {
-                return;
-            }
-
-            var recordValue = this.get(key);
-
-            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
-
-            var recordLengthBefore = recordValue.length;
-            for (var i in recordValue) {
-                if (recordValue.hasOwnProperty(i)) {
-                    var result = [];
-                    for (var prop in where) {
-                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
-                    }
-
-                    if (result.length && result.indexOf(false) === -1) recordValue.splice(i, 1);
-                }
-            }
-
-            if (recordLengthBefore !== recordValue.length) {
-                this.set(key, recordValue);
-            }
-        }
-
-        /**
-         * Remove expired records
-         * @returns {Array} expired keys
-         * @since 4.1.0
-         * @example
-         * inCache.set('my key 1', 'my value');
-         * inCache.set('my key 2', 'my value', {maxAge: 1000});
-         * inCache.set('my key 3', 'my value', {maxAge: 1500});
-         * setTimeout(()=>{
-         *      inCache.removeExpired();
-         *      inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]
-         * }, 2000)
-         */
-
-    }, {
-        key: 'removeExpired',
-        value: function removeExpired() {
-            var expired = [];
-            for (var key in this._storage) {
-                if (this._storage.hasOwnProperty(key) && this.expired(key) && this._storage[key].toDelete) {
-                    this.remove(key, true);
-                    expired.push(key);
-                }
-            }
-            return expired;
-        }
-
-        /**
-         * Given a key that has value like an array adds value to end of array
-         * @param key {*}
-         * @param value {*}
-         * @returns {InCache~record|undefined}
-         * @example
-         * inCache.set('myArray', ['hello', 'world']);
-         * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
-         * @since 3.0.0
-         */
-
-    }, {
-        key: 'addTo',
-        value: function addTo(key, value) {
-            if (!this.has(key)) return;
-            var record = this.get(key);
-
-            if (this._storage[key].isPreserved) {
-                return;
-            }
-
-            if (!helper.is(record, 'array')) throw new Error('object must be an array');
-
-            record.push(value);
-
-            return this.set(key, record);
-        }
-
-        /**
-         * Given a key that has value like an array adds value to beginning of array
-         * @param key {*}
-         * @param value {*}
-         * @returns {InCache~record|undefined}
-         * @example
-         * inCache.set('myArray', ['hello', 'world']);
-         * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
-         * @since 3.0.0
-         */
-
-    }, {
-        key: 'prependTo',
-        value: function prependTo(key, value) {
-            if (!this.has(key)) return;
-
-            if (this._storage[key].isPreserved) {
-                return;
-            }
-
-            var record = this.get(key);
-
-            if (!helper.is(record, 'array')) throw new Error('object must be an array');
-
-            record.unshift(value);
-
-            return this.set(key, record);
-        }
-
-        /**
-         * Given a key that has value like an array updates key(s) if `where` is satisfied
-         * @param key {*}
-         * @param value {*}
-         * @param where {*}
-         * @example
-         * inCache.set('myArray', ['hello', 'world']);
-         * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
-         *
-         * inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});
-         * inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
-         * @since 3.0.0
-         */
-
-    }, {
-        key: 'updateIn',
-        value: function updateIn(key, value, where) {
-            if (!this.has(key)) return;
-
-            if (helper.is(value, 'undefined')) throw new Error('value cannot be undefined');
-
-            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
-
-            if (this._storage[key].isPreserved) {
-                return;
-            }
-
-            var recordValue = this.get(key);
-
-            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
-
-            var updated = false;
-            for (var i in recordValue) {
-                if (recordValue.hasOwnProperty(i)) {
-                    var result = [];
-                    for (var prop in where) {
-                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
-                    }
-
-                    if (result.length && result.indexOf(false) === -1) {
-                        updated = true;
-                        recordValue[i] = value;
-                    }
-                }
-            }
-
-            if (updated) {
-                this.set(key, recordValue);
-            }
-        }
-
-        /**
-         * Set/update multiple records. This method not trigger any event.
-         * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
-         * @param [silent=false] {boolean} if true no event will be triggered
-         * @fires InCache#beforeBulkSet
-         * @fires InCache#bulkSet
-         * @example
-         * inCache.bulkSet([
-         *      {key: 'my key 1', value: 'my value 1'},
-         *      {key: 'my key 2', value: 'my value 2'},
-         *      {key: 'my key 3', value: 'my value 3'},
-         *      {key: 'my key 4', value: 'my value 4'}
-         * ]);
-         */
-
-    }, {
-        key: 'bulkSet',
-        value: function bulkSet(records) {
-            var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-            if (!helper.is(records, 'array')) throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
-
-            if (!silent && this._emitter.fireTheFirst('beforeBulkSet', records) === false) {
-                return;
-            }
-
-            for (var i = 0; i < records.length; i++) {
-                if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
-                this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
-            }
-
-            if (!silent) {
-                this._emitter.fire('bulkSet', records);
-            }
-        }
-
-        /**
-         * Delete multiple records
-         * @param keys {Array} an array of keys
-         * @param [silent=false] {boolean} if true no event will be triggered
-         * @fires InCache#beforeBulkRemove
-         * @fires InCache#bulkRemove
-         * @example
-         * inCache.bulkRemove(['key1', 'key2', 'key3']);
-         */
-
-    }, {
-        key: 'bulkRemove',
-        value: function bulkRemove(keys, silent) {
-            if (!helper.is(keys, 'array')) throw new Error('keys must be an array of keys');
-
-            if (!silent && this._emitter.fireTheFirst('beforeBulkRemove', keys) === false) {
-                return;
-            }
-
-            for (var i = 0; i < keys.length; i++) {
-                this.remove(keys[i], true);
-            }
-
-            if (!silent) {
-                this._emitter.fire('bulkRemove', keys);
-            }
-        }
-
-        /**
-         * Delete multiple records that contain the passed keyword
-         * @param key {string} a string that is relative to a group of keys
-         * @example
-         * inCache.set('/api/users/foo', 'Mario Rossi');
-         * inCache.set('/api/users/bar', 'Antonio Bianchi');
-         * inCache.clean('/api/users');
-         */
-
-    }, {
-        key: 'clean',
-        value: function clean(key) {
-            if (!helper.is(key, 'string')) throw new Error('key must be a string');
-
-            for (var k in this._storage) {
-                if (this._storage.hasOwnProperty(k) && k.indexOf(key) !== -1) {
-                    delete this._storage[k];
-                    this._emitter.fire('_change', 'clean');
-                }
-            }
-        }
-
-        /**
-         * Fetch all records
-         * @returns {Array}
-         */
-
-    }, {
-        key: 'all',
-        value: function all() {
-            var records = [];
-
-            for (var key in this._storage) {
-                if (this._storage.hasOwnProperty(key)) {
-                    if (!this._opts.autoRemovePeriod && this.expired(key) && this._storage[key].toDelete) {
-                        this.remove(key, true);
-                    } else {
-                        records.push({
-                            key: key,
-                            value: this._storage[key].value
-                        });
-                    }
-                }
-            }
-
-            return records;
-        }
-
-        /**
-         * Returns total of records in storage
-         * @returns {Number}
-         * @since 6.0.0
-         */
-
-    }, {
-        key: 'count',
-        value: function count() {
-            this.removeExpired();
-            return Object.keys(this._storage).length;
-        }
-
-        /**
-         * Check if record is expired
-         * @param key {*}
-         * @returns {boolean}
-         */
-
-    }, {
-        key: 'expired',
-        value: function expired(key) {
-            if (this._storage[key] && this._storage[key].expiresOn) {
-                var now = new Date();
-                var expiry = new Date(this._storage[key].expiresOn);
-                return now > expiry;
-            } else {
-                return false;
-            }
-        }
-
-        /**
-         * Remove all records
-         */
-
-    }, {
-        key: 'clear',
-        value: function clear() {
-            /**
-             * Reset object
-             * @ignore
-             */
-            this._storage = this._memory.data = {};
-            this._emitter.fire('_change', 'clear');
-        }
-
-        /**
-         * Check if key exists
-         * @param key {*}
-         * @returns {boolean}
-         * @example
-         * inCache.has('my key');
-         */
-
-    }, {
-        key: 'has',
-        value: function has(key) {
-            return this._storage.hasOwnProperty(key);
-        }
-
-        /**
-         * Alias of `remove`
-         * @borrows remove as destroy
-         * @param args
-         * @since 4.1.1
-         */
-
-    }, {
-        key: 'destroy',
-        value: function destroy() {
-            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                args[_key] = arguments[_key];
-            }
-
-            this.remove.apply(this, args);
-        }
-
-        /**
-         * Adds listener to instance
-         * @param eventName {string} event name
-         * @param callback {Function} callback
-         */
-
-    }, {
-        key: 'on',
-        value: function on(eventName, callback) {
-            this._emitter.on.call(this._emitter, eventName, callback);
-        }
-
-        /**
-         * Triggered before set
-         * @event InCache#beforeSet
-         * @param key {string} key
-         * @param value {string} value
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered after set
-         * @event InCache#set
-         * @param key {string} key
-         * @param record {InCache~record} record object
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered after create the record
-         * @event InCache#create
-         * @param key {string} key of record
-         * @param record {InCache~record} record object
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered after update the record
-         * @event InCache#update
-         * @param key {string} key of record
-         * @param record {InCache~record} record object
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered before remove the record
-         * @event InCache#beforeRemove
-         * @param key {string} key of record to be removed
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered after record has been removed
-         * @event InCache#remove
-         * @param key {string} key of record
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered before bulk set
-         * @event InCache#beforeBulkSet
-         * @param records {array} array of objects
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered after bulk set
-         * @event InCache#bulkSet
-         * @param records {array} array of objects
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered before remove the records
-         * @event InCache#beforeBulkRemove
-         * @param keys {array} array of keys to be removed
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered after records have been removed
-         * @event InCache#bulkRemove
-         * @param keys {array} array of keys removed
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered when records are expired and `opts.autoRemovePeriod` is set
-         * @event InCache#expired
-         * @param keys {array} array of keys expired
-         * @since 5.0.0
-         */
-
-        /**
-         * Triggered after load invocation
-         * @event InCache#load
-         * @param err {null|string} error message, if no errors occurred is null
-         * @since 6.0.0
-         */
-
-        /**
-         * Triggered after save invocation
-         * @event InCache#save
-         * @param err {null|string} error message, if no errors occurred is null
-         * @since 6.0.0
-         */
-
-        /**
-         * Triggered when data is changed
-         * @event InCache#change
-         * @param by {string} event called by `set`,`remove`,`clear` or `clean`
-         * @since 6.1.0
-         */
-
-        /**
-         * Triggered when data exceed max size
-         * @event InCache#exceed
-         * @param diff {number} exceeded by record number
-         * @since 6.1.0
-         */
-
-        /***************************** DEPRECATED ********************************/
-
-        /**
-         * Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
-         * @param callback {InCache~removedCallback} callback function
-         * @deprecated
-         * @example
-         * inCache.onRemoved((key)=>{
-         *      console.log('removed', key);
-         * });
-         */
-
-    }, {
-        key: 'onRemoved',
-        value: function onRemoved(callback) {
-            this._onRemoved = callback;
-        }
-
-        /**
-         * onRemoved callback
-         * @callback InCache~removedCallback
-         * @param key {string} key of record removed
-         * @deprecated
-         */
-
-        /**
-         * Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
-         * @param callback {InCache~createdCallback} callback function
-         * @deprecated
-         * @example
-         * inCache.onCreated((key, record)=>{
-         *      console.log('created', key, record);
-         * });
-         */
-
-    }, {
-        key: 'onCreated',
-        value: function onCreated(callback) {
-            this._onCreated = callback;
-        }
-
-        /**
-         * onCreated callback
-         * @callback InCache~createdCallback
-         * @param key {string} key of record created
-         * @param record {InCache~record} record object
-         * @deprecated
-         */
-
-        /**
-         * Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
-         * @param callback {InCache~updatedCallback} callback function
-         * @deprecated
-         * @example
-         * inCache.onUpdated((key, record)=>{
-         *      console.log('updated', key, record);
-         * });
-         */
-
-    }, {
-        key: 'onUpdated',
-        value: function onUpdated(callback) {
-            this._onUpdated = callback;
-        }
-
-        /**
-         * onUpdated callback
-         * @callback InCache~updatedCallback
-         * @param key {string} key of record updated
-         * @param record {InCache~record} record object
-         * @deprecated
-         */
-
-    }]);
-
-    return InCache;
-}();
-
-/**
- * Expose module
- */
-
-
-module.exports = InCache;
-module.exports.SAVE_MODE = SAVE_MODE;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(3)))
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout() {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-})();
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch (e) {
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch (e) {
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e) {
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e) {
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while (len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) {
-    return [];
-};
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () {
-    return '/';
-};
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function () {
-    return 0;
-};
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var helper = {};
-
-/**
- * Get object type
- * @param object {*}
- * @param type {string}
- * @returns {boolean}
- */
-helper.is = function (object, type) {
-    var objectToString = Object.prototype.toString.call(object);
-    return objectToString.toLowerCase() === '[object ' + type + ']'.toLowerCase();
-};
-
-/**
- * Set default value
- * @param opts {Object} options
- * @param defaultOpts {Object} default options
- * @returns {*}
- */
-helper.defaults = function (opts, defaultOpts) {
-    for (var i in defaultOpts) {
-        if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
-            opts[i] = defaultOpts[i];
-        } else {
-            if (_typeof(opts[i]) === 'object') {
-                helper.defaults(opts[i], defaultOpts[i]);
-            }
-        }
-    }
-    return opts;
-};
-
-/**
- * Adds seconds to current date
- * @param seconds {number} number of seconds to add
- * @returns {Date}
- * @deprecated
- */
-helper.addSecondsToNow = function (seconds) {
-    var now = new Date();
-    return new Date(now.setSeconds(now.getSeconds() + seconds));
-};
-
-/**
- * Adds milliseconds to current date
- * @param ms {number} number of milliseconds to add
- * @returns {Date}
- */
-helper.addMSToNow = function (ms) {
-    var now = new Date();
-    return new Date(now.setMilliseconds(now.getMilliseconds() + ms));
-};
-
-/**
- * Check if is Node environment
- * @returns {boolean}
- */
-helper.isServer = function () {
-    //return typeof process === 'object' && typeof process.pid !== 'undefined';
-    return typeof window === 'undefined';
-};
-
-/**
- * Throw deprecated
- * @param prop
- * @param msg
- * @param [type=warn]
- */
-helper.deprecated = function (prop, msg) {
-    var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'warn';
-
-    if (typeof prop !== 'undefined') {
-        console[type](msg || prop);
-        return true;
-    }
-    return false;
-};
-
-module.exports = helper;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(6);
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var helper = __webpack_require__(7);
-var error = __webpack_require__(8);
-
-var Flak = function () {
-    //TODO add support to cross-domain through postMessage, see: https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
-    /**
-     * Constructor
-     * @param [opts] {Object} options
-     * @param [opts.maxListeners=10] {number} Max number listeners per event
-     * @param [opts.asyncDelay=10] {number} Delay in ms for async method `fireAsync`
-     * @example
-     * const emitter = new Flak();
-     */
-    function Flak() {
-        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-        _classCallCheck(this, Flak);
-
-        /**
-         * Class options
-         * @type {{maxListeners: number, asyncDelay: number}}
-         * @ignore
-         */
-        this.defaultClassOpts = {
-            maxListeners: 10,
-            asyncDelay: 10 // ms
-        };
-
-        /**
-         * Event options
-         * @type {{maxCalls: number, prepend: boolean}}
-         * @ignore
-         */
-        this.defaultListenerOpts = {
-            maxCalls: 0,
-            prepend: false
-        };
-
-        this.opts = helper.defaults(opts, this.defaultClassOpts);
-        this.events = {};
-    }
-
-    /**
-     * Create event and add listener
-     * @param eventName {string} event name
-     * @param listener {Function} listener function
-     * @param [opts] {Object} option object
-     * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
-     * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
-     * @private
-     * @ignore
-     */
-
-
-    _createClass(Flak, [{
-        key: '_createEvent',
-        value: function _createEvent(eventName, listener, opts) {
-
-            if (!this.events[eventName]) this.events[eventName] = [];
-
-            if (this.opts.maxListeners) {
-                var maxListeners = this.opts.maxListeners;
-                var listenersCount = this.events[eventName].length;
-                if (listenersCount >= maxListeners) throw new Error(error[3] + maxListeners);
-            }
-
-            listener.opts = helper.defaults(opts, this.defaultListenerOpts);
-
-            listener.info = {
-                calls: 0
-            };
-
-            if (opts.prepend) this.events[eventName].unshift(listener);else this.events[eventName].push(listener);
-
-            this._created.call(this, eventName, listener, opts);
-        }
-
-        /**
-         * Call event
-         * @param eventName {string} event name
-         * @param eventListener {Function} event listener
-         * @param args args {*} ...arguments
-         * @private
-         * @ignore
-         */
-
-    }, {
-        key: '_callEvent',
-        value: function _callEvent(eventName, eventListener, args) {
-            if (eventListener.opts.maxCalls && eventListener.info.calls++ >= eventListener.opts.maxCalls) {
-                this.off(eventName, eventListener);
-                return;
-            }
-
-            this._catchAll.call(this, args);
-            return eventListener.apply(this, args);
-        }
-
-        /**
-         * Callback on create
-         * @private
-         * @ignore
-         */
-
-    }, {
-        key: '_created',
-        value: function _created() {}
-
-        /**
-         * Callback on remove
-         * @private
-         * @ignore
-         */
-
-    }, {
-        key: '_removed',
-        value: function _removed() {}
-
-        /**
-         * Callback catch all
-         * @private
-         * @ignore
-         */
-
-    }, {
-        key: '_catchAll',
-        value: function _catchAll() {}
-
-        /**
-         * Adds event listener for eventName
-         * @param eventName {string} event name
-         * @param listener {(Function|Function[])} listener function
-         * @param [opts] {Object} option object
-         * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
-         * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
-         * @returns {Flak}
-         * @example
-         * emitter.on('myEvent', (param)=>{
-         *      console.log(param);
-         * });
-         */
-
-    }, {
-        key: 'on',
-        value: function on(eventName, listener) {
-            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
-
-            eventName = eventName.trim();
-
-            if (!eventName.length) throw new Error(error[4]);
-
-            if (helper.is(listener, 'array')) {
-                for (var i in listener) {
-                    if (listener.hasOwnProperty(i)) {
-                        if (!helper.is(listener[i], 'function')) throw new Error(error[1]);
-                        this._createEvent(eventName, listener[i], opts);
-                    }
-                }
-            } else {
-                if (!helper.is(listener, 'function')) throw new Error(error[1]);
-                this._createEvent(eventName, listener, opts);
-            }
-
-            return this;
-        }
-
-        /**
-         * Adds a one time listener function for the event named eventName.
-         * This is a wrapper method of `on` that set to `opts.maxCalls = 1`
-         * @param eventName {string} event name
-         * @param listener {(Function|Function[])} listener function
-         * @returns {Flak}
-         * @example
-         * emitter.once('myEvent', (param)=>{
-         *      console.log(param);
-         * });
-         */
-
-    }, {
-        key: 'once',
-        value: function once(eventName, listener) {
-            return this.on(eventName, listener, {
-                maxCalls: 1
-            });
-        }
-
-        /**
-         * Calls each of the listeners registered for the event
-         * @param eventName {string} event name
-         * @param [args] {*} ...arguments
-         * @returns {Flak}
-         * @example
-         * emitter.fire('myEvent', param1, param2, ...);
-         */
-
-    }, {
-        key: 'fire',
-        value: function fire(eventName) {
-
-            if (this.exists(eventName)) {
-                for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                    args[_key - 1] = arguments[_key];
-                }
-
-                for (var j = 0; j < this.events[eventName].length; j++) {
-                    this._callEvent(eventName, this.events[eventName][j], args);
-                }
-            }return this;
-        }
-
-        /**
-         * Calls the first of the listeners registered for the event and return it
-         * @param eventName {string} event name
-         * @param [args] {*} ...arguments
-         * @returns {*}
-         * @since 0.3.0
-         * @example
-         * emitter.on('myEvent', (param1, param2)=>{
-         *      return param1 + '-' + param2;
-         * });
-         * console.log('foo-bar' === emitter.fireTheFirst('myEvent', 'foo', 'bar')) //=> true;
-         */
-
-    }, {
-        key: 'fireTheFirst',
-        value: function fireTheFirst(eventName) {
-            for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-                args[_key2 - 1] = arguments[_key2];
-            }
-
-            if (this.exists(eventName)) return this._callEvent(eventName, this.events[eventName][0], args);
-        }
-
-        /**
-         * Calls each of the listeners registered for the event, this method is async
-         * @param eventName {string} event name
-         * @param args {*} ...arguments
-         * @example
-         * emitter.fireAsync('myEvent', param1, param2, ...);
-         */
-
-    }, {
-        key: 'fireAsync',
-        value: function fireAsync(eventName) {
-            var _this = this;
-
-            for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
-                args[_key3 - 1] = arguments[_key3];
-            }
-
-            args.unshift(eventName);
-            setTimeout(function () {
-                _this.fire.apply(_this, args);
-            }, this.opts.asyncDelay);
-        }
-
-        /**
-         * Remove event/listener
-         * @param eventName {string} event name
-         * @param [listener] {Function} listener function, if is set remove listener only for this event
-         * @returns {Flak}
-         * @example
-         * emitter.off('myEvent'); // remove event
-         * emitter.off('myEvent', listener); // remove specific listener
-         */
-
-    }, {
-        key: 'off',
-        value: function off(eventName, listener) {
-            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
-
-            if (this.events[eventName]) if (typeof listener === 'function') {
-                for (var i = 0; i < this.events[eventName].length; i++) {
-                    if (this.events[eventName][i] === listener) {
-                        this.events[eventName].splice(i, 1);
-                        this._removed.call(this, eventName, listener);
-                    }
-                }
-            } else {
-                delete this.events[eventName];
-                this._removed.call(this, eventName);
-            }
-
-            return this;
-        }
-
-        /**
-         * Adds the listener function to the beginning of the listeners array for the event named eventName.
-         * This is a wrapper method of `on` that set to `opts.prepend = true`
-         * @param eventName {string} event name
-         * @param listener {(Function|Function[])} listener function
-         * @returns {Flak}
-         */
-
-    }, {
-        key: 'prependListener',
-        value: function prependListener(eventName, listener) {
-            return this.on(eventName, listener, {
-                prepend: true
-            });
-        }
-
-        /**
-         * Adds a one time listener function to the beginning of the listeners array for the event named eventName.
-         * This is a wrapper method of `on` that set to `opts.maxCalls = 1` and `opts.prepend = true`
-         * @param eventName {string} event name
-         * @param listener {(Function|Function[])} listener function
-         * @returns {Flak}
-         */
-
-    }, {
-        key: 'prependOnceListener',
-        value: function prependOnceListener(eventName, listener) {
-            return this.on(eventName, listener, {
-                maxCalls: 1,
-                prepend: true
-            });
-        }
-
-        /**
-         * Remove all events
-         * @returns {Flak}
-         * @example
-         * emitter.clear();
-         */
-
-    }, {
-        key: 'clear',
-        value: function clear() {
-            this.events = [];
-            return this;
-        }
-
-        /**
-         * Get listeners count
-         * @param eventName {string} event name
-         * @returns {number}
-         * @example
-         * emitter.on('event', listener1);
-         * emitter.on('event', listener2);
-         * emitter.on('event1', listener3);
-         *
-         * emitter.getListenersCount('event'); // 2
-         */
-
-    }, {
-        key: 'getListenersCount',
-        value: function getListenersCount(eventName) {
-            return this.getListeners(eventName).length;
-        }
-
-        /**
-         * Get listeners list of event
-         * @param eventName {string} event name
-         * @returns {Array}
-         */
-
-    }, {
-        key: 'getListeners',
-        value: function getListeners(eventName) {
-            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
-
-            if (!this.exists(eventName)) throw new Error(error[5]);
-
-            return this.events[eventName];
-        }
-
-        /**
-         * Get events list
-         * @returns {Object}
-         */
-
-    }, {
-        key: 'getEvents',
-        value: function getEvents() {
-            return this.events;
-        }
-
-        /**
-         * Check if event exists
-         * @param eventName {string} event name
-         * @returns {boolean}
-         */
-
-    }, {
-        key: 'exists',
-        value: function exists(eventName) {
-            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
-
-            return !helper.is(this.events[eventName], 'undefined');
-        }
-
-        /**
-         * Get max number of listeners per event
-         * @returns {number}
-         */
-
-    }, {
-        key: 'getMaxListeners',
-        value: function getMaxListeners() {
-            return this.opts.maxListeners;
-        }
-
-        /**
-         * Set max number of listeners per event
-         * @param value {int} number max listeners
-         * @returns {Flak}
-         */
-
-    }, {
-        key: 'setMaxListeners',
-        value: function setMaxListeners(value) {
-            if (!helper.is(value, 'number')) throw new Error(error[2]);
-
-            this.opts.maxListeners = value;
-            return this;
-        }
-
-        /**
-         * Triggered when an event is fired
-         * @param callback {Function} callback function
-         * @returns {Flak}
-         * @since 0.2.0
-         * @example
-         * emitter.onCatchAll(args=>{
-         *      // args is an array of params
-         *      console.log(args);
-         * });
-         *
-         * emitter.on('myEvent', param=>{
-         *      console.log(param);
-         * });
-         *
-         * emitter.fire('myEvent');
-         */
-
-    }, {
-        key: 'onCatchAll',
-        value: function onCatchAll(callback) {
-            this._catchAll = callback;
-            return this;
-        }
-
-        /**
-         * Triggered when an event is created
-         * @param callback {Function} callback function
-         * @returns {Flak}
-         * @example
-         * emitter.onCreated(obj=>{
-         *      console.log(obj); //-> eventName, listener, opts
-         * });
-         *
-         * emitter.on('myEvent', (param)=>{
-         *      console.log(param);
-         * });
-         */
-
-    }, {
-        key: 'onCreated',
-        value: function onCreated(callback) {
-            this._created = callback;
-            return this;
-        }
-
-        /**
-         * Triggered when an event is removed
-         * @param callback {Function} callback function
-         * @returns {Flak}
-         * @example
-         * emitter.onRemoved(obj=>{
-         *      console.log(obj); //-> eventName, (listener)
-         * });
-         *
-         * emitter.off('myEvent');
-         */
-
-    }, {
-        key: 'onRemoved',
-        value: function onRemoved(callback) {
-            this._removed = callback;
-            return this;
-        }
-    }]);
-
-    return Flak;
-}();
-
-module.exports = Flak;
-module.exports._error = error;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var helper = {};
-
-/**
- * Get object type
- * @param object {*}
- * @param type {string}
- * @returns {boolean}
- */
-helper.is = function (object, type) {
-    var objectToString = Object.prototype.toString.call(object);
-    return objectToString.toLowerCase() === '[object ' + type + ']'.toLowerCase();
-};
-
-/**
- * Set default value
- * @param opts {Object} options
- * @param defaultOpts {Object} default options
- * @returns {*}
- */
-helper.defaults = function (opts, defaultOpts) {
-    for (var i in defaultOpts) {
-        if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
-            opts[i] = defaultOpts[i];
-        } else {
-            if (_typeof(opts[i]) === 'object') {
-                helper.defaults(opts[i], defaultOpts[i]);
-            }
-        }
-    }
-    return opts;
-};
-
-module.exports = helper;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = ['event name is required and must be a string', 'listener is required and must be a function or an array of function', 'value must be a number', 'increase maxListeners per event: ', 'event name not valid', 'event not found'];
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var rng = __webpack_require__(11);
-var bytesToUuid = __webpack_require__(12);
-
-// **`v1()` - Generate time-based UUID**
-//
-// Inspired by https://github.com/LiosK/UUID.js
-// and http://docs.python.org/library/uuid.html
-
-// random #'s we need to init node and clockseq
-var _seedBytes = rng();
-
-// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-var _nodeId = [_seedBytes[0] | 0x01, _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]];
-
-// Per 4.2.2, randomize (14 bit) clockseq
-var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
-
-// Previous uuid creation time
-var _lastMSecs = 0,
-    _lastNSecs = 0;
-
-// See https://github.com/broofa/node-uuid for API details
-function v1(options, buf, offset) {
-  var i = buf && offset || 0;
-  var b = buf || [];
-
-  options = options || {};
-
-  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
-
-  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
-  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
-  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
-  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
-
-  // Per 4.2.1.2, use count of uuid's generated during the current clock
-  // cycle to simulate higher resolution clock
-  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
-
-  // Time since last uuid creation (in msecs)
-  var dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000;
-
-  // Per 4.2.1.2, Bump clockseq on clock regression
-  if (dt < 0 && options.clockseq === undefined) {
-    clockseq = clockseq + 1 & 0x3fff;
-  }
-
-  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
-  // time interval
-  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
-    nsecs = 0;
-  }
-
-  // Per 4.2.1.2 Throw error if too many uuids are requested
-  if (nsecs >= 10000) {
-    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
-  }
-
-  _lastMSecs = msecs;
-  _lastNSecs = nsecs;
-  _clockseq = clockseq;
-
-  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
-  msecs += 12219292800000;
-
-  // `time_low`
-  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
-  b[i++] = tl >>> 24 & 0xff;
-  b[i++] = tl >>> 16 & 0xff;
-  b[i++] = tl >>> 8 & 0xff;
-  b[i++] = tl & 0xff;
-
-  // `time_mid`
-  var tmh = msecs / 0x100000000 * 10000 & 0xfffffff;
-  b[i++] = tmh >>> 8 & 0xff;
-  b[i++] = tmh & 0xff;
-
-  // `time_high_and_version`
-  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-  b[i++] = tmh >>> 16 & 0xff;
-
-  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-  b[i++] = clockseq >>> 8 | 0x80;
-
-  // `clock_seq_low`
-  b[i++] = clockseq & 0xff;
-
-  // `node`
-  var node = options.node || _nodeId;
-  for (var n = 0; n < 6; ++n) {
-    b[i + n] = node[n];
-  }
-
-  return buf ? buf : bytesToUuid(b);
-}
-
-module.exports = v1;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-// Unique ID creation requires a high quality random # generator.  In the
-// browser this is a little complicated due to unknown quality of Math.random()
-// and inconsistent support for the `crypto` API.  We do the best we can via
-// feature-detection
-var rng;
-
-var crypto = global.crypto || global.msCrypto; // for IE 11
-if (crypto && crypto.getRandomValues) {
-  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
-  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
-  rng = function whatwgRNG() {
-    crypto.getRandomValues(rnds8);
-    return rnds8;
-  };
-}
-
-if (!rng) {
-  // Math.random()-based (RNG)
-  //
-  // If all else fails, use Math.random().  It's fast, but is of unspecified
-  // quality.
-  var rnds = new Array(16);
-  rng = function rng() {
-    for (var i = 0, r; i < 16; i++) {
-      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-    }
-
-    return rnds;
-  };
-}
-
-module.exports = rng;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */
-var byteToHex = [];
-for (var i = 0; i < 256; ++i) {
-  byteToHex[i] = (i + 0x100).toString(16).substr(1);
-}
-
-function bytesToUuid(buf, offset) {
-  var i = offset || 0;
-  var bth = byteToHex;
-  return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
-}
-
-module.exports = bytesToUuid;
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(Buffer, module) {
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var clone = function () {
-  'use strict';
-
-  function _instanceof(obj, type) {
-    return type != null && obj instanceof type;
-  }
-
-  var nativeMap;
-  try {
-    nativeMap = Map;
-  } catch (_) {
-    // maybe a reference error because no `Map`. Give it a dummy value that no
-    // value will ever be an instanceof.
-    nativeMap = function nativeMap() {};
-  }
-
-  var nativeSet;
-  try {
-    nativeSet = Set;
-  } catch (_) {
-    nativeSet = function nativeSet() {};
-  }
-
-  var nativePromise;
-  try {
-    nativePromise = Promise;
-  } catch (_) {
-    nativePromise = function nativePromise() {};
-  }
-
-  /**
-   * Clones (copies) an Object using deep copying.
-   *
-   * This function supports circular references by default, but if you are certain
-   * there are no circular references in your object, you can save some CPU time
-   * by calling clone(obj, false).
-   *
-   * Caution: if `circular` is false and `parent` contains circular references,
-   * your program may enter an infinite loop and crash.
-   *
-   * @param `parent` - the object to be cloned
-   * @param `circular` - set to true if the object to be cloned may contain
-   *    circular references. (optional - true by default)
-   * @param `depth` - set to a number if the object is only to be cloned to
-   *    a particular depth. (optional - defaults to Infinity)
-   * @param `prototype` - sets the prototype to be used when cloning an object.
-   *    (optional - defaults to parent prototype).
-   * @param `includeNonEnumerable` - set to true if the non-enumerable properties
-   *    should be cloned as well. Non-enumerable properties on the prototype
-   *    chain will be ignored. (optional - false by default)
-  */
-  function clone(parent, circular, depth, prototype, includeNonEnumerable) {
-    if ((typeof circular === 'undefined' ? 'undefined' : _typeof(circular)) === 'object') {
-      depth = circular.depth;
-      prototype = circular.prototype;
-      includeNonEnumerable = circular.includeNonEnumerable;
-      circular = circular.circular;
-    }
-    // maintain two arrays for circular references, where corresponding parents
-    // and children have the same index
-    var allParents = [];
-    var allChildren = [];
-
-    var useBuffer = typeof Buffer != 'undefined';
-
-    if (typeof circular == 'undefined') circular = true;
-
-    if (typeof depth == 'undefined') depth = Infinity;
-
-    // recurse this function so we don't reset allParents and allChildren
-    function _clone(parent, depth) {
-      // cloning null always returns null
-      if (parent === null) return null;
-
-      if (depth === 0) return parent;
-
-      var child;
-      var proto;
-      if ((typeof parent === 'undefined' ? 'undefined' : _typeof(parent)) != 'object') {
-        return parent;
-      }
-
-      if (_instanceof(parent, nativeMap)) {
-        child = new nativeMap();
-      } else if (_instanceof(parent, nativeSet)) {
-        child = new nativeSet();
-      } else if (_instanceof(parent, nativePromise)) {
-        child = new nativePromise(function (resolve, reject) {
-          parent.then(function (value) {
-            resolve(_clone(value, depth - 1));
-          }, function (err) {
-            reject(_clone(err, depth - 1));
-          });
-        });
-      } else if (clone.__isArray(parent)) {
-        child = [];
-      } else if (clone.__isRegExp(parent)) {
-        child = new RegExp(parent.source, __getRegExpFlags(parent));
-        if (parent.lastIndex) child.lastIndex = parent.lastIndex;
-      } else if (clone.__isDate(parent)) {
-        child = new Date(parent.getTime());
-      } else if (useBuffer && Buffer.isBuffer(parent)) {
-        child = new Buffer(parent.length);
-        parent.copy(child);
-        return child;
-      } else if (_instanceof(parent, Error)) {
-        child = Object.create(parent);
-      } else {
-        if (typeof prototype == 'undefined') {
-          proto = Object.getPrototypeOf(parent);
-          child = Object.create(proto);
-        } else {
-          child = Object.create(prototype);
-          proto = prototype;
-        }
-      }
-
-      if (circular) {
-        var index = allParents.indexOf(parent);
-
-        if (index != -1) {
-          return allChildren[index];
-        }
-        allParents.push(parent);
-        allChildren.push(child);
-      }
-
-      if (_instanceof(parent, nativeMap)) {
-        parent.forEach(function (value, key) {
-          var keyChild = _clone(key, depth - 1);
-          var valueChild = _clone(value, depth - 1);
-          child.set(keyChild, valueChild);
-        });
-      }
-      if (_instanceof(parent, nativeSet)) {
-        parent.forEach(function (value) {
-          var entryChild = _clone(value, depth - 1);
-          child.add(entryChild);
-        });
-      }
-
-      for (var i in parent) {
-        var attrs;
-        if (proto) {
-          attrs = Object.getOwnPropertyDescriptor(proto, i);
-        }
-
-        if (attrs && attrs.set == null) {
-          continue;
-        }
-        child[i] = _clone(parent[i], depth - 1);
-      }
-
-      if (Object.getOwnPropertySymbols) {
-        var symbols = Object.getOwnPropertySymbols(parent);
-        for (var i = 0; i < symbols.length; i++) {
-          // Don't need to worry about cloning a symbol because it is a primitive,
-          // like a number or string.
-          var symbol = symbols[i];
-          var descriptor = Object.getOwnPropertyDescriptor(parent, symbol);
-          if (descriptor && !descriptor.enumerable && !includeNonEnumerable) {
-            continue;
-          }
-          child[symbol] = _clone(parent[symbol], depth - 1);
-          if (!descriptor.enumerable) {
-            Object.defineProperty(child, symbol, {
-              enumerable: false
-            });
-          }
-        }
-      }
-
-      if (includeNonEnumerable) {
-        var allPropertyNames = Object.getOwnPropertyNames(parent);
-        for (var i = 0; i < allPropertyNames.length; i++) {
-          var propertyName = allPropertyNames[i];
-          var descriptor = Object.getOwnPropertyDescriptor(parent, propertyName);
-          if (descriptor && descriptor.enumerable) {
-            continue;
-          }
-          child[propertyName] = _clone(parent[propertyName], depth - 1);
-          Object.defineProperty(child, propertyName, {
-            enumerable: false
-          });
-        }
-      }
-
-      return child;
-    }
-
-    return _clone(parent, depth);
-  }
-
-  /**
-   * Simple flat clone using prototype, accepts only objects, usefull for property
-   * override on FLAT configuration object (no nested props).
-   *
-   * USE WITH CAUTION! This may not behave as you wish if you do not know how this
-   * works.
-   */
-  clone.clonePrototype = function clonePrototype(parent) {
-    if (parent === null) return null;
-
-    var c = function c() {};
-    c.prototype = parent;
-    return new c();
-  };
-
-  // private utility functions
-
-  function __objToStr(o) {
-    return Object.prototype.toString.call(o);
-  }
-  clone.__objToStr = __objToStr;
-
-  function __isDate(o) {
-    return (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && __objToStr(o) === '[object Date]';
-  }
-  clone.__isDate = __isDate;
-
-  function __isArray(o) {
-    return (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && __objToStr(o) === '[object Array]';
-  }
-  clone.__isArray = __isArray;
-
-  function __isRegExp(o) {
-    return (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && __objToStr(o) === '[object RegExp]';
-  }
-  clone.__isRegExp = __isRegExp;
-
-  function __getRegExpFlags(re) {
-    var flags = '';
-    if (re.global) flags += 'g';
-    if (re.ignoreCase) flags += 'i';
-    if (re.multiline) flags += 'm';
-    return flags;
-  }
-  clone.__getRegExpFlags = __getRegExpFlags;
-
-  return clone;
-}();
-
-if (( false ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
-  module.exports = clone;
-}
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer, __webpack_require__(18)(module)))
-
-/***/ }),
-/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4260,6 +1840,2433 @@ function isnan(val) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(3);
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global, process) {
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var helper = __webpack_require__(5);
+var Flak = __webpack_require__(6);
+var fs = __webpack_require__(10);
+var uuid = __webpack_require__(11);
+var clone = __webpack_require__(14);
+var sizeOf = __webpack_require__(19);
+
+var _require = __webpack_require__(21),
+    SAVE_MODE = _require.SAVE_MODE;
+
+/**
+ * @constant SAVE_MODE
+ */
+
+/**
+ * @memberOf SAVE_MODE
+ * @name TERMINATE
+ */
+
+/**
+ * @memberOf SAVE_MODE
+ * @name TIMER
+ */
+
+var InCache = function () {
+
+    /**
+     * Create instance
+     * @param [opts] {Object} configuration object
+     * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwritable by `set`)
+     * @param [opts.expires] {Date|string} a Date for expiration. (overwrites `opts.maxAge`, overwritable by `set`)
+     * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwritable by `set`)
+     * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwritable by `set`)
+     * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwritable by `set`)
+     * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwritable by `set`)
+     * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded some records will be deleted. If 0 is disabled
+     * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
+     * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
+     * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> "terminate": saves before the process is terminated. "timer": every n seconds checks for new changes and save on disk. (server only)
+     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode. (server only)
+     * @param [opts.filePath=.incache] {string} cache file path
+     * @param [opts.storeName] {string} store name
+     * @param [opts.share=false] {boolean} if true, use global object as storage
+     * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
+     * @param [opts.nullIfNotFound=false] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
+     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
+     * @param [opts.global] {Object} **deprecated:** global record configuration
+     * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
+     * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
+     * @fires InCache#expired
+     * @fires InCache#change
+     * @fires InCache#exceed
+     * @constructor
+     */
+    function InCache() {
+        var _this = this;
+
+        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        _classCallCheck(this, InCache);
+
+        Object.defineProperties(this, {
+            _root: {
+                writable: true,
+                enumerable: false
+            },
+            _storage: {
+                writable: true,
+                enumerable: false
+            },
+            _memory: {
+                writable: true,
+                enumerable: false
+            },
+            _emitter: {
+                value: new Flak()
+            },
+            _opts: {
+                writable: true,
+                enumerable: false
+            },
+            _timerExpiryCheck: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _timerSaveCheck: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            GLOBAL_KEY: {
+                writable: true,
+                enumerable: false
+            },
+            _lastChange: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _lastChangeDetected: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _lastSave: {
+                value: null,
+                writable: true,
+                enumerable: false
+            },
+            _saving: {
+                value: false,
+                writable: true,
+                enumerable: false
+            },
+            _loading: {
+                value: false,
+                writable: true,
+                enumerable: false
+            }
+        });
+
+        /**
+         * Global key
+         * @type {string}
+         * @ignore
+         */
+        this.GLOBAL_KEY = '___InCache___storage___global___key___';
+
+        /**
+         * InCache default configuration
+         * @ignore
+         */
+        this.DEFAULT_CONFIG = {
+            storeName: '',
+            autoLoad: true,
+            autoSave: false,
+            autoSaveMode: SAVE_MODE.TERMINATE,
+            autoSavePeriod: 5,
+            save: false,
+            clone: false,
+            preserve: false,
+            deleteOnExpires: true,
+            filePath: '.incache',
+            maxAge: 0,
+            maxRecordNumber: 0,
+            expires: null,
+            silent: false,
+            share: false,
+            autoRemovePeriod: 0,
+            nullIfNotFound: false,
+            global: {
+                silent: false,
+                life: 0
+            }
+        };
+
+        // Defines callback private
+        this._onRemoved = function () {};
+        this._onCreated = function () {};
+        this._onUpdated = function () {};
+
+        this.on('_change', function (by) {
+            _this._lastChange = new Date().getTime();
+            if (!_this._opts.silent) _this._emitter.fire('change', by);
+        });
+
+        this.setConfig(opts);
+    }
+
+    _createClass(InCache, [{
+        key: '_checkExceeded',
+        value: function _checkExceeded() {
+            var keys = Object.keys(this._memory.data);
+            /* istanbul ignore else  */
+            if (this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
+                var diff = keys.length - this._opts.maxRecordNumber;
+                this._emitter.fire('exceed', diff);
+                this.bulkRemove(keys.slice(0, diff), true);
+            }
+        }
+
+        /**
+         * Load cache from disk
+         * @param [path=opts.filePath] {string} file path
+         * @fires InCache#load
+         * @returns {Promise}
+         * @since 6.0.0
+         */
+
+    }, {
+        key: 'load',
+        value: function load() {
+            var _this2 = this;
+
+            var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
+
+            return new Promise(function (resolve, reject) {
+                if (!helper.isServer()) return reject('operation not allowed');
+                if (_this2._loading) return reject('loading locked');
+
+                _this2._loading = true;
+
+                try {
+                    var content = fs.readFileSync(path);
+                    _this2._memory.data = JSON.parse(content.toString());
+                    _this2._loading = false;
+                    resolve();
+                    _this2._emitter.fireAsync('load', null);
+                } catch (err) {
+                    err = err.message;
+                    _this2._loading = false;
+                    reject(err);
+                    _this2._emitter.fireAsync('load', err);
+                }
+            });
+        }
+
+        /**
+         * Save cache into disk
+         * @param [path=opts.filePath] {string} file path
+         * @fires InCache#save
+         * @returns {Promise}
+         * @since 6.0.0
+         */
+
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this3 = this;
+
+            var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
+
+            return new Promise(function (resolve, reject) {
+                if (!helper.isServer()) return reject('operation not allowed');
+                if (_this3._saving) return reject('saving locked');
+
+                _this3._saving = true;
+
+                try {
+                    fs.writeFileSync(path, JSON.stringify(_this3._memory.data));
+                    _this3._lastSave = new Date().getTime();
+                    _this3._saving = false;
+                    resolve();
+                    _this3._emitter.fireAsync('save', null);
+                } catch (err) {
+                    err = err.message;
+                    _this3._saving = false;
+                    reject(err);
+                    _this3._emitter.fireAsync('save', err);
+                }
+            });
+        }
+
+        /**
+         * Set configuration
+         * @param [opts] {Object} configuration object
+         * @see {@link constructor} for further information
+         * @since 3.0.0
+         */
+
+    }, {
+        key: 'setConfig',
+        value: function setConfig() {
+            var _this4 = this;
+
+            var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+
+            /* istanbul ignore if  */
+            if (opts.global) {
+                helper.deprecated(opts.global.life, 'global.life is deprecated use maxAge instead');
+                helper.deprecated(opts.global.silent, 'global.silent is deprecated use silent instead');
+            }
+
+            helper.defaults(opts, this.DEFAULT_CONFIG);
+
+            this._opts = opts;
+
+            /**
+             * Root object
+             * @ignore
+             */
+            this._root = opts.share ? helper.isServer() ? global : window : {};
+
+            /* istanbul ignore else  */
+            if (opts.storeName) this.GLOBAL_KEY += opts.storeName;
+
+            /* istanbul ignore else  */
+            if (!this._root[this.GLOBAL_KEY]) {
+                this._root[this.GLOBAL_KEY] = {
+                    data: {}
+                };
+            }
+
+            this._memory = this._root[this.GLOBAL_KEY];
+
+            /* istanbul ignore else  */
+            if (helper.isServer()) {
+                if (opts.autoLoad) this.load().then().catch(function (e) {});
+
+                /* istanbul ignore else  */
+                if (opts.autoSave || opts.save) {
+
+                    /* istanbul ignore else  */
+                    if (opts.autoSaveMode === SAVE_MODE.TERMINATE) {
+
+                        // Wrap function
+                        var pWrite = function pWrite() {
+                            self.save().then().catch(function (e) {});
+                        };
+
+                        // Remove if event already exists
+
+
+                        var self = this;process.removeListener('exit', pWrite);
+                        process.removeListener('SIGINT', pWrite);
+
+                        process.stdin.resume();
+                        process.on('exit', pWrite);
+                        process.on('SIGINT', pWrite);
+                    } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
+                        /* istanbul ignore else  */
+                        if (this._timerSaveCheck) {
+                            clearInterval(this._timerSaveCheck);
+                            this._timerSaveCheck = null;
+                        }
+
+                        /* istanbul ignore else  */
+                        if (opts.autoSavePeriod) {
+                            this._timerSaveCheck = setInterval(function () {
+                                if (_this4._lastChange !== _this4._lastChangeDetected) {
+                                    _this4._lastChangeDetected = _this4._lastChange;
+                                    _this4.save().then().catch(function (e) {});
+                                }
+                            }, opts.autoSavePeriod * 1000);
+                        }
+                    }
+                }
+            }
+
+            /* istanbul ignore else  */
+            if (this._timerExpiryCheck) {
+                clearInterval(this._timerExpiryCheck);
+                this._timerExpiryCheck = null;
+            }
+
+            /* istanbul ignore else  */
+            if (opts.autoRemovePeriod) {
+                this._timerExpiryCheck = setInterval(function () {
+                    var expired = _this4.removeExpired();
+                    if (expired.length) {
+                        _this4._emitter.fire('expired', expired);
+                    }
+                }, opts.autoRemovePeriod * 1000);
+            }
+        }
+
+        /**
+         * Get configuration
+         * @returns {*}
+         */
+
+    }, {
+        key: 'getConfig',
+        value: function getConfig() {
+            return this._opts;
+        }
+
+        /**
+         * InCache record
+         * @typedef {Object} InCache~record
+         * @property {string} id - uuid
+         * @property {boolean} isNew - indicates if is a new record
+         * @property {boolean} isPreserved - indicates if record will no longer be editable once created
+         * @property {boolean} toDelete - indicates if record will be deleted after expiry
+         * @property {number} hits - how many times it has been used
+         * @property {Date|null} lastHit - last usage
+         * @property {Date|null} createdOn - creation date
+         * @property {Date|null} updatedOn - update date
+         * @property {Date|null} expiresOn - expiry date
+         * @property {*} value - record value
+         */
+
+        /**
+         * Set/update record
+         * @param key {*}
+         * @param value {*}
+         * @param [opts] {Object} options object
+         * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
+         * @param [opts.maxAge=0] {number} max age in milliseconds. If 0 not expire. (overwrites global configuration)
+         * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwrites global configuration)
+         * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwrites global configuration)
+         * @param [opts.expires] {Date|string} a Date for expiration. (overwrites global configuration and `opts.maxAge`)
+         * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwrites global configuration)
+         * @param [opts.life=0] {number} **deprecated:** max age in seconds. If 0 not expire. (overwrites global configuration)
+         * @returns {InCache~record|*}
+         * @fires InCache#beforeSet
+         * @fires InCache#create
+         * @fires InCache#update
+         * @fires InCache#set
+         * @example
+         * inCache.set('my key', 'my value');
+         * inCache.set('my object', {a: 1, b: 2});
+         * inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
+         */
+
+    }, {
+        key: 'set',
+        value: function set(key, value) {
+            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+
+            /* istanbul ignore else  */
+            if (!opts.silent && this._emitter.fireTheFirst('beforeSet', key, value) === false) {
+                return;
+            }
+
+            opts = helper.defaults(opts, this._opts);
+
+            /* istanbul ignore else  */
+            if (this.has(key) && this._memory.data[key].isPreserved) {
+                return;
+            }
+
+            /* istanbul ignore else  */
+            if (opts.clone) {
+                value = clone(value);
+            }
+
+            var record = {
+                id: null,
+                isNew: true,
+                isPreserved: opts.preserve,
+                toDelete: opts.deleteOnExpires,
+                hits: 0,
+                lastHit: null,
+                createdOn: null,
+                updatedOn: null,
+                expiresOn: null,
+                value: value
+            };
+
+            if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
+                record.expiresOn = new Date(opts.expires);
+            } else if (opts.maxAge && helper.is(opts.maxAge, 'number')) {
+                record.expiresOn = helper.addMSToNow(opts.maxAge);
+            } else if (opts.life && helper.is(opts.life, 'number')) {
+                helper.deprecated(opts.life, 'life is deprecated use maxAge instead');
+                record.expiresOn = helper.addSecondsToNow(opts.life);
+            }
+
+            if (this.has(key)) {
+                record.isNew = false;
+                record.hits = this._memory.data[key].hits;
+                record.id = this._memory.data[key].id;
+                record.createdOn = this._memory.data[key].createdOn;
+                record.updatedOn = new Date();
+                if (!opts.silent) {
+                    this._onUpdated.call(this, key, record);
+                    this._emitter.fire('update', key, record);
+                }
+            } else {
+                record.id = uuid();
+                record.createdOn = new Date();
+                if (!opts.silent) {
+                    this._onCreated.call(this, key, record);
+                    this._emitter.fire('create', key, record);
+                }
+            }
+
+            this._memory.data[key] = record;
+
+            if (!opts.silent) {
+                this._emitter.fire('set', key, record);
+            }
+
+            this._checkExceeded();
+
+            this._emitter.fire('_change', 'set');
+
+            return record;
+        }
+
+        /**
+         * Get record by key
+         * @param key {*}
+         * @param [onlyValue=true] {boolean} if false get InCache record
+         * @returns {InCache~record|*|null|undefined}
+         * @example
+         * inCache.get('my key');
+         */
+
+    }, {
+        key: 'get',
+        value: function get(key) {
+            var onlyValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+            if (this.has(key)) {
+                if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
+                    this.remove(key, true);
+                    return this._opts.nullIfNotFound ? null : undefined;
+                }
+                this._memory.data[key].hits += 1;
+                this._memory.data[key].lastHit = new Date();
+                return onlyValue ? this._memory.data[key].value : this._memory.data[key];
+            } else {
+                return this._opts.nullIfNotFound ? null : undefined;
+            }
+        }
+
+        /**
+         * Delete a record
+         * @param key {*}
+         * @param [silent=false] {boolean} if true no event will be triggered
+         * @fires InCache#beforeRemove
+         * @fires InCache#remove
+         * @example
+         * inCache.remove('my key');
+         */
+
+    }, {
+        key: 'remove',
+        value: function remove(key) {
+            var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            if (!silent && this._emitter.fireTheFirst('beforeRemove', key) === false) {
+                return;
+            }
+            delete this._memory.data[key];
+            if (!silent) {
+                this._onRemoved.call(this, key);
+                this._emitter.fire('remove', key);
+            }
+            this._emitter.fire('_change', 'remove');
+        }
+
+        /**
+         * Given a key that has value like an array removes key(s) if `where` is satisfied
+         * @param key {*}
+         * @param where {*}
+         * @example
+         * inCache.set('myArray', ['hello', 'world']);
+         * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+         * @since 3.0.0
+         */
+
+    }, {
+        key: 'removeFrom',
+        value: function removeFrom(key, where) {
+            if (!this.has(key)) return null;
+
+            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
+
+            if (this._memory.data[key].isPreserved) {
+                return;
+            }
+
+            var recordValue = this.get(key);
+
+            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
+
+            var recordLengthBefore = recordValue.length;
+            for (var i in recordValue) {
+                if (recordValue.hasOwnProperty(i)) {
+                    var result = [];
+                    for (var prop in where) {
+                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
+                    }
+
+                    if (result.length && result.indexOf(false) === -1) recordValue.splice(i, 1);
+                }
+            }
+
+            if (recordLengthBefore !== recordValue.length) {
+                this.set(key, recordValue);
+            }
+        }
+
+        /**
+         * Remove expired records
+         * @returns {Array} expired keys
+         * @since 4.1.0
+         * @example
+         * inCache.set('my key 1', 'my value');
+         * inCache.set('my key 2', 'my value', {maxAge: 1000});
+         * inCache.set('my key 3', 'my value', {maxAge: 1500});
+         * setTimeout(()=>{
+         *      inCache.removeExpired();
+         *      inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]
+         * }, 2000)
+         */
+
+    }, {
+        key: 'removeExpired',
+        value: function removeExpired() {
+            var expired = [];
+            for (var key in this._memory.data) {
+                if (this._memory.data.hasOwnProperty(key) && this.expired(key) && this._memory.data[key].toDelete) {
+                    this.remove(key, true);
+                    expired.push(key);
+                }
+            }
+            return expired;
+        }
+
+        /**
+         * Given a key that has value like an array adds value to end of array
+         * @param key {*}
+         * @param value {*}
+         * @returns {InCache~record|undefined}
+         * @example
+         * inCache.set('myArray', ['hello', 'world']);
+         * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
+         * @since 3.0.0
+         */
+
+    }, {
+        key: 'addTo',
+        value: function addTo(key, value) {
+            if (!this.has(key)) return;
+            var record = this.get(key);
+
+            if (this._memory.data[key].isPreserved) {
+                return;
+            }
+
+            if (!helper.is(record, 'array')) throw new Error('object must be an array');
+
+            record.push(value);
+
+            return this.set(key, record);
+        }
+
+        /**
+         * Given a key that has value like an array adds value to beginning of array
+         * @param key {*}
+         * @param value {*}
+         * @returns {InCache~record|undefined}
+         * @example
+         * inCache.set('myArray', ['hello', 'world']);
+         * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
+         * @since 3.0.0
+         */
+
+    }, {
+        key: 'prependTo',
+        value: function prependTo(key, value) {
+            if (!this.has(key)) return;
+
+            if (this._memory.data[key].isPreserved) {
+                return;
+            }
+
+            var record = this.get(key);
+
+            if (!helper.is(record, 'array')) throw new Error('object must be an array');
+
+            record.unshift(value);
+
+            return this.set(key, record);
+        }
+
+        /**
+         * Given a key that has value like an array updates key(s) if `where` is satisfied
+         * @param key {*}
+         * @param value {*}
+         * @param where {*}
+         * @example
+         * inCache.set('myArray', ['hello', 'world']);
+         * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
+         *
+         * inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});
+         * inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
+         * @since 3.0.0
+         */
+
+    }, {
+        key: 'updateIn',
+        value: function updateIn(key, value, where) {
+            if (!this.has(key)) return;
+
+            if (helper.is(value, 'undefined')) throw new Error('value cannot be undefined');
+
+            if (helper.is(where, 'undefined')) throw new Error('where cannot be undefined');
+
+            if (this._memory.data[key].isPreserved) {
+                return;
+            }
+
+            var recordValue = this.get(key);
+
+            if (!helper.is(recordValue, 'array')) throw new Error('value must be an array');
+
+            var updated = false;
+            for (var i in recordValue) {
+                if (recordValue.hasOwnProperty(i)) {
+                    var result = [];
+                    for (var prop in where) {
+                        if (where.hasOwnProperty(prop)) if (helper.is(where, 'object')) result.push(typeof recordValue[i][prop] !== 'undefined' && recordValue[i][prop] === where[prop]);else result.push(recordValue[i] === where);
+                    }
+
+                    if (result.length && result.indexOf(false) === -1) {
+                        updated = true;
+                        recordValue[i] = value;
+                    }
+                }
+            }
+
+            if (updated) {
+                this.set(key, recordValue);
+            }
+        }
+
+        /**
+         * Set/update multiple records. This method not trigger any event.
+         * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
+         * @param [silent=false] {boolean} if true no event will be triggered
+         * @fires InCache#beforeBulkSet
+         * @fires InCache#bulkSet
+         * @example
+         * inCache.bulkSet([
+         *      {key: 'my key 1', value: 'my value 1'},
+         *      {key: 'my key 2', value: 'my value 2'},
+         *      {key: 'my key 3', value: 'my value 3'},
+         *      {key: 'my key 4', value: 'my value 4'}
+         * ]);
+         */
+
+    }, {
+        key: 'bulkSet',
+        value: function bulkSet(records) {
+            var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            if (!helper.is(records, 'array')) throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
+
+            if (!silent && this._emitter.fireTheFirst('beforeBulkSet', records) === false) {
+                return;
+            }
+
+            for (var i = 0; i < records.length; i++) {
+                if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
+                this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
+            }
+
+            if (!silent) {
+                this._emitter.fire('bulkSet', records);
+            }
+        }
+
+        /**
+         * Delete multiple records
+         * @param keys {Array} an array of keys
+         * @param [silent=false] {boolean} if true no event will be triggered
+         * @fires InCache#beforeBulkRemove
+         * @fires InCache#bulkRemove
+         * @example
+         * inCache.bulkRemove(['key1', 'key2', 'key3']);
+         */
+
+    }, {
+        key: 'bulkRemove',
+        value: function bulkRemove(keys, silent) {
+            if (!helper.is(keys, 'array')) throw new Error('keys must be an array of keys');
+
+            if (!silent && this._emitter.fireTheFirst('beforeBulkRemove', keys) === false) {
+                return;
+            }
+
+            for (var i = 0; i < keys.length; i++) {
+                this.remove(keys[i], true);
+            }
+
+            if (!silent) {
+                this._emitter.fire('bulkRemove', keys);
+            }
+        }
+
+        /**
+         * Delete multiple records that contain the passed keyword
+         * @param key {string} a string that is relative to a group of keys
+         * @example
+         * inCache.set('/api/users/foo', 'Mario Rossi');
+         * inCache.set('/api/users/bar', 'Antonio Bianchi');
+         * inCache.clean('/api/users');
+         */
+
+    }, {
+        key: 'clean',
+        value: function clean(key) {
+            if (!helper.is(key, 'string')) throw new Error('key must be a string');
+
+            for (var k in this._memory.data) {
+                if (this._memory.data.hasOwnProperty(k) && k.indexOf(key) !== -1) {
+                    delete this._memory.data[k];
+                    this._emitter.fire('_change', 'clean');
+                }
+            }
+        }
+
+        /**
+         * Fetch all records
+         * @returns {Array}
+         */
+
+    }, {
+        key: 'all',
+        value: function all() {
+            var records = [];
+
+            for (var key in this._memory.data) {
+                if (this._memory.data.hasOwnProperty(key)) {
+                    if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
+                        this.remove(key, true);
+                    } else {
+                        records.push({
+                            key: key,
+                            value: this._memory.data[key].value
+                        });
+                    }
+                }
+            }
+
+            return records;
+        }
+
+        /**
+         * Returns total of records in storage
+         * @returns {Number}
+         * @since 6.0.0
+         */
+
+    }, {
+        key: 'count',
+        value: function count() {
+            this.removeExpired();
+            return Object.keys(this._memory.data).length;
+        }
+
+        /**
+         * Check if record is expired
+         * @param key {*}
+         * @returns {boolean}
+         */
+
+    }, {
+        key: 'expired',
+        value: function expired(key) {
+            if (this._memory.data[key] && this._memory.data[key].expiresOn) {
+                var now = new Date();
+                var expiry = new Date(this._memory.data[key].expiresOn);
+                return now > expiry;
+            } else {
+                return false;
+            }
+        }
+
+        /**
+         * Remove all records
+         */
+
+    }, {
+        key: 'clear',
+        value: function clear() {
+            /**
+             * Reset object
+             * @ignore
+             */
+            this._memory.data = {};
+            this._emitter.fire('_change', 'clear');
+        }
+
+        /**
+         * Check if key exists
+         * @param key {*}
+         * @returns {boolean}
+         * @example
+         * inCache.has('my key');
+         */
+
+    }, {
+        key: 'has',
+        value: function has(key) {
+            return this._memory.data.hasOwnProperty(key);
+        }
+
+        /**
+         * Alias of `remove`
+         * @borrows remove as destroy
+         * @param args
+         * @since 4.1.1
+         */
+
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
+
+            this.remove.apply(this, args);
+        }
+
+        /**
+         * Adds listener to instance
+         * @param eventName {string} event name
+         * @param callback {Function} callback
+         */
+
+    }, {
+        key: 'on',
+        value: function on(eventName, callback) {
+            this._emitter.on.call(this._emitter, eventName, callback);
+        }
+
+        /**
+         * Returns stats of storage
+         * @returns {{count: Number, size: Number}}
+         * @since 6.3.0
+         */
+
+    }, {
+        key: 'stats',
+        value: function stats() {
+            return {
+                count: this.count(),
+                size: sizeOf(this._memory.data)
+            };
+        }
+
+        /**
+         * Triggered before set
+         * @event InCache#beforeSet
+         * @param key {string} key
+         * @param value {string} value
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after set
+         * @event InCache#set
+         * @param key {string} key
+         * @param record {InCache~record} record object
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after create the record
+         * @event InCache#create
+         * @param key {string} key of record
+         * @param record {InCache~record} record object
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after update the record
+         * @event InCache#update
+         * @param key {string} key of record
+         * @param record {InCache~record} record object
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered before remove the record
+         * @event InCache#beforeRemove
+         * @param key {string} key of record to be removed
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after record has been removed
+         * @event InCache#remove
+         * @param key {string} key of record
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered before bulk set
+         * @event InCache#beforeBulkSet
+         * @param records {array} array of objects
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after bulk set
+         * @event InCache#bulkSet
+         * @param records {array} array of objects
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered before remove the records
+         * @event InCache#beforeBulkRemove
+         * @param keys {array} array of keys to be removed
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after records have been removed
+         * @event InCache#bulkRemove
+         * @param keys {array} array of keys removed
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered when records are expired and `opts.autoRemovePeriod` is set
+         * @event InCache#expired
+         * @param keys {array} array of keys expired
+         * @since 5.0.0
+         */
+
+        /**
+         * Triggered after load invocation
+         * @event InCache#load
+         * @param err {null|string} error message, if no errors occurred is null
+         * @since 6.0.0
+         */
+
+        /**
+         * Triggered after save invocation
+         * @event InCache#save
+         * @param err {null|string} error message, if no errors occurred is null
+         * @since 6.0.0
+         */
+
+        /**
+         * Triggered when data is changed
+         * @event InCache#change
+         * @param by {string} event called by `set`,`remove`,`clear` or `clean`
+         * @since 6.1.0
+         */
+
+        /**
+         * Triggered when data exceed max size
+         * @event InCache#exceed
+         * @param diff {number} exceeded by record number
+         * @since 6.1.0
+         */
+
+        /***************************** DEPRECATED ********************************/
+
+        /**
+         * Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
+         * @param callback {InCache~removedCallback} callback function
+         * @deprecated
+         * @example
+         * inCache.onRemoved((key)=>{
+         *      console.log('removed', key);
+         * });
+         */
+
+    }, {
+        key: 'onRemoved',
+        value: function onRemoved(callback) {
+            this._onRemoved = callback;
+        }
+
+        /**
+         * onRemoved callback
+         * @callback InCache~removedCallback
+         * @param key {string} key of record removed
+         * @deprecated
+         */
+
+        /**
+         * Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
+         * @param callback {InCache~createdCallback} callback function
+         * @deprecated
+         * @example
+         * inCache.onCreated((key, record)=>{
+         *      console.log('created', key, record);
+         * });
+         */
+
+    }, {
+        key: 'onCreated',
+        value: function onCreated(callback) {
+            this._onCreated = callback;
+        }
+
+        /**
+         * onCreated callback
+         * @callback InCache~createdCallback
+         * @param key {string} key of record created
+         * @param record {InCache~record} record object
+         * @deprecated
+         */
+
+        /**
+         * Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
+         * @param callback {InCache~updatedCallback} callback function
+         * @deprecated
+         * @example
+         * inCache.onUpdated((key, record)=>{
+         *      console.log('updated', key, record);
+         * });
+         */
+
+    }, {
+        key: 'onUpdated',
+        value: function onUpdated(callback) {
+            this._onUpdated = callback;
+        }
+
+        /**
+         * onUpdated callback
+         * @callback InCache~updatedCallback
+         * @param key {string} key of record updated
+         * @param record {InCache~record} record object
+         * @deprecated
+         */
+
+    }]);
+
+    return InCache;
+}();
+
+/**
+ * Expose module
+ */
+
+
+module.exports = InCache;
+module.exports.SAVE_MODE = SAVE_MODE;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(4)))
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout() {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+})();
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch (e) {
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e) {
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while (len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) {
+    return [];
+};
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () {
+    return '/';
+};
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function () {
+    return 0;
+};
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var helper = {};
+
+/**
+ * Get object type
+ * @param object {*}
+ * @param type {string}
+ * @returns {boolean}
+ */
+helper.is = function (object, type) {
+    var objectToString = Object.prototype.toString.call(object);
+    return objectToString.toLowerCase() === '[object ' + type + ']'.toLowerCase();
+};
+
+/**
+ * Set default value
+ * @param opts {Object} options
+ * @param defaultOpts {Object} default options
+ * @returns {*}
+ */
+helper.defaults = function (opts, defaultOpts) {
+    for (var i in defaultOpts) {
+        if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
+            opts[i] = defaultOpts[i];
+        } else {
+            if (_typeof(opts[i]) === 'object') {
+                helper.defaults(opts[i], defaultOpts[i]);
+            }
+        }
+    }
+    return opts;
+};
+
+/**
+ * Adds seconds to current date
+ * @param seconds {number} number of seconds to add
+ * @returns {Date}
+ * @deprecated
+ */
+helper.addSecondsToNow = function (seconds) {
+    var now = new Date();
+    return new Date(now.setSeconds(now.getSeconds() + seconds));
+};
+
+/**
+ * Adds milliseconds to current date
+ * @param ms {number} number of milliseconds to add
+ * @returns {Date}
+ */
+helper.addMSToNow = function (ms) {
+    var now = new Date();
+    return new Date(now.setMilliseconds(now.getMilliseconds() + ms));
+};
+
+/**
+ * Check if is Node environment
+ * @returns {boolean}
+ */
+helper.isServer = function () {
+    //return typeof process === 'object' && typeof process.pid !== 'undefined';
+    return typeof window === 'undefined';
+};
+
+/**
+ * Throw deprecated
+ * @param prop
+ * @param msg
+ * @param [type=warn]
+ */
+helper.deprecated = function (prop, msg) {
+    var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'warn';
+
+    if (typeof prop !== 'undefined') {
+        console[type](msg || prop);
+        return true;
+    }
+    return false;
+};
+
+module.exports = helper;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(7);
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var helper = __webpack_require__(8);
+var error = __webpack_require__(9);
+
+var Flak = function () {
+    //TODO add support to cross-domain through postMessage, see: https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+    /**
+     * Constructor
+     * @param [opts] {Object} options
+     * @param [opts.maxListeners=10] {number} Max number listeners per event
+     * @param [opts.asyncDelay=10] {number} Delay in ms for async method `fireAsync`
+     * @example
+     * const emitter = new Flak();
+     */
+    function Flak() {
+        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        _classCallCheck(this, Flak);
+
+        /**
+         * Class options
+         * @type {{maxListeners: number, asyncDelay: number}}
+         * @ignore
+         */
+        this.defaultClassOpts = {
+            maxListeners: 10,
+            asyncDelay: 10 // ms
+        };
+
+        /**
+         * Event options
+         * @type {{maxCalls: number, prepend: boolean}}
+         * @ignore
+         */
+        this.defaultListenerOpts = {
+            maxCalls: 0,
+            prepend: false
+        };
+
+        this.opts = helper.defaults(opts, this.defaultClassOpts);
+        this.events = {};
+    }
+
+    /**
+     * Create event and add listener
+     * @param eventName {string} event name
+     * @param listener {Function} listener function
+     * @param [opts] {Object} option object
+     * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
+     * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
+     * @private
+     * @ignore
+     */
+
+
+    _createClass(Flak, [{
+        key: '_createEvent',
+        value: function _createEvent(eventName, listener, opts) {
+
+            if (!this.events[eventName]) this.events[eventName] = [];
+
+            if (this.opts.maxListeners) {
+                var maxListeners = this.opts.maxListeners;
+                var listenersCount = this.events[eventName].length;
+                if (listenersCount >= maxListeners) throw new Error(error[3] + maxListeners);
+            }
+
+            listener.opts = helper.defaults(opts, this.defaultListenerOpts);
+
+            listener.info = {
+                calls: 0
+            };
+
+            if (opts.prepend) this.events[eventName].unshift(listener);else this.events[eventName].push(listener);
+
+            this._created.call(this, eventName, listener, opts);
+        }
+
+        /**
+         * Call event
+         * @param eventName {string} event name
+         * @param eventListener {Function} event listener
+         * @param args args {*} ...arguments
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_callEvent',
+        value: function _callEvent(eventName, eventListener, args) {
+            if (eventListener.opts.maxCalls && eventListener.info.calls++ >= eventListener.opts.maxCalls) {
+                this.off(eventName, eventListener);
+                return;
+            }
+
+            this._catchAll.call(this, args);
+            return eventListener.apply(this, args);
+        }
+
+        /**
+         * Callback on create
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_created',
+        value: function _created() {}
+
+        /**
+         * Callback on remove
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_removed',
+        value: function _removed() {}
+
+        /**
+         * Callback catch all
+         * @private
+         * @ignore
+         */
+
+    }, {
+        key: '_catchAll',
+        value: function _catchAll() {}
+
+        /**
+         * Adds event listener for eventName
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @param [opts] {Object} option object
+         * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
+         * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
+         * @returns {Flak}
+         * @example
+         * emitter.on('myEvent', (param)=>{
+         *      console.log(param);
+         * });
+         */
+
+    }, {
+        key: 'on',
+        value: function on(eventName, listener) {
+            var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            eventName = eventName.trim();
+
+            if (!eventName.length) throw new Error(error[4]);
+
+            if (helper.is(listener, 'array')) {
+                for (var i in listener) {
+                    if (listener.hasOwnProperty(i)) {
+                        if (!helper.is(listener[i], 'function')) throw new Error(error[1]);
+                        this._createEvent(eventName, listener[i], opts);
+                    }
+                }
+            } else {
+                if (!helper.is(listener, 'function')) throw new Error(error[1]);
+                this._createEvent(eventName, listener, opts);
+            }
+
+            return this;
+        }
+
+        /**
+         * Adds a one time listener function for the event named eventName.
+         * This is a wrapper method of `on` that set to `opts.maxCalls = 1`
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @returns {Flak}
+         * @example
+         * emitter.once('myEvent', (param)=>{
+         *      console.log(param);
+         * });
+         */
+
+    }, {
+        key: 'once',
+        value: function once(eventName, listener) {
+            return this.on(eventName, listener, {
+                maxCalls: 1
+            });
+        }
+
+        /**
+         * Calls each of the listeners registered for the event
+         * @param eventName {string} event name
+         * @param [args] {*} ...arguments
+         * @returns {Flak}
+         * @example
+         * emitter.fire('myEvent', param1, param2, ...);
+         */
+
+    }, {
+        key: 'fire',
+        value: function fire(eventName) {
+
+            if (this.exists(eventName)) {
+                for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                    args[_key - 1] = arguments[_key];
+                }
+
+                for (var j = 0; j < this.events[eventName].length; j++) {
+                    this._callEvent(eventName, this.events[eventName][j], args);
+                }
+            }return this;
+        }
+
+        /**
+         * Calls the first of the listeners registered for the event and return it
+         * @param eventName {string} event name
+         * @param [args] {*} ...arguments
+         * @returns {*}
+         * @since 0.3.0
+         * @example
+         * emitter.on('myEvent', (param1, param2)=>{
+         *      return param1 + '-' + param2;
+         * });
+         * console.log('foo-bar' === emitter.fireTheFirst('myEvent', 'foo', 'bar')) //=> true;
+         */
+
+    }, {
+        key: 'fireTheFirst',
+        value: function fireTheFirst(eventName) {
+            for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+                args[_key2 - 1] = arguments[_key2];
+            }
+
+            if (this.exists(eventName)) return this._callEvent(eventName, this.events[eventName][0], args);
+        }
+
+        /**
+         * Calls each of the listeners registered for the event, this method is async
+         * @param eventName {string} event name
+         * @param args {*} ...arguments
+         * @example
+         * emitter.fireAsync('myEvent', param1, param2, ...);
+         */
+
+    }, {
+        key: 'fireAsync',
+        value: function fireAsync(eventName) {
+            var _this = this;
+
+            for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+                args[_key3 - 1] = arguments[_key3];
+            }
+
+            args.unshift(eventName);
+            setTimeout(function () {
+                _this.fire.apply(_this, args);
+            }, this.opts.asyncDelay);
+        }
+
+        /**
+         * Remove event/listener
+         * @param eventName {string} event name
+         * @param [listener] {Function} listener function, if is set remove listener only for this event
+         * @returns {Flak}
+         * @example
+         * emitter.off('myEvent'); // remove event
+         * emitter.off('myEvent', listener); // remove specific listener
+         */
+
+    }, {
+        key: 'off',
+        value: function off(eventName, listener) {
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            if (this.events[eventName]) if (typeof listener === 'function') {
+                for (var i = 0; i < this.events[eventName].length; i++) {
+                    if (this.events[eventName][i] === listener) {
+                        this.events[eventName].splice(i, 1);
+                        this._removed.call(this, eventName, listener);
+                    }
+                }
+            } else {
+                delete this.events[eventName];
+                this._removed.call(this, eventName);
+            }
+
+            return this;
+        }
+
+        /**
+         * Adds the listener function to the beginning of the listeners array for the event named eventName.
+         * This is a wrapper method of `on` that set to `opts.prepend = true`
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @returns {Flak}
+         */
+
+    }, {
+        key: 'prependListener',
+        value: function prependListener(eventName, listener) {
+            return this.on(eventName, listener, {
+                prepend: true
+            });
+        }
+
+        /**
+         * Adds a one time listener function to the beginning of the listeners array for the event named eventName.
+         * This is a wrapper method of `on` that set to `opts.maxCalls = 1` and `opts.prepend = true`
+         * @param eventName {string} event name
+         * @param listener {(Function|Function[])} listener function
+         * @returns {Flak}
+         */
+
+    }, {
+        key: 'prependOnceListener',
+        value: function prependOnceListener(eventName, listener) {
+            return this.on(eventName, listener, {
+                maxCalls: 1,
+                prepend: true
+            });
+        }
+
+        /**
+         * Remove all events
+         * @returns {Flak}
+         * @example
+         * emitter.clear();
+         */
+
+    }, {
+        key: 'clear',
+        value: function clear() {
+            this.events = [];
+            return this;
+        }
+
+        /**
+         * Get listeners count
+         * @param eventName {string} event name
+         * @returns {number}
+         * @example
+         * emitter.on('event', listener1);
+         * emitter.on('event', listener2);
+         * emitter.on('event1', listener3);
+         *
+         * emitter.getListenersCount('event'); // 2
+         */
+
+    }, {
+        key: 'getListenersCount',
+        value: function getListenersCount(eventName) {
+            return this.getListeners(eventName).length;
+        }
+
+        /**
+         * Get listeners list of event
+         * @param eventName {string} event name
+         * @returns {Array}
+         */
+
+    }, {
+        key: 'getListeners',
+        value: function getListeners(eventName) {
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            if (!this.exists(eventName)) throw new Error(error[5]);
+
+            return this.events[eventName];
+        }
+
+        /**
+         * Get events list
+         * @returns {Object}
+         */
+
+    }, {
+        key: 'getEvents',
+        value: function getEvents() {
+            return this.events;
+        }
+
+        /**
+         * Check if event exists
+         * @param eventName {string} event name
+         * @returns {boolean}
+         */
+
+    }, {
+        key: 'exists',
+        value: function exists(eventName) {
+            if (!helper.is(eventName, 'string')) throw new Error(error[0]);
+
+            return !helper.is(this.events[eventName], 'undefined');
+        }
+
+        /**
+         * Get max number of listeners per event
+         * @returns {number}
+         */
+
+    }, {
+        key: 'getMaxListeners',
+        value: function getMaxListeners() {
+            return this.opts.maxListeners;
+        }
+
+        /**
+         * Set max number of listeners per event
+         * @param value {int} number max listeners
+         * @returns {Flak}
+         */
+
+    }, {
+        key: 'setMaxListeners',
+        value: function setMaxListeners(value) {
+            if (!helper.is(value, 'number')) throw new Error(error[2]);
+
+            this.opts.maxListeners = value;
+            return this;
+        }
+
+        /**
+         * Triggered when an event is fired
+         * @param callback {Function} callback function
+         * @returns {Flak}
+         * @since 0.2.0
+         * @example
+         * emitter.onCatchAll(args=>{
+         *      // args is an array of params
+         *      console.log(args);
+         * });
+         *
+         * emitter.on('myEvent', param=>{
+         *      console.log(param);
+         * });
+         *
+         * emitter.fire('myEvent');
+         */
+
+    }, {
+        key: 'onCatchAll',
+        value: function onCatchAll(callback) {
+            this._catchAll = callback;
+            return this;
+        }
+
+        /**
+         * Triggered when an event is created
+         * @param callback {Function} callback function
+         * @returns {Flak}
+         * @example
+         * emitter.onCreated(obj=>{
+         *      console.log(obj); //-> eventName, listener, opts
+         * });
+         *
+         * emitter.on('myEvent', (param)=>{
+         *      console.log(param);
+         * });
+         */
+
+    }, {
+        key: 'onCreated',
+        value: function onCreated(callback) {
+            this._created = callback;
+            return this;
+        }
+
+        /**
+         * Triggered when an event is removed
+         * @param callback {Function} callback function
+         * @returns {Flak}
+         * @example
+         * emitter.onRemoved(obj=>{
+         *      console.log(obj); //-> eventName, (listener)
+         * });
+         *
+         * emitter.off('myEvent');
+         */
+
+    }, {
+        key: 'onRemoved',
+        value: function onRemoved(callback) {
+            this._removed = callback;
+            return this;
+        }
+    }]);
+
+    return Flak;
+}();
+
+module.exports = Flak;
+module.exports._error = error;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var helper = {};
+
+/**
+ * Get object type
+ * @param object {*}
+ * @param type {string}
+ * @returns {boolean}
+ */
+helper.is = function (object, type) {
+    var objectToString = Object.prototype.toString.call(object);
+    return objectToString.toLowerCase() === '[object ' + type + ']'.toLowerCase();
+};
+
+/**
+ * Set default value
+ * @param opts {Object} options
+ * @param defaultOpts {Object} default options
+ * @returns {*}
+ */
+helper.defaults = function (opts, defaultOpts) {
+    for (var i in defaultOpts) {
+        if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
+            opts[i] = defaultOpts[i];
+        } else {
+            if (_typeof(opts[i]) === 'object') {
+                helper.defaults(opts[i], defaultOpts[i]);
+            }
+        }
+    }
+    return opts;
+};
+
+module.exports = helper;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = ['event name is required and must be a string', 'listener is required and must be a function or an array of function', 'value must be a number', 'increase maxListeners per event: ', 'event name not valid', 'event not found'];
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var rng = __webpack_require__(12);
+var bytesToUuid = __webpack_require__(13);
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+
+// random #'s we need to init node and clockseq
+var _seedBytes = rng();
+
+// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+var _nodeId = [_seedBytes[0] | 0x01, _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]];
+
+// Per 4.2.2, randomize (14 bit) clockseq
+var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
+
+// Previous uuid creation time
+var _lastMSecs = 0,
+    _lastNSecs = 0;
+
+// See https://github.com/broofa/node-uuid for API details
+function v1(options, buf, offset) {
+  var i = buf && offset || 0;
+  var b = buf || [];
+
+  options = options || {};
+
+  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+  // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+  // Time since last uuid creation (in msecs)
+  var dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000;
+
+  // Per 4.2.1.2, Bump clockseq on clock regression
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  }
+
+  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  }
+
+  // Per 4.2.1.2 Throw error if too many uuids are requested
+  if (nsecs >= 10000) {
+    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+  }
+
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq;
+
+  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+  msecs += 12219292800000;
+
+  // `time_low`
+  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff;
+
+  // `time_mid`
+  var tmh = msecs / 0x100000000 * 10000 & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff;
+
+  // `time_high_and_version`
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+  b[i++] = tmh >>> 16 & 0xff;
+
+  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+  b[i++] = clockseq >>> 8 | 0x80;
+
+  // `clock_seq_low`
+  b[i++] = clockseq & 0xff;
+
+  // `node`
+  var node = options.node || _nodeId;
+  for (var n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
+  }
+
+  return buf ? buf : bytesToUuid(b);
+}
+
+module.exports = v1;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+var rng;
+
+var crypto = global.crypto || global.msCrypto; // for IE 11
+if (crypto && crypto.getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+  rng = function whatwgRNG() {
+    crypto.getRandomValues(rnds8);
+    return rnds8;
+  };
+}
+
+if (!rng) {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+  rng = function rng() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+
+module.exports = rng;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
+}
+
+module.exports = bytesToUuid;
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(Buffer, module) {
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var clone = function () {
+  'use strict';
+
+  function _instanceof(obj, type) {
+    return type != null && obj instanceof type;
+  }
+
+  var nativeMap;
+  try {
+    nativeMap = Map;
+  } catch (_) {
+    // maybe a reference error because no `Map`. Give it a dummy value that no
+    // value will ever be an instanceof.
+    nativeMap = function nativeMap() {};
+  }
+
+  var nativeSet;
+  try {
+    nativeSet = Set;
+  } catch (_) {
+    nativeSet = function nativeSet() {};
+  }
+
+  var nativePromise;
+  try {
+    nativePromise = Promise;
+  } catch (_) {
+    nativePromise = function nativePromise() {};
+  }
+
+  /**
+   * Clones (copies) an Object using deep copying.
+   *
+   * This function supports circular references by default, but if you are certain
+   * there are no circular references in your object, you can save some CPU time
+   * by calling clone(obj, false).
+   *
+   * Caution: if `circular` is false and `parent` contains circular references,
+   * your program may enter an infinite loop and crash.
+   *
+   * @param `parent` - the object to be cloned
+   * @param `circular` - set to true if the object to be cloned may contain
+   *    circular references. (optional - true by default)
+   * @param `depth` - set to a number if the object is only to be cloned to
+   *    a particular depth. (optional - defaults to Infinity)
+   * @param `prototype` - sets the prototype to be used when cloning an object.
+   *    (optional - defaults to parent prototype).
+   * @param `includeNonEnumerable` - set to true if the non-enumerable properties
+   *    should be cloned as well. Non-enumerable properties on the prototype
+   *    chain will be ignored. (optional - false by default)
+  */
+  function clone(parent, circular, depth, prototype, includeNonEnumerable) {
+    if ((typeof circular === 'undefined' ? 'undefined' : _typeof(circular)) === 'object') {
+      depth = circular.depth;
+      prototype = circular.prototype;
+      includeNonEnumerable = circular.includeNonEnumerable;
+      circular = circular.circular;
+    }
+    // maintain two arrays for circular references, where corresponding parents
+    // and children have the same index
+    var allParents = [];
+    var allChildren = [];
+
+    var useBuffer = typeof Buffer != 'undefined';
+
+    if (typeof circular == 'undefined') circular = true;
+
+    if (typeof depth == 'undefined') depth = Infinity;
+
+    // recurse this function so we don't reset allParents and allChildren
+    function _clone(parent, depth) {
+      // cloning null always returns null
+      if (parent === null) return null;
+
+      if (depth === 0) return parent;
+
+      var child;
+      var proto;
+      if ((typeof parent === 'undefined' ? 'undefined' : _typeof(parent)) != 'object') {
+        return parent;
+      }
+
+      if (_instanceof(parent, nativeMap)) {
+        child = new nativeMap();
+      } else if (_instanceof(parent, nativeSet)) {
+        child = new nativeSet();
+      } else if (_instanceof(parent, nativePromise)) {
+        child = new nativePromise(function (resolve, reject) {
+          parent.then(function (value) {
+            resolve(_clone(value, depth - 1));
+          }, function (err) {
+            reject(_clone(err, depth - 1));
+          });
+        });
+      } else if (clone.__isArray(parent)) {
+        child = [];
+      } else if (clone.__isRegExp(parent)) {
+        child = new RegExp(parent.source, __getRegExpFlags(parent));
+        if (parent.lastIndex) child.lastIndex = parent.lastIndex;
+      } else if (clone.__isDate(parent)) {
+        child = new Date(parent.getTime());
+      } else if (useBuffer && Buffer.isBuffer(parent)) {
+        child = new Buffer(parent.length);
+        parent.copy(child);
+        return child;
+      } else if (_instanceof(parent, Error)) {
+        child = Object.create(parent);
+      } else {
+        if (typeof prototype == 'undefined') {
+          proto = Object.getPrototypeOf(parent);
+          child = Object.create(proto);
+        } else {
+          child = Object.create(prototype);
+          proto = prototype;
+        }
+      }
+
+      if (circular) {
+        var index = allParents.indexOf(parent);
+
+        if (index != -1) {
+          return allChildren[index];
+        }
+        allParents.push(parent);
+        allChildren.push(child);
+      }
+
+      if (_instanceof(parent, nativeMap)) {
+        parent.forEach(function (value, key) {
+          var keyChild = _clone(key, depth - 1);
+          var valueChild = _clone(value, depth - 1);
+          child.set(keyChild, valueChild);
+        });
+      }
+      if (_instanceof(parent, nativeSet)) {
+        parent.forEach(function (value) {
+          var entryChild = _clone(value, depth - 1);
+          child.add(entryChild);
+        });
+      }
+
+      for (var i in parent) {
+        var attrs;
+        if (proto) {
+          attrs = Object.getOwnPropertyDescriptor(proto, i);
+        }
+
+        if (attrs && attrs.set == null) {
+          continue;
+        }
+        child[i] = _clone(parent[i], depth - 1);
+      }
+
+      if (Object.getOwnPropertySymbols) {
+        var symbols = Object.getOwnPropertySymbols(parent);
+        for (var i = 0; i < symbols.length; i++) {
+          // Don't need to worry about cloning a symbol because it is a primitive,
+          // like a number or string.
+          var symbol = symbols[i];
+          var descriptor = Object.getOwnPropertyDescriptor(parent, symbol);
+          if (descriptor && !descriptor.enumerable && !includeNonEnumerable) {
+            continue;
+          }
+          child[symbol] = _clone(parent[symbol], depth - 1);
+          if (!descriptor.enumerable) {
+            Object.defineProperty(child, symbol, {
+              enumerable: false
+            });
+          }
+        }
+      }
+
+      if (includeNonEnumerable) {
+        var allPropertyNames = Object.getOwnPropertyNames(parent);
+        for (var i = 0; i < allPropertyNames.length; i++) {
+          var propertyName = allPropertyNames[i];
+          var descriptor = Object.getOwnPropertyDescriptor(parent, propertyName);
+          if (descriptor && descriptor.enumerable) {
+            continue;
+          }
+          child[propertyName] = _clone(parent[propertyName], depth - 1);
+          Object.defineProperty(child, propertyName, {
+            enumerable: false
+          });
+        }
+      }
+
+      return child;
+    }
+
+    return _clone(parent, depth);
+  }
+
+  /**
+   * Simple flat clone using prototype, accepts only objects, usefull for property
+   * override on FLAT configuration object (no nested props).
+   *
+   * USE WITH CAUTION! This may not behave as you wish if you do not know how this
+   * works.
+   */
+  clone.clonePrototype = function clonePrototype(parent) {
+    if (parent === null) return null;
+
+    var c = function c() {};
+    c.prototype = parent;
+    return new c();
+  };
+
+  // private utility functions
+
+  function __objToStr(o) {
+    return Object.prototype.toString.call(o);
+  }
+  clone.__objToStr = __objToStr;
+
+  function __isDate(o) {
+    return (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && __objToStr(o) === '[object Date]';
+  }
+  clone.__isDate = __isDate;
+
+  function __isArray(o) {
+    return (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && __objToStr(o) === '[object Array]';
+  }
+  clone.__isArray = __isArray;
+
+  function __isRegExp(o) {
+    return (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && __objToStr(o) === '[object RegExp]';
+  }
+  clone.__isRegExp = __isRegExp;
+
+  function __getRegExpFlags(re) {
+    var flags = '';
+    if (re.global) flags += 'g';
+    if (re.ignoreCase) flags += 'i';
+    if (re.multiline) flags += 'm';
+    return flags;
+  }
+  clone.__getRegExpFlags = __getRegExpFlags;
+
+  return clone;
+}();
+
+if (( false ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+  module.exports = clone;
+}
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer, __webpack_require__(18)(module)))
+
+/***/ }),
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4513,6 +4520,118 @@ module.exports = function (module) {
 	}
 	return module;
 };
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// Copyright 2014 Andrei Karpushonak
+
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var ECMA_SIZES = __webpack_require__(20);
+var Buffer = __webpack_require__(1).Buffer;
+
+/**
+ * Main module's entry point
+ * Calculates Bytes for the provided parameter
+ * @param object - handles object/string/boolean/buffer
+ * @returns {*}
+ */
+function sizeof(object) {
+  if (object !== null && (typeof object === 'undefined' ? 'undefined' : _typeof(object)) === 'object') {
+    if (Buffer.isBuffer(object)) {
+      return object.length;
+    } else {
+      var bytes = 0;
+      for (var key in object) {
+
+        if (!Object.hasOwnProperty.call(object, key)) {
+          continue;
+        }
+
+        bytes += sizeof(key);
+        try {
+          bytes += sizeof(object[key]);
+        } catch (ex) {
+          if (ex instanceof RangeError) {
+            // circular reference detected, final result might be incorrect
+            // let's be nice and not throw an exception
+            bytes = 0;
+          }
+        }
+      }
+      return bytes;
+    }
+  } else if (typeof object === 'string') {
+    return object.length * ECMA_SIZES.STRING;
+  } else if (typeof object === 'boolean') {
+    return ECMA_SIZES.BOOLEAN;
+  } else if (typeof object === 'number') {
+    return ECMA_SIZES.NUMBER;
+  } else {
+    return 0;
+  }
+}
+
+module.exports = sizeof;
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Byte sizes are taken from ECMAScript Language Specification
+ * http://www.ecma-international.org/ecma-262/5.1/
+ * http://bclary.com/2004/11/07/#a-4.3.16
+ */
+
+module.exports = {
+  STRING: 2,
+  BOOLEAN: 4,
+  NUMBER: 8
+};
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/* istanbul ignore */
+
+exports.SAVE_MODE = Object.defineProperties({}, {
+    TERMINATE: {
+        value: 'terminate',
+        enumerable: true
+    },
+    TIMER: {
+        value: 'timer',
+        enumerable: true
+    }
+});
+
+exports.REMOVE_EXCEED = Object.defineProperties({}, {
+    OLDER: {
+        value: 'older',
+        enumerable: true
+    },
+    USAGE: {
+        value: 'usage',
+        enumerable: true
+    },
+    NONE: {
+        value: 'none',
+        enumerable: true
+    }
+});
 
 /***/ })
 /******/ ]); 
