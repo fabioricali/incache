@@ -4,7 +4,7 @@ const fs = require('fs');
 const uuid = require('uuid/v1');
 const clone = require('clone');
 const sizeOf = require('object-sizeof');
-const {SAVE_MODE, REMOVE_EXCEED} = require('./constants');
+const {SAVE_MODE} = require('./constants');
 
 /**
  * @constant SAVE_MODE
@@ -20,20 +20,6 @@ const {SAVE_MODE, REMOVE_EXCEED} = require('./constants');
  * @name TIMER
  */
 
-/**
- * @constant REMOVE_EXCEED
- */
-
-/**
- * @memberOf REMOVE_EXCEED
- * @name OLDER
- */
-
-/**
- * @memberOf REMOVE_EXCEED
- * @name USAGE
- */
-
 class InCache {
 
     /**
@@ -45,13 +31,11 @@ class InCache {
      * @param [opts.deleteOnExpires=true] {boolean} if false, the record will not be deleted after expiry. (overwritable by `set`)
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwritable by `set`)
      * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwritable by `set`)
-     * @param [opts.maxSize=0] {number} the maximum bytes of the cache, if exceeded some records will be deleted based on `opts.removeExceededBy`. If 0 is disabled
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded some records will be deleted based on `opts.removeExceededBy`. If 0 is disabled
      * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
      * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> "terminate": saves before the process is terminated. "timer": every n seconds checks for new changes and save on disk. (server only)
      * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode. (server only)
-     * @param [opts.removeExceededBy=older] {string} there are 3 modes -> "older": remove older records; "usage": remove less used records. Works only if `opts.maxSize` or `opts.maxRecordNumber` are set.
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
@@ -152,9 +136,7 @@ class InCache {
             deleteOnExpires: true,
             filePath: '.incache',
             maxAge: 0,
-            maxSize: 0,
             maxRecordNumber: 0,
-            removeExceededBy: REMOVE_EXCEED.OLDER,
             expires: null,
             silent: false,
             share: false,
@@ -184,19 +166,12 @@ class InCache {
     }
 
     _checkExceeded() {
-        //todo add maxSize check
-        //todo REMOVE_EXCEED.USAGE
-        //todo REMOVE_EXCEED.NONE
         let keys = Object.keys(this._memory.data);
         /* istanbul ignore else  */
-        if(this._opts.removeExceededBy === REMOVE_EXCEED.OLDER) {
-            if (helper.is(this._opts.maxRecordNumber, 'number') && this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
-                let diff = keys.length - this._opts.maxRecordNumber;
-                this._emitter.fire('exceed', diff);
-                this.bulkRemove(keys.slice(0, diff), true);
-            }
-        } else if (this._opts.removeExceededBy === REMOVE_EXCEED.USAGE){
-
+        if (this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
+            let diff = keys.length - this._opts.maxRecordNumber;
+            this._emitter.fire('exceed', diff);
+            this.bulkRemove(keys.slice(0, diff), true);
         }
     }
 
@@ -1069,4 +1044,3 @@ class InCache {
  */
 module.exports = InCache;
 module.exports.SAVE_MODE = SAVE_MODE;
-module.exports.REMOVE_EXCEED = REMOVE_EXCEED;
