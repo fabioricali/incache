@@ -21,7 +21,7 @@ const {SAVE_MODE} = require('./constants');
  */
 
 /**
- * @class InCache
+ * @class
  */
 class InCache {
 
@@ -969,7 +969,7 @@ class InCache {
     /**
      * Triggered before load
      * @event InCache#beforeLoad
-     * @param {InCache}
+     * @param me {InCache}
      * @since 6.4.0
      */
 
@@ -977,14 +977,14 @@ class InCache {
      * Triggered after load invocation
      * @event InCache#load
      * @param err {null|string} error message, if no errors occurred is null
-     * @param {InCache}
+     * @param me {InCache}
      * @since 6.0.0
      */
 
     /**
      * Triggered before save
      * @event InCache#beforeSave
-     * @param {InCache}
+     * @param me {InCache}
      * @since 6.4.0
      */
 
@@ -992,7 +992,7 @@ class InCache {
      * Triggered after save invocation
      * @event InCache#save
      * @param err {null|string} error message, if no errors occurred is null
-     * @param {InCache}
+     * @param me {InCache}
      * @since 6.0.0
      */
 
