@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 - Improvement for `on`, now is chainable
+- Added events
+    - `beforeLoad`
 
 ## [6.3.0] - 2017-09-30
 - Added 

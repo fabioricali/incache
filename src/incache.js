@@ -191,6 +191,11 @@ class InCache {
                 if (!helper.isServer()) return reject('operation not allowed');
                 if (this._loading) return reject('loading locked');
 
+                /* istanbul ignore else  */
+                if (this._emitter.fireTheFirst('beforeLoad', this) === false) {
+                    return reject();
+                }
+
                 this._loading = true;
 
                 try {
