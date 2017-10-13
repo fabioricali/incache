@@ -316,7 +316,7 @@ class InCache {
                     process.removeListener('exit', pWrite);
                     process.removeListener('SIGINT', pWrite);
 
-                    process.stdin.resume();
+                    //process.stdin.resume();
                     process.on('exit', pWrite);
                     process.on('SIGINT', pWrite);
 
