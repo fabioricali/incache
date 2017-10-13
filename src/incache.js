@@ -20,6 +20,9 @@ const {SAVE_MODE} = require('./constants');
  * @name TIMER
  */
 
+/**
+ * @class InCache
+ */
 class InCache {
 
     /**
@@ -848,9 +851,11 @@ class InCache {
      * Adds listener to instance
      * @param eventName {string} event name
      * @param callback {Function} callback
+     * @returns {InCache}
      */
     on(eventName, callback) {
         this._emitter.on.call(this._emitter, eventName, callback);
+        return this;
     }
 
     /**
