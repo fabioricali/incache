@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
-- Improvement for `on`, now is chainable
+- Improvement for `InCache` instance and `on`, now are chainable
 - Added events
     - `beforeLoad`
     - `beforeSave`

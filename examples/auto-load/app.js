@@ -6,5 +6,6 @@ new InCache({
 }).on('beforeLoad', () => {
     console.log('before load');
 }).on('load', (err, me) => {
-    console.log('load', me.get('a key'));
+    if(!err)
+        console.log('load', me.get('a key'));
 });

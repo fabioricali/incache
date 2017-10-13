@@ -328,7 +328,7 @@ function fromString(that, string, encoding) {
   var actual = that.write(string, encoding);
 
   if (actual !== length) {
-    // Writing a hex string, for example, that contains invalid characters will
+    // Writing a hex string, for examples, that contains invalid characters will
     // cause everything after the first invalid character to be ignored. (e.g.
     // 'abxxcd' will be treated as 'ab')
     that = that.slice(0, actual);
@@ -2260,7 +2260,7 @@ var InCache = function () {
          * @fires InCache#create
          * @fires InCache#update
          * @fires InCache#set
-         * @example
+         * @examples
          * inCache.set('my key', 'my value');
          * inCache.set('my object', {a: 1, b: 2});
          * inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
@@ -2348,7 +2348,7 @@ var InCache = function () {
          * @param key {*}
          * @param [onlyValue=true] {boolean} if false get InCache record
          * @returns {InCache~record|*|null|undefined}
-         * @example
+         * @examples
          * inCache.get('my key');
          */
 
@@ -2376,7 +2376,7 @@ var InCache = function () {
          * @param [silent=false] {boolean} if true no event will be triggered
          * @fires InCache#beforeRemove
          * @fires InCache#remove
-         * @example
+         * @examples
          * inCache.remove('my key');
          */
 
@@ -2400,7 +2400,7 @@ var InCache = function () {
          * Given a key that has value like an array removes key(s) if `where` is satisfied
          * @param key {*}
          * @param where {*}
-         * @example
+         * @examples
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
          * @since 3.0.0
@@ -2442,7 +2442,7 @@ var InCache = function () {
          * Remove expired records
          * @returns {Array} expired keys
          * @since 4.1.0
-         * @example
+         * @examples
          * inCache.set('my key 1', 'my value');
          * inCache.set('my key 2', 'my value', {maxAge: 1000});
          * inCache.set('my key 3', 'my value', {maxAge: 1500});
@@ -2470,7 +2470,7 @@ var InCache = function () {
          * @param key {*}
          * @param value {*}
          * @returns {InCache~record|undefined}
-         * @example
+         * @examples
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
          * @since 3.0.0
@@ -2498,7 +2498,7 @@ var InCache = function () {
          * @param key {*}
          * @param value {*}
          * @returns {InCache~record|undefined}
-         * @example
+         * @examples
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
          * @since 3.0.0
@@ -2527,7 +2527,7 @@ var InCache = function () {
          * @param key {*}
          * @param value {*}
          * @param where {*}
-         * @example
+         * @examples
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
          *
@@ -2579,7 +2579,7 @@ var InCache = function () {
          * @param [silent=false] {boolean} if true no event will be triggered
          * @fires InCache#beforeBulkSet
          * @fires InCache#bulkSet
-         * @example
+         * @examples
          * inCache.bulkSet([
          *      {key: 'my key 1', value: 'my value 1'},
          *      {key: 'my key 2', value: 'my value 2'},
@@ -2615,7 +2615,7 @@ var InCache = function () {
          * @param [silent=false] {boolean} if true no event will be triggered
          * @fires InCache#beforeBulkRemove
          * @fires InCache#bulkRemove
-         * @example
+         * @examples
          * inCache.bulkRemove(['key1', 'key2', 'key3']);
          */
 
@@ -2640,7 +2640,7 @@ var InCache = function () {
         /**
          * Delete multiple records that contain the passed keyword
          * @param key {string} a string that is relative to a group of keys
-         * @example
+         * @examples
          * inCache.set('/api/users/foo', 'Mario Rossi');
          * inCache.set('/api/users/bar', 'Antonio Bianchi');
          * inCache.clean('/api/users');
@@ -2735,7 +2735,7 @@ var InCache = function () {
          * Check if key exists
          * @param key {*}
          * @returns {boolean}
-         * @example
+         * @examples
          * inCache.has('my key');
          */
 
@@ -2904,7 +2904,7 @@ var InCache = function () {
          * Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
          * @param callback {InCache~removedCallback} callback function
          * @deprecated
-         * @example
+         * @examples
          * inCache.onRemoved((key)=>{
          *      console.log('removed', key);
          * });
@@ -2927,7 +2927,7 @@ var InCache = function () {
          * Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
          * @param callback {InCache~createdCallback} callback function
          * @deprecated
-         * @example
+         * @examples
          * inCache.onCreated((key, record)=>{
          *      console.log('created', key, record);
          * });
@@ -2951,7 +2951,7 @@ var InCache = function () {
          * Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
          * @param callback {InCache~updatedCallback} callback function
          * @deprecated
-         * @example
+         * @examples
          * inCache.onUpdated((key, record)=>{
          *      console.log('updated', key, record);
          * });
@@ -3297,7 +3297,7 @@ var Flak = function () {
      * @param [opts] {Object} options
      * @param [opts.maxListeners=10] {number} Max number listeners per event
      * @param [opts.asyncDelay=10] {number} Delay in ms for async method `fireAsync`
-     * @example
+     * @examples
      * const emitter = new Flak();
      */
     function Flak() {
@@ -3423,7 +3423,7 @@ var Flak = function () {
          * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
          * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
          * @returns {Flak}
-         * @example
+         * @examples
          * emitter.on('myEvent', (param)=>{
          *      console.log(param);
          * });
@@ -3461,7 +3461,7 @@ var Flak = function () {
          * @param eventName {string} event name
          * @param listener {(Function|Function[])} listener function
          * @returns {Flak}
-         * @example
+         * @examples
          * emitter.once('myEvent', (param)=>{
          *      console.log(param);
          * });
@@ -3480,7 +3480,7 @@ var Flak = function () {
          * @param eventName {string} event name
          * @param [args] {*} ...arguments
          * @returns {Flak}
-         * @example
+         * @examples
          * emitter.fire('myEvent', param1, param2, ...);
          */
 
@@ -3505,7 +3505,7 @@ var Flak = function () {
          * @param [args] {*} ...arguments
          * @returns {*}
          * @since 0.3.0
-         * @example
+         * @examples
          * emitter.on('myEvent', (param1, param2)=>{
          *      return param1 + '-' + param2;
          * });
@@ -3526,7 +3526,7 @@ var Flak = function () {
          * Calls each of the listeners registered for the event, this method is async
          * @param eventName {string} event name
          * @param args {*} ...arguments
-         * @example
+         * @examples
          * emitter.fireAsync('myEvent', param1, param2, ...);
          */
 
@@ -3550,7 +3550,7 @@ var Flak = function () {
          * @param eventName {string} event name
          * @param [listener] {Function} listener function, if is set remove listener only for this event
          * @returns {Flak}
-         * @example
+         * @examples
          * emitter.off('myEvent'); // remove event
          * emitter.off('myEvent', listener); // remove specific listener
          */
@@ -3611,7 +3611,7 @@ var Flak = function () {
         /**
          * Remove all events
          * @returns {Flak}
-         * @example
+         * @examples
          * emitter.clear();
          */
 
@@ -3626,7 +3626,7 @@ var Flak = function () {
          * Get listeners count
          * @param eventName {string} event name
          * @returns {number}
-         * @example
+         * @examples
          * emitter.on('event', listener1);
          * emitter.on('event', listener2);
          * emitter.on('event1', listener3);
@@ -3712,7 +3712,7 @@ var Flak = function () {
          * @param callback {Function} callback function
          * @returns {Flak}
          * @since 0.2.0
-         * @example
+         * @examples
          * emitter.onCatchAll(args=>{
          *      // args is an array of params
          *      console.log(args);
@@ -3736,7 +3736,7 @@ var Flak = function () {
          * Triggered when an event is created
          * @param callback {Function} callback function
          * @returns {Flak}
-         * @example
+         * @examples
          * emitter.onCreated(obj=>{
          *      console.log(obj); //-> eventName, listener, opts
          * });
@@ -3757,7 +3757,7 @@ var Flak = function () {
          * Triggered when an event is removed
          * @param callback {Function} callback function
          * @returns {Flak}
-         * @example
+         * @examples
          * emitter.onRemoved(obj=>{
          *      console.log(obj); //-> eventName, (listener)
          * });
