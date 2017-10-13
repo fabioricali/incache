@@ -181,6 +181,7 @@ class InCache {
     /**
      * Load cache from disk
      * @param [path=opts.filePath] {string} file path
+     * @fires InCache#beforeLoad
      * @fires InCache#load
      * @returns {Promise}
      * @since 6.0.0
@@ -217,6 +218,7 @@ class InCache {
     /**
      * Save cache into disk
      * @param [path=opts.filePath] {string} file path
+     * @fires InCache#beforeSave
      * @fires InCache#save
      * @returns {Promise}
      * @since 6.0.0
@@ -962,10 +964,24 @@ class InCache {
      */
 
     /**
+     * Triggered before load
+     * @event InCache#beforeLoad
+     * @param {InCache}
+     * @since 6.4.0
+     */
+
+    /**
      * Triggered after load invocation
      * @event InCache#load
      * @param err {null|string} error message, if no errors occurred is null
      * @since 6.0.0
+     */
+
+    /**
+     * Triggered before save
+     * @event InCache#beforeSave
+     * @param {InCache}
+     * @since 6.4.0
      */
 
     /**
