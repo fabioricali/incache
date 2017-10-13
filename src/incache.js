@@ -52,6 +52,7 @@ class InCache {
      * @fires InCache#change
      * @fires InCache#exceed
      * @constructor
+     * @returns {InCache}
      */
     constructor(opts = {}) {
 
@@ -166,6 +167,8 @@ class InCache {
         });
 
         this.setConfig(opts);
+
+        return this;
     }
 
     _checkExceeded() {
@@ -204,12 +207,12 @@ class InCache {
                     this._memory.data = JSON.parse(content.toString());
                     this._loading = false;
                     resolve();
-                    this._emitter.fireAsync('load', null);
+                    this._emitter.fireAsync('load', null, this);
                 } catch (err) {
                     err = err.message;
                     this._loading = false;
                     reject(err);
-                    this._emitter.fireAsync('load', err);
+                    this._emitter.fireAsync('load', err, this);
                 }
             }
         )
@@ -241,12 +244,12 @@ class InCache {
                     this._lastSave = (new Date()).getTime();
                     this._saving = false;
                     resolve();
-                    this._emitter.fireAsync('save', null);
+                    this._emitter.fireAsync('save', null, this);
                 } catch (err) {
                     err = err.message;
                     this._saving = false;
                     reject(err);
-                    this._emitter.fireAsync('save', err);
+                    this._emitter.fireAsync('save', err, this);
                 }
             }
         )
@@ -974,6 +977,7 @@ class InCache {
      * Triggered after load invocation
      * @event InCache#load
      * @param err {null|string} error message, if no errors occurred is null
+     * @param {InCache}
      * @since 6.0.0
      */
 
@@ -988,6 +992,7 @@ class InCache {
      * Triggered after save invocation
      * @event InCache#save
      * @param err {null|string} error message, if no errors occurred is null
+     * @param {InCache}
      * @since 6.0.0
      */
 
