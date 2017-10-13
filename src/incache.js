@@ -227,6 +227,11 @@ class InCache {
                 if (!helper.isServer()) return reject('operation not allowed');
                 if (this._saving) return reject('saving locked');
 
+                /* istanbul ignore else  */
+                if (this._emitter.fireTheFirst('beforeSave', this) === false) {
+                    return reject();
+                }
+
                 this._saving = true;
 
                 try {
