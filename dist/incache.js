@@ -328,7 +328,7 @@ function fromString(that, string, encoding) {
   var actual = that.write(string, encoding);
 
   if (actual !== length) {
-    // Writing a hex string, for examples, that contains invalid characters will
+    // Writing a hex string, for example, that contains invalid characters will
     // cause everything after the first invalid character to be ignored. (e.g.
     // 'abxxcd' will be treated as 'ab')
     that = that.slice(0, actual);
@@ -1883,6 +1883,11 @@ var _require = __webpack_require__(21),
  * @name TIMER
  */
 
+/**
+ * @class
+ */
+
+
 var InCache = function () {
 
     /**
@@ -1912,6 +1917,7 @@ var InCache = function () {
      * @fires InCache#change
      * @fires InCache#exceed
      * @constructor
+     * @returns {InCache}
      */
     function InCache() {
         var _this = this;
@@ -2027,6 +2033,8 @@ var InCache = function () {
         });
 
         this.setConfig(opts);
+
+        return this;
     }
 
     _createClass(InCache, [{
@@ -2044,6 +2052,7 @@ var InCache = function () {
         /**
          * Load cache from disk
          * @param [path=opts.filePath] {string} file path
+         * @fires InCache#beforeLoad
          * @fires InCache#load
          * @returns {Promise}
          * @since 6.0.0
@@ -2060,19 +2069,24 @@ var InCache = function () {
                 if (!helper.isServer()) return reject('operation not allowed');
                 if (_this2._loading) return reject('loading locked');
 
+                /* istanbul ignore else  */
+                if (_this2._emitter.fireTheFirst('beforeLoad', _this2) === false) {
+                    return reject();
+                }
+
                 _this2._loading = true;
 
                 try {
                     var content = fs.readFileSync(path);
                     _this2._memory.data = JSON.parse(content.toString());
                     _this2._loading = false;
-                    resolve();
-                    _this2._emitter.fireAsync('load', null);
+                    resolve(_this2);
+                    _this2._emitter.fireAsync('load', null, _this2);
                 } catch (err) {
                     err = err.message;
                     _this2._loading = false;
                     reject(err);
-                    _this2._emitter.fireAsync('load', err);
+                    _this2._emitter.fireAsync('load', err, _this2);
                 }
             });
         }
@@ -2080,6 +2094,7 @@ var InCache = function () {
         /**
          * Save cache into disk
          * @param [path=opts.filePath] {string} file path
+         * @fires InCache#beforeSave
          * @fires InCache#save
          * @returns {Promise}
          * @since 6.0.0
@@ -2096,19 +2111,24 @@ var InCache = function () {
                 if (!helper.isServer()) return reject('operation not allowed');
                 if (_this3._saving) return reject('saving locked');
 
+                /* istanbul ignore else  */
+                if (_this3._emitter.fireTheFirst('beforeSave', _this3) === false) {
+                    return reject();
+                }
+
                 _this3._saving = true;
 
                 try {
                     fs.writeFileSync(path, JSON.stringify(_this3._memory.data));
                     _this3._lastSave = new Date().getTime();
                     _this3._saving = false;
-                    resolve();
-                    _this3._emitter.fireAsync('save', null);
+                    resolve(_this3);
+                    _this3._emitter.fireAsync('save', null, _this3);
                 } catch (err) {
                     err = err.message;
                     _this3._saving = false;
                     reject(err);
-                    _this3._emitter.fireAsync('save', err);
+                    _this3._emitter.fireAsync('save', err, _this3);
                 }
             });
         }
@@ -2177,7 +2197,7 @@ var InCache = function () {
                         var self = this;process.removeListener('exit', pWrite);
                         process.removeListener('SIGINT', pWrite);
 
-                        process.stdin.resume();
+                        //process.stdin.resume();
                         process.on('exit', pWrite);
                         process.on('SIGINT', pWrite);
                     } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
@@ -2766,12 +2786,14 @@ var InCache = function () {
          * Adds listener to instance
          * @param eventName {string} event name
          * @param callback {Function} callback
+         * @returns {InCache}
          */
 
     }, {
         key: 'on',
         value: function on(eventName, callback) {
             this._emitter.on.call(this._emitter, eventName, callback);
+            return this;
         }
 
         /**
@@ -2871,16 +2893,32 @@ var InCache = function () {
          */
 
         /**
+         * Triggered before load (only if `autoLoad` is false)
+         * @event InCache#beforeLoad
+         * @param me {InCache}
+         * @since 6.4.0
+         */
+
+        /**
          * Triggered after load invocation
          * @event InCache#load
          * @param err {null|string} error message, if no errors occurred is null
+         * @param me {InCache}
          * @since 6.0.0
+         */
+
+        /**
+         * Triggered before save
+         * @event InCache#beforeSave
+         * @param me {InCache}
+         * @since 6.4.0
          */
 
         /**
          * Triggered after save invocation
          * @event InCache#save
          * @param err {null|string} error message, if no errors occurred is null
+         * @param me {InCache}
          * @since 6.0.0
          */
 
@@ -3297,7 +3335,7 @@ var Flak = function () {
      * @param [opts] {Object} options
      * @param [opts.maxListeners=10] {number} Max number listeners per event
      * @param [opts.asyncDelay=10] {number} Delay in ms for async method `fireAsync`
-     * @examples
+     * @example
      * const emitter = new Flak();
      */
     function Flak() {
@@ -3423,7 +3461,7 @@ var Flak = function () {
          * @param [opts.maxCalls=0] {number} Max calls for event created, disabled if is `0`
          * @param [opts.prepend=false] {boolean} Adds the listener function to the beginning of the listeners array for the event named `eventName`
          * @returns {Flak}
-         * @examples
+         * @example
          * emitter.on('myEvent', (param)=>{
          *      console.log(param);
          * });
@@ -3461,7 +3499,7 @@ var Flak = function () {
          * @param eventName {string} event name
          * @param listener {(Function|Function[])} listener function
          * @returns {Flak}
-         * @examples
+         * @example
          * emitter.once('myEvent', (param)=>{
          *      console.log(param);
          * });
@@ -3480,7 +3518,7 @@ var Flak = function () {
          * @param eventName {string} event name
          * @param [args] {*} ...arguments
          * @returns {Flak}
-         * @examples
+         * @example
          * emitter.fire('myEvent', param1, param2, ...);
          */
 
@@ -3505,7 +3543,7 @@ var Flak = function () {
          * @param [args] {*} ...arguments
          * @returns {*}
          * @since 0.3.0
-         * @examples
+         * @example
          * emitter.on('myEvent', (param1, param2)=>{
          *      return param1 + '-' + param2;
          * });
@@ -3526,7 +3564,7 @@ var Flak = function () {
          * Calls each of the listeners registered for the event, this method is async
          * @param eventName {string} event name
          * @param args {*} ...arguments
-         * @examples
+         * @example
          * emitter.fireAsync('myEvent', param1, param2, ...);
          */
 
@@ -3550,7 +3588,7 @@ var Flak = function () {
          * @param eventName {string} event name
          * @param [listener] {Function} listener function, if is set remove listener only for this event
          * @returns {Flak}
-         * @examples
+         * @example
          * emitter.off('myEvent'); // remove event
          * emitter.off('myEvent', listener); // remove specific listener
          */
@@ -3611,7 +3649,7 @@ var Flak = function () {
         /**
          * Remove all events
          * @returns {Flak}
-         * @examples
+         * @example
          * emitter.clear();
          */
 
@@ -3626,7 +3664,7 @@ var Flak = function () {
          * Get listeners count
          * @param eventName {string} event name
          * @returns {number}
-         * @examples
+         * @example
          * emitter.on('event', listener1);
          * emitter.on('event', listener2);
          * emitter.on('event1', listener3);
@@ -3712,7 +3750,7 @@ var Flak = function () {
          * @param callback {Function} callback function
          * @returns {Flak}
          * @since 0.2.0
-         * @examples
+         * @example
          * emitter.onCatchAll(args=>{
          *      // args is an array of params
          *      console.log(args);
@@ -3736,7 +3774,7 @@ var Flak = function () {
          * Triggered when an event is created
          * @param callback {Function} callback function
          * @returns {Flak}
-         * @examples
+         * @example
          * emitter.onCreated(obj=>{
          *      console.log(obj); //-> eventName, listener, opts
          * });
@@ -3757,7 +3795,7 @@ var Flak = function () {
          * Triggered when an event is removed
          * @param callback {Function} callback function
          * @returns {Flak}
-         * @examples
+         * @example
          * emitter.onRemoved(obj=>{
          *      console.log(obj); //-> eventName, (listener)
          * });
