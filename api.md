@@ -223,7 +223,6 @@ Set/update record
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Emits**: [<code>beforeSet</code>](#InCache+event_beforeSet), [<code>create</code>](#InCache+event_create), [<code>update</code>](#InCache+event_update), [<code>set</code>](#InCache+event_set)  
-**Examples**: inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds  
 <table>
   <thead>
     <tr>
@@ -262,13 +261,16 @@ Set/update record
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
+```
 <a name="InCache+get"></a>
 
 ### inCache.get(key, [onlyValue]) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code> \| <code>null</code> \| <code>undefined</code>
 Get record by key
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.get('my key');  
 <table>
   <thead>
     <tr>
@@ -284,6 +286,10 @@ Get record by key
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.get('my key');
+```
 <a name="InCache+remove"></a>
 
 ### inCache.remove(key, [silent])
@@ -291,7 +297,6 @@ Delete a record
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Emits**: [<code>beforeRemove</code>](#InCache+event_beforeRemove), [<code>remove</code>](#InCache+event_remove)  
-**Examples**: inCache.remove('my key');  
 <table>
   <thead>
     <tr>
@@ -307,13 +312,16 @@ Delete a record
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.remove('my key');
+```
 <a name="InCache+removeFrom"></a>
 
 ### inCache.removeFrom(key, where)
 Given a key that has value like an array removes key(s) if `where` is satisfied
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.set('myArray', ['hello', 'world']);inCache.removeFrom('myArray', 'hello'); //-> ['world'];  
 **Since**: 3.0.0  
 <table>
   <thead>
@@ -329,6 +337,10 @@ Given a key that has value like an array removes key(s) if `where` is satisfied
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.removeFrom('myArray', 'hello'); //-> ['world'];
+```
 <a name="InCache+removeExpired"></a>
 
 ### inCache.removeExpired() ⇒ <code>Array</code>
@@ -336,15 +348,17 @@ Remove expired records
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Returns**: <code>Array</code> - expired keys  
-**Examples**: inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge: 1000});inCache.set('my key 3', 'my value', {maxAge: 1500});setTimeout(()=>{     inCache.removeExpired();     inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]}, 2000)  
 **Since**: 4.1.0  
+**Example**  
+```js
+inCache.set('my key 1', 'my value');inCache.set('my key 2', 'my value', {maxAge: 1000});inCache.set('my key 3', 'my value', {maxAge: 1500});setTimeout(()=>{     inCache.removeExpired();     inCache.all(); //-> [{key: 'my key 1', value: 'my value'}]}, 2000)
+```
 <a name="InCache+addTo"></a>
 
 ### inCache.addTo(key, value) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
 Given a key that has value like an array adds value to end of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.set('myArray', ['hello', 'world']);inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];  
 **Since**: 3.0.0  
 <table>
   <thead>
@@ -360,13 +374,16 @@ Given a key that has value like an array adds value to end of array
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
+```
 <a name="InCache+prependTo"></a>
 
 ### inCache.prependTo(key, value) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
 Given a key that has value like an array adds value to beginning of array
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.set('myArray', ['hello', 'world']);inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];  
 **Since**: 3.0.0  
 <table>
   <thead>
@@ -382,13 +399,16 @@ Given a key that has value like an array adds value to beginning of array
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
+```
 <a name="InCache+updateIn"></a>
 
 ### inCache.updateIn(key, value, where)
 Given a key that has value like an array updates key(s) if `where` is satisfied
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];  
 **Since**: 3.0.0  
 <table>
   <thead>
@@ -406,6 +426,10 @@ Given a key that has value like an array updates key(s) if `where` is satisfied
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];inCache.set('myArray', [{a: 1, b: 2, c: 3], {b: 2, c: 3}, {b: 4, e: 5});inCache.updateIn('myArray', {z: 0, x: 0}, {b: 2, c: 3}); //-> [{z: 0, x: 0}, {z: 0, x: 0}, {b: 4, e: 5}];
+```
 <a name="InCache+bulkSet"></a>
 
 ### inCache.bulkSet(records, [silent])
@@ -413,7 +437,6 @@ Set/update multiple records. This method not trigger any event.
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Emits**: [<code>beforeBulkSet</code>](#InCache+event_beforeBulkSet), [<code>bulkSet</code>](#InCache+event_bulkSet)  
-**Examples**: inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);  
 <table>
   <thead>
     <tr>
@@ -430,6 +453,10 @@ Set/update multiple records. This method not trigger any event.
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
+```
 <a name="InCache+bulkRemove"></a>
 
 ### inCache.bulkRemove(keys, [silent])
@@ -437,7 +464,6 @@ Delete multiple records
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Emits**: [<code>beforeBulkRemove</code>](#InCache+event_beforeBulkRemove), [<code>bulkRemove</code>](#InCache+event_bulkRemove)  
-**Examples**: inCache.bulkRemove(['key1', 'key2', 'key3']);  
 <table>
   <thead>
     <tr>
@@ -454,13 +480,16 @@ Delete multiple records
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.bulkRemove(['key1', 'key2', 'key3']);
+```
 <a name="InCache+clean"></a>
 
 ### inCache.clean(key)
 Delete multiple records that contain the passed keyword
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.set('/api/users/foo', 'Mario Rossi');inCache.set('/api/users/bar', 'Antonio Bianchi');inCache.clean('/api/users');  
 <table>
   <thead>
     <tr>
@@ -474,6 +503,10 @@ Delete multiple records that contain the passed keyword
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.set('/api/users/foo', 'Mario Rossi');inCache.set('/api/users/bar', 'Antonio Bianchi');inCache.clean('/api/users');
+```
 <a name="InCache+all"></a>
 
 ### inCache.all() ⇒ <code>Array</code>
@@ -517,7 +550,6 @@ Remove all records
 Check if key exists
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.has('my key');  
 <table>
   <thead>
     <tr>
@@ -530,6 +562,10 @@ Check if key exists
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.has('my key');
+```
 <a name="InCache+destroy"></a>
 
 ### inCache.destroy(...args)
@@ -586,7 +622,6 @@ Returns stats of storage
 Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.onRemoved((key)=>{     console.log('removed', key);});  
 <table>
   <thead>
     <tr>
@@ -600,6 +635,10 @@ Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('r
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.onRemoved((key)=>{     console.log('removed', key);});
+```
 <a name="InCache+onCreated"></a>
 
 ### <del>inCache.onCreated(callback)</del>
@@ -608,7 +647,6 @@ Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('r
 Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.onCreated((key, record)=>{     console.log('created', key, record);});  
 <table>
   <thead>
     <tr>
@@ -622,6 +660,10 @@ Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('c
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.onCreated((key, record)=>{     console.log('created', key, record);});
+```
 <a name="InCache+onUpdated"></a>
 
 ### <del>inCache.onUpdated(callback)</del>
@@ -630,7 +672,6 @@ Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('c
 Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Examples**: inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});  
 <table>
   <thead>
     <tr>
@@ -644,6 +685,10 @@ Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('u
     </tr>  </tbody>
 </table>
 
+**Example**  
+```js
+inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
+```
 <a name="InCache+event_beforeSet"></a>
 
 ### "beforeSet" (key, value)
