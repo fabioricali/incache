@@ -967,7 +967,7 @@ class InCache {
      */
 
     /**
-     * Triggered before load
+     * Triggered before load (only if `autoLoad` is false)
      * @event InCache#beforeLoad
      * @param me {InCache}
      * @since 6.4.0
