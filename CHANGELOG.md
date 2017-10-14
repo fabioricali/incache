@@ -5,14 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
-- Improvement for `InCache` instance and `on`, now are chainable
+- Improvement for `InCache` instance and `on` method, now are chainable
 - Added 
     - events
         - `beforeLoad`
         - `beforeSave`
     - param instance to events
         - `load`
-        - `save`    
+        - `save`
+- Bug fix            
 
 ## [6.3.0] - 2017-09-30
 - Added 
