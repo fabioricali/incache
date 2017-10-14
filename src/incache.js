@@ -206,7 +206,7 @@ class InCache {
                     let content = fs.readFileSync(path);
                     this._memory.data = JSON.parse(content.toString());
                     this._loading = false;
-                    resolve();
+                    resolve(this);
                     this._emitter.fireAsync('load', null, this);
                 } catch (err) {
                     err = err.message;
@@ -243,7 +243,7 @@ class InCache {
                     fs.writeFileSync(path, JSON.stringify(this._memory.data));
                     this._lastSave = (new Date()).getTime();
                     this._saving = false;
-                    resolve();
+                    resolve(this);
                     this._emitter.fireAsync('save', null, this);
                 } catch (err) {
                     err = err.message;
