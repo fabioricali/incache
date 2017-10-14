@@ -402,7 +402,7 @@ class InCache {
      * @fires InCache#create
      * @fires InCache#update
      * @fires InCache#set
-     * @examples
+     * @example
      * inCache.set('my key', 'my value');
      * inCache.set('my object', {a: 1, b: 2});
      * inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
@@ -485,7 +485,7 @@ class InCache {
      * @param key {*}
      * @param [onlyValue=true] {boolean} if false get InCache record
      * @returns {InCache~record|*|null|undefined}
-     * @examples
+     * @example
      * inCache.get('my key');
      */
     get(key, onlyValue = true) {
@@ -508,7 +508,7 @@ class InCache {
      * @param [silent=false] {boolean} if true no event will be triggered
      * @fires InCache#beforeRemove
      * @fires InCache#remove
-     * @examples
+     * @example
      * inCache.remove('my key');
      */
     remove(key, silent = false) {
@@ -527,7 +527,7 @@ class InCache {
      * Given a key that has value like an array removes key(s) if `where` is satisfied
      * @param key {*}
      * @param where {*}
-     * @examples
+     * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
      * @since 3.0.0
@@ -573,7 +573,7 @@ class InCache {
      * Remove expired records
      * @returns {Array} expired keys
      * @since 4.1.0
-     * @examples
+     * @example
      * inCache.set('my key 1', 'my value');
      * inCache.set('my key 2', 'my value', {maxAge: 1000});
      * inCache.set('my key 3', 'my value', {maxAge: 1500});
@@ -598,7 +598,7 @@ class InCache {
      * @param key {*}
      * @param value {*}
      * @returns {InCache~record|undefined}
-     * @examples
+     * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
      * @since 3.0.0
@@ -624,7 +624,7 @@ class InCache {
      * @param key {*}
      * @param value {*}
      * @returns {InCache~record|undefined}
-     * @examples
+     * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
      * @since 3.0.0
@@ -652,7 +652,7 @@ class InCache {
      * @param key {*}
      * @param value {*}
      * @param where {*}
-     * @examples
+     * @example
      * inCache.set('myArray', ['hello', 'world']);
      * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
      *
@@ -708,7 +708,7 @@ class InCache {
      * @param [silent=false] {boolean} if true no event will be triggered
      * @fires InCache#beforeBulkSet
      * @fires InCache#bulkSet
-     * @examples
+     * @example
      * inCache.bulkSet([
      *      {key: 'my key 1', value: 'my value 1'},
      *      {key: 'my key 2', value: 'my value 2'},
@@ -741,7 +741,7 @@ class InCache {
      * @param [silent=false] {boolean} if true no event will be triggered
      * @fires InCache#beforeBulkRemove
      * @fires InCache#bulkRemove
-     * @examples
+     * @example
      * inCache.bulkRemove(['key1', 'key2', 'key3']);
      */
     bulkRemove(keys, silent) {
@@ -764,7 +764,7 @@ class InCache {
     /**
      * Delete multiple records that contain the passed keyword
      * @param key {string} a string that is relative to a group of keys
-     * @examples
+     * @example
      * inCache.set('/api/users/foo', 'Mario Rossi');
      * inCache.set('/api/users/bar', 'Antonio Bianchi');
      * inCache.clean('/api/users');
@@ -845,7 +845,7 @@ class InCache {
      * Check if key exists
      * @param key {*}
      * @returns {boolean}
-     * @examples
+     * @example
      * inCache.has('my key');
      */
     has(key) {
@@ -1016,7 +1016,7 @@ class InCache {
      * Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
      * @param callback {InCache~removedCallback} callback function
      * @deprecated
-     * @examples
+     * @example
      * inCache.onRemoved((key)=>{
      *      console.log('removed', key);
      * });
@@ -1036,7 +1036,7 @@ class InCache {
      * Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
      * @param callback {InCache~createdCallback} callback function
      * @deprecated
-     * @examples
+     * @example
      * inCache.onCreated((key, record)=>{
      *      console.log('created', key, record);
      * });
@@ -1057,7 +1057,7 @@ class InCache {
      * Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
      * @param callback {InCache~updatedCallback} callback function
      * @deprecated
-     * @examples
+     * @example
      * inCache.onUpdated((key, record)=>{
      *      console.log('updated', key, record);
      * });
