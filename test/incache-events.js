@@ -134,18 +134,14 @@ describe('cache-events', function () {
                 });
 
             });
-            it('should be reject, autoLoad true', (done)=>{
-                const cache = new InCache({
+            it('should be not reject, autoLoad true', (done)=>{
+                new InCache({
                     autoLoad: true,
                     filePath: './test/.incache-save2'
-                });
-
-                cache.on('beforeLoad', ()=>{
+                }).on('beforeLoad', ()=>{
                     console.log('beforeLoad');
                     return false;
-                });
-
-                cache.on('load', (err)=>{
+                }).on('load', (err)=>{
                     console.log(err, 'load');
                     done();
                 });
