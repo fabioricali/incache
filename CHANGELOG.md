@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     - events
         - `beforeLoad`
         - `beforeSave`
-    - param instance to events
+    - instance parameter to events
         - `load`
         - `save`
 - Bug fix            
