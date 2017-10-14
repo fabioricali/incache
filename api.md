@@ -879,7 +879,7 @@ Triggered when records are expired and `opts.autoRemovePeriod` is set
 <a name="InCache+event_beforeLoad"></a>
 
 ### "beforeLoad" (me)
-Triggered before load
+Triggered before load (only if `autoLoad` is false)
 
 **Kind**: event emitted by [<code>InCache</code>](#InCache)  
 **Since**: 6.4.0  
