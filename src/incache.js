@@ -168,7 +168,7 @@ class InCache {
 
         this.setConfig(opts);
 
-        return this;
+        //return this;
     }
 
     _checkExceeded() {
