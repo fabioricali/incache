@@ -858,6 +858,15 @@ class InCache {
     }
 
     /**
+     * Check if object is a InCache~record
+     * @param obj
+     * @returns {boolean}
+     */
+    isRecord(obj) {
+        return true
+    }
+
+    /**
      * Adds listener to instance
      * @param eventName {string} event name
      * @param callback {Function} callback
