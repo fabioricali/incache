@@ -4,7 +4,7 @@ const fs = require('fs');
 const uuid = require('uuid/v1');
 const clone = require('clone');
 const sizeOf = require('object-sizeof');
-const {SAVE_MODE} = require('./constants');
+const {SAVE_MODE, RECORD} = require('./constants');
 
 /**
  * @constant SAVE_MODE
@@ -426,18 +426,13 @@ class InCache {
             value = clone(value);
         }
 
-        let record = {
-            id: null,
-            isNew: true,
-            isPreserved: opts.preserve,
-            toDelete: opts.deleteOnExpires,
-            hits: 0,
-            lastHit: null,
-            createdOn: null,
-            updatedOn: null,
-            expiresOn: null,
-            value: value
-        };
+        let record = Object.assign({}, RECORD);
+
+        record.isNew = true;
+        record.isPreserved = opts.preserve;
+        record.toDelete = opts.deleteOnExpires;
+        record.hits = 0;
+        record.value = value;
 
         if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
             record.expiresOn = new Date(opts.expires);

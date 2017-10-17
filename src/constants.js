@@ -25,3 +25,16 @@ exports.REMOVE_EXCEED = Object.defineProperties({}, {
         enumerable: true
     }
 });
+
+exports.RECORD = {
+    id: null,
+    isNew: true,
+    isPreserved: null,
+    toDelete: null,
+    hits: null,
+    lastHit: null,
+    createdOn: null,
+    updatedOn: null,
+    expiresOn: null,
+    value: null
+};
