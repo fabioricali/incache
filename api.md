@@ -32,7 +32,7 @@
         * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
         * [.prependTo(key, value)](#InCache+prependTo) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
         * [.updateIn(key, value, where)](#InCache+updateIn)
-        * [.bulkSet(records, [silent])](#InCache+bulkSet)
+        * [.bulkSet(records, [silent])](#InCache+bulkSet) ⇒ <code>Object</code>
         * [.bulkRemove(keys, [silent])](#InCache+bulkRemove)
         * [.clean(key)](#InCache+clean)
         * [.all()](#InCache+all) ⇒ <code>Array</code>
@@ -434,7 +434,7 @@ inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 
 ```
 <a name="InCache+bulkSet"></a>
 
-### inCache.bulkSet(records, [silent])
+### inCache.bulkSet(records, [silent]) ⇒ <code>Object</code>
 Set/update multiple records. This method not trigger any event.
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -447,7 +447,7 @@ Set/update multiple records. This method not trigger any event.
   </thead>
   <tbody>
 <tr>
-    <td>records</td><td><code>array</code></td><td></td><td><p>array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
+    <td>records</td><td><code>array</code></td><td></td><td><p>e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
 </td>
     </tr><tr>
     <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
@@ -457,7 +457,7 @@ Set/update multiple records. This method not trigger any event.
 
 **Example**  
 ```js
-inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);
+inCache.bulkSet([     {key: 'my key 1', value: 'my value 1'},     {key: 'my key 2', value: 'my value 2'},     {key: 'my key 3', value: 'my value 3'},     {key: 'my key 4', value: 'my value 4'}]);// orinCache.bulkSet(['hello','world']);
 ```
 <a name="InCache+bulkRemove"></a>
 
