@@ -716,7 +716,7 @@ class InCache {
 
     /**
      * Set/update multiple records. This method not trigger any event.
-     * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
+     * @param records {array} e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
      * @param [silent=false] {boolean} if true no event will be triggered
      * @fires InCache#beforeBulkSet
      * @fires InCache#bulkSet
@@ -727,6 +727,10 @@ class InCache {
      *      {key: 'my key 3', value: 'my value 3'},
      *      {key: 'my key 4', value: 'my value 4'}
      * ]);
+     * // or
+     * inCache.bulkSet(['hello','world']);
+     *
+     * @returns {{}}
      */
     bulkSet(records, silent = false) {
         if (!helper.is(records, 'array'))
@@ -736,15 +740,28 @@ class InCache {
             return;
         }
 
+        const result = {};
+        let record;
+
         for (let i = 0; i < records.length; i++) {
-            if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined'))
-                throw new Error('key and value properties are required');
-            this.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
+
+            if (!helper.is(records[i].key, 'undefined') && !helper.is(records[i].value, 'undefined')) {
+                record = this.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
+                if (record)
+                    result[records[i].key] = record;
+            }else{
+                record = this.set(i, records[i], {silent: true, fromBulk: true});
+                if (record)
+                    result[i] = record;
+            }
+
         }
 
         if (!silent) {
             this._emitter.fire('bulkSet', records);
         }
+
+        return result;
     }
 
     /**

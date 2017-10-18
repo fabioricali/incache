@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [unreleased]
 - Added
     - static method `isRecord`
+- Changed
+    - `bulkSet` now accepts custom array     
 
 ## [6.4.0] - 2017-10-14
 - Improvement for `InCache` instance and `on` method, now are chainable

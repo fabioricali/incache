@@ -17,6 +17,30 @@ describe('cache-bulk', function () {
         });
     });
 
+    describe('bulkSet', function () {
+        it('object with key and value should be ok', ()=>{
+            const cache = new InCache();
+            let result = cache.bulkSet([{key: 'hello', value: 'world'}]);
+
+            console.log(result);
+
+        });
+        it('object should be ok', ()=>{
+            const cache = new InCache();
+            let result = cache.bulkSet([{value: 'world'}]);
+
+            console.log(result);
+
+        });
+        it('array should be ok', ()=>{
+            const cache = new InCache();
+            let result = cache.bulkSet(['world']);
+
+            console.log(result);
+
+        });
+    });
+
     describe('bulkSet silent true', function () {
         it('should be return true', (done)=>{
             const cache = new InCache();
