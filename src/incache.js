@@ -4,7 +4,7 @@ const fs = require('fs');
 const uuid = require('uuid/v1');
 const clone = require('clone');
 const sizeOf = require('object-sizeof');
-const {SAVE_MODE, RECORD} = require('./constants');
+const {SAVE_MODE, RECORD} = require('./defined');
 
 /**
  * @constant SAVE_MODE
@@ -18,6 +18,21 @@ const {SAVE_MODE, RECORD} = require('./constants');
 /**
  * @memberOf SAVE_MODE
  * @name TIMER
+ */
+
+/**
+ * InCache record
+ * @typedef {Object} InCache~record
+ * @property {string} id - uuid
+ * @property {boolean} isNew - indicates if is a new record
+ * @property {boolean} isPreserved - indicates if record will no longer be editable once created
+ * @property {boolean} toDelete - indicates if record will be deleted after expiry
+ * @property {number} hits - how many times it has been used
+ * @property {Date|null} lastHit - last usage
+ * @property {Date|null} createdOn - creation date
+ * @property {Date|null} updatedOn - update date
+ * @property {Date|null} expiresOn - expiry date
+ * @property {*} value - record value
  */
 
 /**
@@ -369,21 +384,6 @@ class InCache {
     getConfig() {
         return this._opts;
     }
-
-    /**
-     * InCache record
-     * @typedef {Object} InCache~record
-     * @property {string} id - uuid
-     * @property {boolean} isNew - indicates if is a new record
-     * @property {boolean} isPreserved - indicates if record will no longer be editable once created
-     * @property {boolean} toDelete - indicates if record will be deleted after expiry
-     * @property {number} hits - how many times it has been used
-     * @property {Date|null} lastHit - last usage
-     * @property {Date|null} createdOn - creation date
-     * @property {Date|null} updatedOn - update date
-     * @property {Date|null} expiresOn - expiry date
-     * @property {*} value - record value
-     */
 
     /**
      * Set/update record
