@@ -858,12 +858,15 @@ class InCache {
     }
 
     /**
-     * Check if object is a InCache~record
-     * @param obj
-     * @returns {boolean}
+     * Returns stats of storage
+     * @returns {{count: Number, size: Number}}
+     * @since 6.3.0
      */
-    isRecord(obj) {
-        return true
+    stats() {
+        return {
+            count: this.count(),
+            size: sizeOf(this._memory.data)
+        }
     }
 
     /**
@@ -875,18 +878,6 @@ class InCache {
     on(eventName, callback) {
         this._emitter.on.call(this._emitter, eventName, callback);
         return this;
-    }
-
-    /**
-     * Returns stats of storage
-     * @returns {{count: Number, size: Number}}
-     * @since 6.3.0
-     */
-    stats() {
-        return {
-            count: this.count(),
-            size: sizeOf(this._memory.data)
-        }
     }
 
     /**
@@ -1013,6 +1004,17 @@ class InCache {
      * @param diff {number} exceeded by record number
      * @since 6.1.0
      */
+
+    /**
+     * Check if object is a InCache~record
+     * @param obj
+     * @returns {boolean}
+     */
+    static isRecord(obj) {
+        return Object.keys(RECORD).every(el => {
+            return obj.hasOwnProperty(el);
+        });
+    }
 
     /***************************** DEPRECATED ********************************/
 
