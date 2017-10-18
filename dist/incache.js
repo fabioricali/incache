@@ -1867,7 +1867,8 @@ var clone = __webpack_require__(14);
 var sizeOf = __webpack_require__(19);
 
 var _require = __webpack_require__(21),
-    SAVE_MODE = _require.SAVE_MODE;
+    SAVE_MODE = _require.SAVE_MODE,
+    RECORD = _require.RECORD;
 
 /**
  * @constant SAVE_MODE
@@ -1881,6 +1882,21 @@ var _require = __webpack_require__(21),
 /**
  * @memberOf SAVE_MODE
  * @name TIMER
+ */
+
+/**
+ * InCache record
+ * @typedef {Object} InCache~record
+ * @property {string} id - uuid
+ * @property {boolean} isNew - indicates if is a new record
+ * @property {boolean} isPreserved - indicates if record will no longer be editable once created
+ * @property {boolean} toDelete - indicates if record will be deleted after expiry
+ * @property {number} hits - how many times it has been used
+ * @property {Date|null} lastHit - last usage
+ * @property {Date|null} createdOn - creation date
+ * @property {Date|null} updatedOn - update date
+ * @property {Date|null} expiresOn - expiry date
+ * @property {*} value - record value
  */
 
 /**
@@ -2034,7 +2050,7 @@ var InCache = function () {
 
         this.setConfig(opts);
 
-        return this;
+        //return this;
     }
 
     _createClass(InCache, [{
@@ -2046,6 +2062,22 @@ var InCache = function () {
                 var diff = keys.length - this._opts.maxRecordNumber;
                 this._emitter.fire('exceed', diff);
                 this.bulkRemove(keys.slice(0, diff), true);
+            }
+        }
+    }, {
+        key: '_importData',
+        value: function _importData(data) {
+            var firstRecord = void 0;
+
+            if (helper.is(data, 'object')) {
+                firstRecord = Object.keys(data)[0];
+                if (InCache.isRecord(firstRecord)) this._memory.data = data;
+            } else {
+                firstRecord = data[0];
+            }
+
+            if (!firstRecord) {
+                throw new Error('bad data');
             }
         }
 
@@ -2249,21 +2281,6 @@ var InCache = function () {
         }
 
         /**
-         * InCache record
-         * @typedef {Object} InCache~record
-         * @property {string} id - uuid
-         * @property {boolean} isNew - indicates if is a new record
-         * @property {boolean} isPreserved - indicates if record will no longer be editable once created
-         * @property {boolean} toDelete - indicates if record will be deleted after expiry
-         * @property {number} hits - how many times it has been used
-         * @property {Date|null} lastHit - last usage
-         * @property {Date|null} createdOn - creation date
-         * @property {Date|null} updatedOn - update date
-         * @property {Date|null} expiresOn - expiry date
-         * @property {*} value - record value
-         */
-
-        /**
          * Set/update record
          * @param key {*}
          * @param value {*}
@@ -2280,7 +2297,7 @@ var InCache = function () {
          * @fires InCache#create
          * @fires InCache#update
          * @fires InCache#set
-         * @examples
+         * @example
          * inCache.set('my key', 'my value');
          * inCache.set('my object', {a: 1, b: 2});
          * inCache.set('my boolean', true, {maxAge: 2000}); // Expires after 2 seconds
@@ -2309,18 +2326,13 @@ var InCache = function () {
                 value = clone(value);
             }
 
-            var record = {
-                id: null,
-                isNew: true,
-                isPreserved: opts.preserve,
-                toDelete: opts.deleteOnExpires,
-                hits: 0,
-                lastHit: null,
-                createdOn: null,
-                updatedOn: null,
-                expiresOn: null,
-                value: value
-            };
+            var record = Object.assign({}, RECORD);
+
+            record.isNew = true;
+            record.isPreserved = opts.preserve;
+            record.toDelete = opts.deleteOnExpires;
+            record.hits = 0;
+            record.value = value;
 
             if (opts.expires && (helper.is(opts.expires, 'date') || helper.is(opts.expires, 'string'))) {
                 record.expiresOn = new Date(opts.expires);
@@ -2368,7 +2380,7 @@ var InCache = function () {
          * @param key {*}
          * @param [onlyValue=true] {boolean} if false get InCache record
          * @returns {InCache~record|*|null|undefined}
-         * @examples
+         * @example
          * inCache.get('my key');
          */
 
@@ -2396,7 +2408,7 @@ var InCache = function () {
          * @param [silent=false] {boolean} if true no event will be triggered
          * @fires InCache#beforeRemove
          * @fires InCache#remove
-         * @examples
+         * @example
          * inCache.remove('my key');
          */
 
@@ -2420,7 +2432,7 @@ var InCache = function () {
          * Given a key that has value like an array removes key(s) if `where` is satisfied
          * @param key {*}
          * @param where {*}
-         * @examples
+         * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.removeFrom('myArray', 'hello'); //-> ['world'];
          * @since 3.0.0
@@ -2462,7 +2474,7 @@ var InCache = function () {
          * Remove expired records
          * @returns {Array} expired keys
          * @since 4.1.0
-         * @examples
+         * @example
          * inCache.set('my key 1', 'my value');
          * inCache.set('my key 2', 'my value', {maxAge: 1000});
          * inCache.set('my key 3', 'my value', {maxAge: 1500});
@@ -2490,7 +2502,7 @@ var InCache = function () {
          * @param key {*}
          * @param value {*}
          * @returns {InCache~record|undefined}
-         * @examples
+         * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.addTo('myArray', 'ciao'); //-> ['hello', 'world', 'ciao'];
          * @since 3.0.0
@@ -2518,7 +2530,7 @@ var InCache = function () {
          * @param key {*}
          * @param value {*}
          * @returns {InCache~record|undefined}
-         * @examples
+         * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.prependTo('myArray', 'ciao'); //-> ['ciao', 'hello', 'world'];
          * @since 3.0.0
@@ -2547,7 +2559,7 @@ var InCache = function () {
          * @param key {*}
          * @param value {*}
          * @param where {*}
-         * @examples
+         * @example
          * inCache.set('myArray', ['hello', 'world']);
          * inCache.updateIn('myArray', 'ciao', 'hello'); //-> ['ciao', 'world'];
          *
@@ -2595,17 +2607,21 @@ var InCache = function () {
 
         /**
          * Set/update multiple records. This method not trigger any event.
-         * @param records {array} array of object, e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
+         * @param records {array} e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
          * @param [silent=false] {boolean} if true no event will be triggered
          * @fires InCache#beforeBulkSet
          * @fires InCache#bulkSet
-         * @examples
+         * @example
          * inCache.bulkSet([
          *      {key: 'my key 1', value: 'my value 1'},
          *      {key: 'my key 2', value: 'my value 2'},
          *      {key: 'my key 3', value: 'my value 3'},
          *      {key: 'my key 4', value: 'my value 4'}
          * ]);
+         * // or
+         * inCache.bulkSet(['hello','world']);
+         *
+         * @returns {{}}
          */
 
     }, {
@@ -2619,14 +2635,25 @@ var InCache = function () {
                 return;
             }
 
+            var result = {};
+            var record = void 0;
+
             for (var i = 0; i < records.length; i++) {
-                if (helper.is(records[i].key, 'undefined') || helper.is(records[i].value, 'undefined')) throw new Error('key and value properties are required');
-                this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
+
+                if (!helper.is(records[i].key, 'undefined') && !helper.is(records[i].value, 'undefined')) {
+                    record = this.set(records[i].key, records[i].value, { silent: true, fromBulk: true });
+                    if (record) result[records[i].key] = record;
+                } else {
+                    record = this.set(i, records[i], { silent: true, fromBulk: true });
+                    if (record) result[i] = record;
+                }
             }
 
             if (!silent) {
                 this._emitter.fire('bulkSet', records);
             }
+
+            return result;
         }
 
         /**
@@ -2635,7 +2662,7 @@ var InCache = function () {
          * @param [silent=false] {boolean} if true no event will be triggered
          * @fires InCache#beforeBulkRemove
          * @fires InCache#bulkRemove
-         * @examples
+         * @example
          * inCache.bulkRemove(['key1', 'key2', 'key3']);
          */
 
@@ -2660,7 +2687,7 @@ var InCache = function () {
         /**
          * Delete multiple records that contain the passed keyword
          * @param key {string} a string that is relative to a group of keys
-         * @examples
+         * @example
          * inCache.set('/api/users/foo', 'Mario Rossi');
          * inCache.set('/api/users/bar', 'Antonio Bianchi');
          * inCache.clean('/api/users');
@@ -2755,7 +2782,7 @@ var InCache = function () {
          * Check if key exists
          * @param key {*}
          * @returns {boolean}
-         * @examples
+         * @example
          * inCache.has('my key');
          */
 
@@ -2783,20 +2810,6 @@ var InCache = function () {
         }
 
         /**
-         * Adds listener to instance
-         * @param eventName {string} event name
-         * @param callback {Function} callback
-         * @returns {InCache}
-         */
-
-    }, {
-        key: 'on',
-        value: function on(eventName, callback) {
-            this._emitter.on.call(this._emitter, eventName, callback);
-            return this;
-        }
-
-        /**
          * Returns stats of storage
          * @returns {{count: Number, size: Number}}
          * @since 6.3.0
@@ -2809,6 +2822,20 @@ var InCache = function () {
                 count: this.count(),
                 size: sizeOf(this._memory.data)
             };
+        }
+
+        /**
+         * Adds listener to instance
+         * @param eventName {string} event name
+         * @param callback {Function} callback
+         * @returns {InCache}
+         */
+
+    }, {
+        key: 'on',
+        value: function on(eventName, callback) {
+            this._emitter.on.call(this._emitter, eventName, callback);
+            return this;
         }
 
         /**
@@ -2936,20 +2963,27 @@ var InCache = function () {
          * @since 6.1.0
          */
 
+        /**
+         * Check if object is a InCache~record
+         * @param obj {InCache~record} InCache record
+         * @returns {boolean}
+         */
+
+    }, {
+        key: 'onRemoved',
+
+
         /***************************** DEPRECATED ********************************/
 
         /**
          * Triggered when a record has been deleted. **Deprecated since 5.0.0:** use `on('remove', callback)` instead.
          * @param callback {InCache~removedCallback} callback function
          * @deprecated
-         * @examples
+         * @example
          * inCache.onRemoved((key)=>{
          *      console.log('removed', key);
          * });
          */
-
-    }, {
-        key: 'onRemoved',
         value: function onRemoved(callback) {
             this._onRemoved = callback;
         }
@@ -2965,7 +2999,7 @@ var InCache = function () {
          * Triggered when a record has been created. **Deprecated since 5.0.0:** use `on('create', callback)` instead
          * @param callback {InCache~createdCallback} callback function
          * @deprecated
-         * @examples
+         * @example
          * inCache.onCreated((key, record)=>{
          *      console.log('created', key, record);
          * });
@@ -2989,7 +3023,7 @@ var InCache = function () {
          * Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('update', callback)` instead
          * @param callback {InCache~updatedCallback} callback function
          * @deprecated
-         * @examples
+         * @example
          * inCache.onUpdated((key, record)=>{
          *      console.log('updated', key, record);
          * });
@@ -3009,6 +3043,13 @@ var InCache = function () {
          * @deprecated
          */
 
+    }], [{
+        key: 'isRecord',
+        value: function isRecord(obj) {
+            return Object.keys(RECORD).every(function (el) {
+                return obj.hasOwnProperty(el);
+            });
+        }
     }]);
 
     return InCache;
@@ -4670,6 +4711,19 @@ exports.REMOVE_EXCEED = Object.defineProperties({}, {
         enumerable: true
     }
 });
+
+exports.RECORD = {
+    id: null,
+    isNew: true,
+    isPreserved: null,
+    toDelete: null,
+    hits: null,
+    lastHit: null,
+    createdOn: null,
+    updatedOn: null,
+    expiresOn: null,
+    value: null
+};
 
 /***/ })
 /******/ ]); 
