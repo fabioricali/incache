@@ -196,6 +196,23 @@ class InCache {
         }
     }
 
+    _importData(data) {
+        let firstRecord;
+
+        if (helper.is(data, 'object')) {
+            firstRecord = Object.keys(data)[0];
+            if (InCache.isRecord(firstRecord))
+                this._memory.data = data;
+        } else {
+            firstRecord = data[0];
+        }
+
+        if (!firstRecord) {
+            throw new Error('bad data');
+        }
+
+    }
+
     /**
      * Load cache from disk
      * @param [path=opts.filePath] {string} file path
