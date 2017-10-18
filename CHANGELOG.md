@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [unreleased]
+- Added
+    - static method `isRecord`
+
 ## [6.4.0] - 2017-10-14
 - Improvement for `InCache` instance and `on` method, now are chainable
 - Added 
