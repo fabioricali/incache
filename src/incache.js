@@ -1007,7 +1007,7 @@ class InCache {
 
     /**
      * Check if object is a InCache~record
-     * @param obj
+     * @param obj {InCache~record} InCache record
      * @returns {boolean}
      */
     static isRecord(obj) {

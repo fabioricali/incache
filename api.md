@@ -41,8 +41,8 @@
         * [.clear()](#InCache+clear)
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
-        * [.on(eventName, callback)](#InCache+on) ⇒ [<code>InCache</code>](#InCache)
         * [.stats()](#InCache+stats) ⇒ <code>Object</code>
+        * [.on(eventName, callback)](#InCache+on) ⇒ [<code>InCache</code>](#InCache)
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
         * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
@@ -63,6 +63,8 @@
         * ["save" (err, me)](#InCache+event_save)
         * ["change" (by)](#InCache+event_change)
         * ["exceed" (diff)](#InCache+event_exceed)
+    * _static_
+        * [.isRecord(obj)](#InCache.isRecord) ⇒ <code>boolean</code>
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
         * <del>[~removedCallback](#InCache..removedCallback) : <code>function</code></del>
@@ -585,6 +587,13 @@ Alias of `remove`
     </tr>  </tbody>
 </table>
 
+<a name="InCache+stats"></a>
+
+### inCache.stats() ⇒ <code>Object</code>
+Returns stats of storage
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.3.0  
 <a name="InCache+on"></a>
 
 ### inCache.on(eventName, callback) ⇒ [<code>InCache</code>](#InCache)
@@ -607,13 +616,6 @@ Adds listener to instance
     </tr>  </tbody>
 </table>
 
-<a name="InCache+stats"></a>
-
-### inCache.stats() ⇒ <code>Object</code>
-Returns stats of storage
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Since**: 6.3.0  
 <a name="InCache+onRemoved"></a>
 
 ### <del>inCache.onRemoved(callback)</del>
@@ -1039,6 +1041,25 @@ Triggered when data exceed max size
   <tbody>
 <tr>
     <td>diff</td><td><code>number</code></td><td><p>exceeded by record number</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache.isRecord"></a>
+
+### InCache.isRecord(obj) ⇒ <code>boolean</code>
+Check if object is a InCache~record
+
+**Kind**: static method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>obj</td><td><code><a href="#InCache..record">record</a></code></td><td><p>InCache record</p>
 </td>
     </tr>  </tbody>
 </table>
