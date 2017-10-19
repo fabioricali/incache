@@ -199,15 +199,19 @@ class InCache {
     _importData(data) {
         let firstRecord;
 
+        /* istanbul ignore else  */
         if (helper.is(data, 'object')) {
-            firstRecord = Object.keys(data)[0];
-            if (InCache.isRecord(firstRecord))
-                this._memory.data = data;
-        } else {
+            let records = Object.keys(data);
+            if (records.length) {
+                firstRecord = Object.keys(data)[0];
+                if (InCache.isRecord(firstRecord))
+                    this._memory.data = data;
+            }
+        } else if (helper.is(data, 'array') && data.length) {
             firstRecord = data[0];
-        }
-
-        if (!firstRecord) {
+            if (InCache.isRecord(firstRecord))
+                this.bulkSet(data, true);
+        } else {
             throw new Error('bad data');
         }
 
@@ -236,7 +240,8 @@ class InCache {
 
                 try {
                     let content = fs.readFileSync(path);
-                    this._memory.data = JSON.parse(content.toString());
+                    //this._memory.data = JSON.parse(content.toString());
+                    this._importData(JSON.parse(content.toString()));
                     this._loading = false;
                     resolve(this);
                     this._emitter.fireAsync('load', null, this);
@@ -749,7 +754,7 @@ class InCache {
                 record = this.set(records[i].key, records[i].value, {silent: true, fromBulk: true});
                 if (record)
                     result[records[i].key] = record;
-            }else{
+            } else {
                 record = this.set(i, records[i], {silent: true, fromBulk: true});
                 if (record)
                     result[i] = record;
@@ -1046,7 +1051,7 @@ class InCache {
      */
     static isRecord(obj) {
         return Object.keys(RECORD).every(el => {
-            return obj.hasOwnProperty(el);
+            return typeof obj === 'object' && obj.hasOwnProperty(el);
         });
     }
 
