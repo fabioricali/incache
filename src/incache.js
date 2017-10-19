@@ -201,9 +201,10 @@ class InCache {
 
         /* istanbul ignore else  */
         if (helper.is(data, 'object')) {
-            let records = Object.keys(data);
-            if (records.length) {
-                firstRecord = Object.keys(data)[0];
+            let keys = Object.keys(data);
+
+            if (keys.length) {
+                firstRecord = data[keys[0]];
                 if (InCache.isRecord(firstRecord))
                     this._memory.data = data;
             }

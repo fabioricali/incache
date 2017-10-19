@@ -14,6 +14,7 @@ describe('cache-save', function () {
 
     describe('get, onlyValue false', function () {
         it('should be return object', () => {
+            console.log(cache.all());
             let result = cache.get('myKey', false);
             console.log(result);
             be.err.object(result);
