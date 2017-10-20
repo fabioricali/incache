@@ -208,8 +208,9 @@ class InCache {
                     this.bulkSet(data, true);
             }
 
-        } else if (helper.is(data, 'array') && data.length) {
-            this.bulkSet(data, true);
+        } else if (helper.is(data, 'array')) {
+            if (data.length)
+                this.bulkSet(data, true);
         } else {
             throw new Error('bad data');
         }
