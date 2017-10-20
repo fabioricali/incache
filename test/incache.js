@@ -206,6 +206,7 @@ describe('cache', function () {
                 done();
             }
         });
+
 /*
         it('key param missing, should be return error', (done)=>{
             cache.clear();

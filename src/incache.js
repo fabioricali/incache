@@ -197,21 +197,19 @@ class InCache {
     }
 
     _importData(data) {
-        let firstRecord;
-
         /* istanbul ignore else  */
         if (helper.is(data, 'object')) {
             let keys = Object.keys(data);
 
             if (keys.length) {
-                firstRecord = data[keys[0]];
-                if (InCache.isRecord(firstRecord))
+                if (InCache.isRecord(data[keys[0]]))
                     this._memory.data = data;
+                else
+                    this.bulkSet(data, true);
             }
+
         } else if (helper.is(data, 'array') && data.length) {
-            firstRecord = data[0];
-            if (InCache.isRecord(firstRecord))
-                this.bulkSet(data, true);
+            this.bulkSet(data, true);
         } else {
             throw new Error('bad data');
         }
@@ -722,7 +720,7 @@ class InCache {
 
     /**
      * Set/update multiple records. This method not trigger any event.
-     * @param records {array} e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
+     * @param records {Array} e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]
      * @param [silent=false] {boolean} if true no event will be triggered
      * @fires InCache#beforeBulkSet
      * @fires InCache#bulkSet
@@ -736,11 +734,11 @@ class InCache {
      * // or
      * inCache.bulkSet(['hello','world']);
      *
-     * @returns {{}}
+     * @returns {{}|undefined}
      */
     bulkSet(records, silent = false) {
-        if (!helper.is(records, 'array'))
-            throw new Error('records must be an array of object, e.g. {key: foo, value: bar}');
+        if (!helper.is(records, 'array') && !helper.is(records, 'object'))
+            throw new Error('records must be an array, e.g. {key: foo, value: bar}');
 
         if (!silent && this._emitter.fireTheFirst('beforeBulkSet', records) === false) {
             return;
@@ -969,35 +967,35 @@ class InCache {
     /**
      * Triggered before bulk set
      * @event InCache#beforeBulkSet
-     * @param records {array} array of objects
+     * @param records {Array} array of objects
      * @since 5.0.0
      */
 
     /**
      * Triggered after bulk set
      * @event InCache#bulkSet
-     * @param records {array} array of objects
+     * @param records {Array} array of objects
      * @since 5.0.0
      */
 
     /**
      * Triggered before remove the records
      * @event InCache#beforeBulkRemove
-     * @param keys {array} array of keys to be removed
+     * @param keys {Array} array of keys to be removed
      * @since 5.0.0
      */
 
     /**
      * Triggered after records have been removed
      * @event InCache#bulkRemove
-     * @param keys {array} array of keys removed
+     * @param keys {Array} array of keys removed
      * @since 5.0.0
      */
 
     /**
      * Triggered when records are expired and `opts.autoRemovePeriod` is set
      * @event InCache#expired
-     * @param keys {array} array of keys expired
+     * @param keys {Array} array of keys expired
      * @since 5.0.0
      */
 
