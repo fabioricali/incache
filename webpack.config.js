@@ -16,7 +16,8 @@ module.exports = {
     output: {
         filename: './dist/incache.min.js',
         library: 'incache',
-        umdNamedDefine: true
+        umdNamedDefine: true,
+        libraryTarget: 'umd'
     },
     resolve: {
         modules: ['node_modules'],
