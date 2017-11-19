@@ -1,6 +1,6 @@
 {
     "name": "incache",
-    "version": "6.4.0",
+    "version": "6.5.0",
     "description": "Powerful key/value in-memory storage or on disk to persist some data",
     "main": "dist/incache.js",
     "scripts": {

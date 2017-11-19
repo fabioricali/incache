@@ -32,7 +32,7 @@
         * [.addTo(key, value)](#InCache+addTo) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
         * [.prependTo(key, value)](#InCache+prependTo) ⇒ [<code>record</code>](#InCache..record) \| <code>undefined</code>
         * [.updateIn(key, value, where)](#InCache+updateIn)
-        * [.bulkSet(records, [silent])](#InCache+bulkSet) ⇒ <code>Object</code>
+        * [.bulkSet(records, [silent])](#InCache+bulkSet) ⇒ <code>Object</code> \| <code>undefined</code>
         * [.bulkRemove(keys, [silent])](#InCache+bulkRemove)
         * [.clean(key)](#InCache+clean)
         * [.all()](#InCache+all) ⇒ <code>Array</code>
@@ -434,7 +434,7 @@ inCache.set('myArray', ['hello', 'world']);inCache.updateIn('myArray', 'ciao', 
 ```
 <a name="InCache+bulkSet"></a>
 
-### inCache.bulkSet(records, [silent]) ⇒ <code>Object</code>
+### inCache.bulkSet(records, [silent]) ⇒ <code>Object</code> \| <code>undefined</code>
 Set/update multiple records. This method not trigger any event.
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
@@ -447,7 +447,7 @@ Set/update multiple records. This method not trigger any event.
   </thead>
   <tbody>
 <tr>
-    <td>records</td><td><code>array</code></td><td></td><td><p>e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
+    <td>records</td><td><code>Array</code></td><td></td><td><p>e.g. [{key: foo1, value: bar1},{key: foo2, value: bar2}]</p>
 </td>
     </tr><tr>
     <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
@@ -838,7 +838,7 @@ Triggered before bulk set
   </thead>
   <tbody>
 <tr>
-    <td>records</td><td><code>array</code></td><td><p>array of objects</p>
+    <td>records</td><td><code>Array</code></td><td><p>array of objects</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -858,7 +858,7 @@ Triggered after bulk set
   </thead>
   <tbody>
 <tr>
-    <td>records</td><td><code>array</code></td><td><p>array of objects</p>
+    <td>records</td><td><code>Array</code></td><td><p>array of objects</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -878,7 +878,7 @@ Triggered before remove the records
   </thead>
   <tbody>
 <tr>
-    <td>keys</td><td><code>array</code></td><td><p>array of keys to be removed</p>
+    <td>keys</td><td><code>Array</code></td><td><p>array of keys to be removed</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -898,7 +898,7 @@ Triggered after records have been removed
   </thead>
   <tbody>
 <tr>
-    <td>keys</td><td><code>array</code></td><td><p>array of keys removed</p>
+    <td>keys</td><td><code>Array</code></td><td><p>array of keys removed</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -918,7 +918,7 @@ Triggered when records are expired and `opts.autoRemovePeriod` is set
   </thead>
   <tbody>
 <tr>
-    <td>keys</td><td><code>array</code></td><td><p>array of keys expired</p>
+    <td>keys</td><td><code>Array</code></td><td><p>array of keys expired</p>
 </td>
     </tr>  </tbody>
 </table>
