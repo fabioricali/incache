@@ -2,7 +2,7 @@
     "name": "incache",
     "version": "6.4.0",
     "description": "Powerful key/value in-memory storage or on disk to persist some data",
-    "main": "index.js",
+    "main": "dist/incache.js",
     "scripts": {
         "version:major": "webpack --env.major && npm run-script doc && version-to-tag.sh && npm publish",
         "version:minor": "webpack --env.minor && npm run-script doc && version-to-tag.sh && npm publish",
