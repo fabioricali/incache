@@ -299,5 +299,80 @@ describe('cache-events', function () {
             });
         });
 
+        describe('suspendEvent change', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    save: false
+                });
+
+                cache.on('change', by => {
+                    throw new Error('suspendEvent error');
+                });
+
+                cache.suspendEvent('change');
+
+                cache.set('myKeyBBB', 'myValue');
+                done();
+            });
+        });
+
+        describe('resumeEvent change', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    save: false
+                });
+
+                cache.on('change', by => {
+                    done();
+                });
+
+                cache.suspendEvent('change');
+
+                cache.set('myKeyBBB', 'myValue');
+
+                cache.resumeEvent('change');
+
+                cache.set('myKeyBBB', 'myValue2');
+
+            });
+        });
+
+        describe('suspendEvents', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    save: false
+                });
+
+                cache.on('change', by => {
+                    throw new Error('suspendEvent error');
+                });
+
+                cache.suspendEvents();
+
+                cache.set('myKeyBBB', 'myValue');
+                done();
+            });
+        });
+
+        describe('resumeEvents', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    save: false
+                });
+
+                cache.on('change', by => {
+                    done();
+                });
+
+                cache.suspendEvents();
+
+                cache.set('myKeyBBB', 'myValue');
+
+                cache.resumeEvents();
+
+                cache.set('myKeyBBB', 'myValue2');
+
+            });
+        });
     });
 });
