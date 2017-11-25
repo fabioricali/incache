@@ -930,6 +930,16 @@ class InCache {
     }
 
     /**
+     * Resumes firing of the named event(s).
+     * @param eventName {...string} multiple event names to resume.
+     * @returns {InCache}
+     */
+    resumeEvent(...eventName) {
+        this._emitter.resumeEvent.call(this._emitter, eventName);
+        return this;
+    }
+
+    /**
      * Triggered before set
      * @event InCache#beforeSet
      * @param key {string} key
