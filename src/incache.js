@@ -923,6 +923,7 @@ class InCache {
      * Suspends firing of the named event(s).
      * @param eventName {...string} multiple event names to suspend
      * @returns {InCache}
+     * @since 6.6.0
      */
     suspendEvent(...eventName) {
         this._emitter.suspendEvent.call(this._emitter, eventName);
@@ -933,9 +934,30 @@ class InCache {
      * Resumes firing of the named event(s).
      * @param eventName {...string} multiple event names to resume.
      * @returns {InCache}
+     * @since 6.6.0
      */
     resumeEvent(...eventName) {
         this._emitter.resumeEvent.call(this._emitter, eventName);
+        return this;
+    }
+
+    /**
+     * Suspends all events.
+     * @returns {InCache}
+     * @since 6.6.0
+     */
+    suspendEvents() {
+        this._emitter.suspendEvents.call(this._emitter);
+        return this;
+    }
+
+    /**
+     * Resume all events.
+     * @returns {InCache}
+     * @since 6.6.0
+     */
+    resumeEvents() {
+        this._emitter.resumeEvents.call(this._emitter);
         return this;
     }
 
