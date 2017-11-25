@@ -920,6 +920,16 @@ class InCache {
     }
 
     /**
+     * Suspends firing of the named event(s).
+     * @param eventName {...string} multiple event names to suspend
+     * @returns {InCache}
+     */
+    suspendEvent(...eventName) {
+        this._emitter.suspendEvent.call(this._emitter, eventName);
+        return this;
+    }
+
+    /**
      * Triggered before set
      * @event InCache#beforeSet
      * @param key {string} key
