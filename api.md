@@ -43,6 +43,10 @@
         * [.destroy(...args)](#InCache+destroy)
         * [.stats()](#InCache+stats) ⇒ <code>Object</code>
         * [.on(eventName, callback)](#InCache+on) ⇒ [<code>InCache</code>](#InCache)
+        * [.suspendEvent(...eventName)](#InCache+suspendEvent) ⇒ [<code>InCache</code>](#InCache)
+        * [.resumeEvent(...eventName)](#InCache+resumeEvent) ⇒ [<code>InCache</code>](#InCache)
+        * [.suspendEvents()](#InCache+suspendEvents) ⇒ [<code>InCache</code>](#InCache)
+        * [.resumeEvents()](#InCache+resumeEvents) ⇒ [<code>InCache</code>](#InCache)
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
         * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
@@ -616,6 +620,60 @@ Adds listener to instance
     </tr>  </tbody>
 </table>
 
+<a name="InCache+suspendEvent"></a>
+
+### inCache.suspendEvent(...eventName) ⇒ [<code>InCache</code>](#InCache)
+Suspends firing of the named event(s).
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.6.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>...eventName</td><td><code>string</code></td><td><p>multiple event names to suspend</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+resumeEvent"></a>
+
+### inCache.resumeEvent(...eventName) ⇒ [<code>InCache</code>](#InCache)
+Resumes firing of the named event(s).
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.6.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>...eventName</td><td><code>string</code></td><td><p>multiple event names to resume.</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache+suspendEvents"></a>
+
+### inCache.suspendEvents() ⇒ [<code>InCache</code>](#InCache)
+Suspends all events.
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.6.0  
+<a name="InCache+resumeEvents"></a>
+
+### inCache.resumeEvents() ⇒ [<code>InCache</code>](#InCache)
+Resume all events.
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 6.6.0  
 <a name="InCache+onRemoved"></a>
 
 ### <del>inCache.onRemoved(callback)</del>
