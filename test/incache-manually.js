@@ -36,6 +36,7 @@ describe('manually', function () {
         });
         it('in browser fails', (done)=>{
             require('browser-env')();
+            require('mock-local-storage');
             //delete process.pid;
 
             const cache = new InCache({

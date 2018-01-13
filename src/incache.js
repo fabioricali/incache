@@ -228,7 +228,7 @@ class InCache {
     load(path = this._opts.filePath) {
         return new Promise(
             (resolve, reject) => {
-                if (!helper.isServer()) return reject('operation not allowed');
+                //if (!helper.isServer()) return reject('operation not allowed');
                 if (this._loading) return reject('loading locked');
 
                 /* istanbul ignore else  */
@@ -239,8 +239,11 @@ class InCache {
                 this._loading = true;
 
                 try {
-                    let content = fs.readFileSync(path);
-                    //this._memory.data = JSON.parse(content.toString());
+                    let content = helper.isServer() ? fs.readFileSync(path) : window.localStorage.getItem(path);
+
+                    if (content === null)
+                        reject('content cannot is null');
+
                     this._importData(JSON.parse(content.toString()));
                     this._loading = false;
                     resolve(this);
