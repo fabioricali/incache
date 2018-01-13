@@ -14,7 +14,7 @@ Powerful key/value in-memory storage or on disk to persist data
 
 ## What does?
 InCache is a module that store any info in memory, it can be used for example for storing **server sessions**, **caching http response** or **sharing singleton object** in your apps.
-It also give you the possibility to save data on disk so you can avoid the data loss when the process exit or restart.
+It also give you the possibility to save data on disk so you can avoid the data loss when the process exit or restart. In a browser scenario all data is saved on localStorage through a key.
 
 ## Installation
 
@@ -129,6 +129,13 @@ store.save('a-path/a-file.json').then(()=>{
 }).catch(err => {
     console.log(err);
 });
+```
+
+### Browser scenario
+In browser environment the file path becomes a string key for localStorage interface:
+```javascript
+store.load('myLocalStorageKey');
+store.save('myLocalStorageKey');
 ```
 
 ### Events
