@@ -50,16 +50,16 @@ class InCache {
      * @param [opts.clone=false] {boolean} if true, the object will be cloned before to put it in storage. (overwritable by `set`)
      * @param [opts.preserve=false] {boolean} if true, you will no longer be able to update the record once created. (overwritable by `set`)
      * @param [opts.maxRecordNumber=0] {number} the maximum of record number of the cache, if exceeded some records will be deleted. If 0 is disabled
-     * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created. (server only)
-     * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated. (server only)
-     * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> "terminate": saves before the process is terminated. "timer": every n seconds checks for new changes and save on disk. (server only)
-     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode. (server only)
+     * @param [opts.autoLoad=true] {boolean} load cache from disk when instance is created.
+     * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated.
+     * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> "terminate": saves before the process is terminated (server only). "timer": every n seconds checks for new changes and save on disk.
+     * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode.
      * @param [opts.filePath=.incache] {string} cache file path
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
      * @param [opts.nullIfNotFound=false] {boolean} calling `get` if the key is not found returns `null`. If false returns `undefined`
-     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead. (server only)
+     * @param [opts.save=false] {boolean} **deprecated:** if true saves cache in disk when the process is terminated. Use `autoSave` instead.
      * @param [opts.global] {Object} **deprecated:** global record configuration
      * @param [opts.global.silent=false] {boolean} **deprecated:** if true no event will be triggered, use `silent` instead
      * @param [opts.global.life=0] {number} **deprecated:** max age in seconds. If 0 not expire, use `maxAge` instead
@@ -352,7 +352,7 @@ class InCache {
             if (opts.autoSave || opts.save) {
 
                 /* istanbul ignore else  */
-                if (opts.autoSaveMode === SAVE_MODE.TERMINATE) {
+                if (opts.autoSaveMode === SAVE_MODE.TERMINATE && helper.isServer()) {
                     let self = this;
 
                     // Wrap function
@@ -361,15 +361,13 @@ class InCache {
                         });
                     }
 
-                    if (helper.isServer()) {
-                        // Remove if event already exists
-                        process.removeListener('exit', pWrite);
-                        process.removeListener('SIGINT', pWrite);
+                    // Remove if event already exists
+                    process.removeListener('exit', pWrite);
+                    process.removeListener('SIGINT', pWrite);
 
-                        //process.stdin.resume();
-                        process.on('exit', pWrite);
-                        process.on('SIGINT', pWrite);
-                    }
+                    //process.stdin.resume();
+                    process.on('exit', pWrite);
+                    process.on('SIGINT', pWrite);
 
                 } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
                     /* istanbul ignore else  */
