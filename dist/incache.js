@@ -2124,7 +2124,7 @@ var InCache = function () {
 
         /**
          * Load cache from disk
-         * @param [path=opts.filePath] {string} file path
+         * @param [path=opts.filePath] {string} file path or key (browser scenario)
          * @fires InCache#beforeLoad
          * @fires InCache#load
          * @returns {Promise}
@@ -2139,7 +2139,7 @@ var InCache = function () {
             var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
 
             return new Promise(function (resolve, reject) {
-                if (!helper.isServer()) return reject('operation not allowed');
+                //if (!helper.isServer()) return reject('operation not allowed');
                 if (_this2._loading) return reject('loading locked');
 
                 /* istanbul ignore else  */
@@ -2150,8 +2150,10 @@ var InCache = function () {
                 _this2._loading = true;
 
                 try {
-                    var content = fs.readFileSync(path);
-                    //this._memory.data = JSON.parse(content.toString());
+                    var content = helper.isServer() ? fs.readFileSync(path) : window.localStorage.getItem(path);
+
+                    if (content === null) helper.throwError('content cannot is null');
+
                     _this2._importData(JSON.parse(content.toString()));
                     _this2._loading = false;
                     resolve(_this2);
@@ -2167,7 +2169,7 @@ var InCache = function () {
 
         /**
          * Save cache into disk
-         * @param [path=opts.filePath] {string} file path
+         * @param [path=opts.filePath] {string} file path or key (browser scenario)
          * @fires InCache#beforeSave
          * @fires InCache#save
          * @returns {Promise}
@@ -2182,7 +2184,7 @@ var InCache = function () {
             var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
 
             return new Promise(function (resolve, reject) {
-                if (!helper.isServer()) return reject('operation not allowed');
+                //if (!helper.isServer()) return reject('operation not allowed');
                 if (_this3._saving) return reject('saving locked');
 
                 /* istanbul ignore else  */
@@ -2192,8 +2194,11 @@ var InCache = function () {
 
                 _this3._saving = true;
 
+                var dataString = JSON.stringify(_this3._memory.data);
+
                 try {
-                    fs.writeFileSync(path, JSON.stringify(_this3._memory.data));
+                    if (helper.isServer()) fs.writeFileSync(path, dataString);else window.localStorage.setItem(path, dataString);
+
                     _this3._lastSave = new Date().getTime();
                     _this3._saving = false;
                     resolve(_this3);
@@ -2251,48 +2256,50 @@ var InCache = function () {
             this._memory = this._root[this.GLOBAL_KEY];
 
             /* istanbul ignore else  */
-            if (helper.isServer()) {
-                if (opts.autoLoad) this.load().then().catch(function (e) {});
+            //if (helper.isServer()) {
+            if (opts.autoLoad) this.load().then().catch(function (e) {});
+
+            /* istanbul ignore else  */
+            if (opts.autoSave || opts.save) {
 
                 /* istanbul ignore else  */
-                if (opts.autoSave || opts.save) {
+                if (opts.autoSaveMode === SAVE_MODE.TERMINATE) {
 
-                    /* istanbul ignore else  */
-                    if (opts.autoSaveMode === SAVE_MODE.TERMINATE) {
+                    // Wrap function
+                    var pWrite = function pWrite() {
+                        self.save().then().catch(function (e) {});
+                    };
 
-                        // Wrap function
-                        var pWrite = function pWrite() {
-                            self.save().then().catch(function (e) {});
-                        };
+                    var self = this;
 
+                    if (helper.isServer()) {
                         // Remove if event already exists
-
-
-                        var self = this;process.removeListener('exit', pWrite);
+                        process.removeListener('exit', pWrite);
                         process.removeListener('SIGINT', pWrite);
 
                         //process.stdin.resume();
                         process.on('exit', pWrite);
                         process.on('SIGINT', pWrite);
-                    } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
-                        /* istanbul ignore else  */
-                        if (this._timerSaveCheck) {
-                            clearInterval(this._timerSaveCheck);
-                            this._timerSaveCheck = null;
-                        }
+                    }
+                } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
+                    /* istanbul ignore else  */
+                    if (this._timerSaveCheck) {
+                        clearInterval(this._timerSaveCheck);
+                        this._timerSaveCheck = null;
+                    }
 
-                        /* istanbul ignore else  */
-                        if (opts.autoSavePeriod) {
-                            this._timerSaveCheck = setInterval(function () {
-                                if (_this4._lastChange !== _this4._lastChangeDetected) {
-                                    _this4._lastChangeDetected = _this4._lastChange;
-                                    _this4.save().then().catch(function (e) {});
-                                }
-                            }, opts.autoSavePeriod * 1000);
-                        }
+                    /* istanbul ignore else  */
+                    if (opts.autoSavePeriod) {
+                        this._timerSaveCheck = setInterval(function () {
+                            if (_this4._lastChange !== _this4._lastChangeDetected) {
+                                _this4._lastChangeDetected = _this4._lastChange;
+                                _this4.save().then().catch(function (e) {});
+                            }
+                        }, opts.autoSavePeriod * 1000);
                     }
                 }
             }
+            //}
 
             /* istanbul ignore else  */
             if (this._timerExpiryCheck) {
@@ -3446,6 +3453,14 @@ helper.deprecated = function (prop, msg) {
         return true;
     }
     return false;
+};
+
+/**
+ * Throw error
+ * @param msg
+ */
+helper.throwError = function (msg) {
+    throw new Error(msg);
 };
 
 module.exports = helper;

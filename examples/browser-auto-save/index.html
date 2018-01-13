@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>browser-save</title>
+    <script src="../../dist/incache.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function setBody(text) {
+                document.body.innerText = text;
+            }
+
+            const myStore = new incache({
+                autoLoad: true,
+                autoSave: true,
+                autoSaveMode: 'terminate',
+                filePath: 'cache.auto.save'
+            }).on('load', (err, me) => {
+                if (!err) {
+                    setBody('load ' + me.get('a key'));
+                } else {
+                    setBody(err);
+                }
+            });
+
+            myStore.set('a key', 'hello');
+            console.log(myStore.count());
+        });
+    </script>
+</head>
+<body>
+
+</body>
+</html>

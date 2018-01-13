@@ -242,7 +242,7 @@ class InCache {
                     let content = helper.isServer() ? fs.readFileSync(path) : window.localStorage.getItem(path);
 
                     if (content === null)
-                        reject('content cannot is null');
+                        helper.throwError('content cannot is null');
 
                     this._importData(JSON.parse(content.toString()));
                     this._loading = false;
@@ -369,8 +369,6 @@ class InCache {
                         //process.stdin.resume();
                         process.on('exit', pWrite);
                         process.on('SIGINT', pWrite);
-                    } else {
-                        window.onbeforeunload = pWrite;
                     }
 
                 } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {

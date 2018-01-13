@@ -75,4 +75,12 @@ helper.deprecated = (prop, msg, type='warn') => {
     return false;
 };
 
+/**
+ * Throw error
+ * @param msg
+ */
+helper.throwError = (msg) => {
+    throw new Error(msg);
+};
+
 module.exports = helper;
