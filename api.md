@@ -112,16 +112,16 @@ Create instance
     <td>[opts.maxRecordNumber]</td><td><code>number</code></td><td><code>0</code></td><td><p>the maximum of record number of the cache, if exceeded some records will be deleted. If 0 is disabled</p>
 </td>
     </tr><tr>
-    <td>[opts.autoLoad]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created. (server only)</p>
+    <td>[opts.autoLoad]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>load cache from disk when instance is created.</p>
 </td>
     </tr><tr>
-    <td>[opts.autoSave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated. (server only)</p>
+    <td>[opts.autoSave]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true saves cache in disk when the process is terminated.</p>
 </td>
     </tr><tr>
-    <td>[opts.autoSaveMode]</td><td><code>string</code></td><td><code>&quot;terminate&quot;</code></td><td><p>there are 2 modes -&gt; &quot;terminate&quot;: saves before the process is terminated. &quot;timer&quot;: every n seconds checks for new changes and save on disk. (server only)</p>
+    <td>[opts.autoSaveMode]</td><td><code>string</code></td><td><code>&quot;terminate&quot;</code></td><td><p>there are 2 modes -&gt; &quot;terminate&quot;: saves before the process is terminated (server only). &quot;timer&quot;: every n seconds checks for new changes and save on disk.</p>
 </td>
     </tr><tr>
-    <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;timer&#39; mode. (server only)</p>
+    <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;timer&#39; mode.</p>
 </td>
     </tr><tr>
     <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path</p>
@@ -139,7 +139,7 @@ Create instance
     <td>[opts.nullIfNotFound]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>calling <code>get</code> if the key is not found returns <code>null</code>. If false returns <code>undefined</code></p>
 </td>
     </tr><tr>
-    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true saves cache in disk when the process is terminated. Use <code>autoSave</code> instead. (server only)</p>
+    <td>[opts.save]</td><td><code>boolean</code></td><td><code>false</code></td><td><p><strong>deprecated:</strong> if true saves cache in disk when the process is terminated. Use <code>autoSave</code> instead.</p>
 </td>
     </tr><tr>
     <td>[opts.global]</td><td><code>Object</code></td><td></td><td><p><strong>deprecated:</strong> global record configuration</p>
@@ -169,7 +169,7 @@ Load cache from disk
   </thead>
   <tbody>
 <tr>
-    <td>[path]</td><td><code>string</code></td><td><code>&quot;opts.filePath&quot;</code></td><td><p>file path</p>
+    <td>[path]</td><td><code>string</code></td><td><code>&quot;opts.filePath&quot;</code></td><td><p>file path or key (browser scenario)</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -190,7 +190,7 @@ Save cache into disk
   </thead>
   <tbody>
 <tr>
-    <td>[path]</td><td><code>string</code></td><td><code>&quot;opts.filePath&quot;</code></td><td><p>file path</p>
+    <td>[path]</td><td><code>string</code></td><td><code>&quot;opts.filePath&quot;</code></td><td><p>file path or key (browser scenario)</p>
 </td>
     </tr>  </tbody>
 </table>

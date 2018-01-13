@@ -54,7 +54,7 @@ class InCache {
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated.
      * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> "terminate": saves before the process is terminated (server only). "timer": every n seconds checks for new changes and save on disk.
      * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode.
-     * @param [opts.filePath=.incache] {string} cache file path
+     * @param [opts.filePath=.incache] {string} cache file path or key (browser scenario)
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
