@@ -1,4 +1,5 @@
 const InCache = require('../src/incache');
+require('mock-local-storage');
 
 describe('manually', function () {
 
@@ -34,20 +35,24 @@ describe('manually', function () {
             });
 
         });
-        it('in browser fails if key not found', (done)=>{
-            require('browser-env')();
-            require('mock-local-storage');
+        it('in browser returns empty object if key not found', (done)=>{
+            //require('browser-env')();
+            //require('mock-local-storage');
             //delete process.pid;
+            global.window = {localStorage};
 
             const cache = new InCache({
                 autoLoad: false,
-                filePath: './test/.incache-save2'
+                filePath: 'mKey'
             });
 
-            cache.load().then(()=>{
-                done('fail');
+            cache.load().then((data)=>{
+                //if(data.count() === 0)
+                    done('fail');
             }).catch(e => {
-                done();
+                console.log(e);
+                if(e === 'content cannot is null')
+                    done();
             });
 
         });
@@ -88,9 +93,7 @@ describe('manually', function () {
         });
 
         it('in browser it\'s ok', (done)=>{
-            require('browser-env')();
-            require('mock-local-storage');
-            //delete process.pid;
+            global.window = {localStorage};
 
             const cache = new InCache({
                 autoSave: false,

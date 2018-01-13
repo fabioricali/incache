@@ -343,7 +343,7 @@ class InCache {
         this._memory = this._root[this.GLOBAL_KEY];
 
         /* istanbul ignore else  */
-        if (helper.isServer()) {
+        //if (helper.isServer()) {
             if (opts.autoLoad)
                 this.load().then().catch((e) => {
                 });
@@ -361,13 +361,17 @@ class InCache {
                         });
                     }
 
-                    // Remove if event already exists
-                    process.removeListener('exit', pWrite);
-                    process.removeListener('SIGINT', pWrite);
+                    if (helper.isServer()) {
+                        // Remove if event already exists
+                        process.removeListener('exit', pWrite);
+                        process.removeListener('SIGINT', pWrite);
 
-                    //process.stdin.resume();
-                    process.on('exit', pWrite);
-                    process.on('SIGINT', pWrite);
+                        //process.stdin.resume();
+                        process.on('exit', pWrite);
+                        process.on('SIGINT', pWrite);
+                    } else {
+                        window.onbeforeunload = pWrite;
+                    }
 
                 } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
                     /* istanbul ignore else  */
@@ -389,7 +393,7 @@ class InCache {
                 }
 
             }
-        }
+        //}
 
         /* istanbul ignore else  */
         if (this._timerExpiryCheck) {
