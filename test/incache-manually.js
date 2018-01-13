@@ -34,7 +34,7 @@ describe('manually', function () {
             });
 
         });
-        it('in browser fails', (done)=>{
+        it('in browser fails if key not found', (done)=>{
             require('browser-env')();
             require('mock-local-storage');
             //delete process.pid;
@@ -87,8 +87,9 @@ describe('manually', function () {
 
         });
 
-        it('in browser fails', (done)=>{
+        it('in browser it\'s ok', (done)=>{
             require('browser-env')();
+            require('mock-local-storage');
             //delete process.pid;
 
             const cache = new InCache({
@@ -97,9 +98,9 @@ describe('manually', function () {
             });
 
             cache.save().then(()=>{
-                done('fail');
-            }).catch(e => {
                 done();
+            }).catch(e => {
+                done(e);
             });
 
         });

@@ -219,7 +219,7 @@ class InCache {
 
     /**
      * Load cache from disk
-     * @param [path=opts.filePath] {string} file path
+     * @param [path=opts.filePath] {string} file path or key (browser scenario)
      * @fires InCache#beforeLoad
      * @fires InCache#load
      * @returns {Promise}
@@ -260,7 +260,7 @@ class InCache {
 
     /**
      * Save cache into disk
-     * @param [path=opts.filePath] {string} file path
+     * @param [path=opts.filePath] {string} file path or key (browser scenario)
      * @fires InCache#beforeSave
      * @fires InCache#save
      * @returns {Promise}
@@ -269,7 +269,7 @@ class InCache {
     save(path = this._opts.filePath) {
         return new Promise(
             (resolve, reject) => {
-                if (!helper.isServer()) return reject('operation not allowed');
+                //if (!helper.isServer()) return reject('operation not allowed');
                 if (this._saving) return reject('saving locked');
 
                 /* istanbul ignore else  */
@@ -279,8 +279,14 @@ class InCache {
 
                 this._saving = true;
 
+                let dataString = JSON.stringify(this._memory.data);
+
                 try {
-                    fs.writeFileSync(path, JSON.stringify(this._memory.data));
+                    if (helper.isServer())
+                        fs.writeFileSync(path, dataString);
+                    else
+                        window.localStorage.setItem(path, dataString);
+
                     this._lastSave = (new Date()).getTime();
                     this._saving = false;
                     resolve(this);
