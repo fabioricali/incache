@@ -237,7 +237,7 @@ Set/update record
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td><td></td><td></td>
+    <td>key</td><td><code>string</code></td><td></td><td></td>
     </tr><tr>
     <td>value</td><td><code>*</code></td><td></td><td></td>
     </tr><tr>
@@ -285,7 +285,7 @@ Get record by key
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td><td></td><td></td>
+    <td>key</td><td><code>string</code></td><td></td><td></td>
     </tr><tr>
     <td>[onlyValue]</td><td><code>boolean</code></td><td><code>true</code></td><td><p>if false get InCache record</p>
 </td>
@@ -311,7 +311,7 @@ Delete a record
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td><td></td><td></td>
+    <td>key</td><td><code>string</code></td><td></td><td></td>
     </tr><tr>
     <td>[silent]</td><td><code>boolean</code></td><td><code>false</code></td><td><p>if true no event will be triggered</p>
 </td>
@@ -337,7 +337,7 @@ Given a key that has value like an array removes key(s) if `where` is satisfied
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td>
+    <td>key</td><td><code>string</code></td>
     </tr><tr>
     <td>where</td><td><code>*</code></td>
     </tr>  </tbody>
@@ -374,7 +374,7 @@ Given a key that has value like an array adds value to end of array
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td>
+    <td>key</td><td><code>string</code></td>
     </tr><tr>
     <td>value</td><td><code>*</code></td>
     </tr>  </tbody>
@@ -399,7 +399,7 @@ Given a key that has value like an array adds value to beginning of array
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td>
+    <td>key</td><td><code>string</code></td>
     </tr><tr>
     <td>value</td><td><code>*</code></td>
     </tr>  </tbody>
@@ -424,7 +424,7 @@ Given a key that has value like an array updates key(s) if `where` is satisfied
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td>
+    <td>key</td><td><code>string</code></td>
     </tr><tr>
     <td>value</td><td><code>*</code></td>
     </tr><tr>
@@ -540,7 +540,7 @@ Check if record is expired
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td>
+    <td>key</td><td><code>string</code></td>
     </tr>  </tbody>
 </table>
 
@@ -564,7 +564,7 @@ Check if key exists
   </thead>
   <tbody>
 <tr>
-    <td>key</td><td><code>*</code></td>
+    <td>key</td><td><code>string</code></td>
     </tr>  </tbody>
 </table>
 
