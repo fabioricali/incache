@@ -418,7 +418,7 @@ class InCache {
 
     /**
      * Set/update record
-     * @param key {*}
+     * @param key {string}
      * @param value {*}
      * @param [opts] {Object} options object
      * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
@@ -508,7 +508,7 @@ class InCache {
 
     /**
      * Get record by key
-     * @param key {*}
+     * @param key {string}
      * @param [onlyValue=true] {boolean} if false get InCache record
      * @returns {InCache~record|*|null|undefined}
      * @example
@@ -530,7 +530,7 @@ class InCache {
 
     /**
      * Delete a record
-     * @param key {*}
+     * @param key {string}
      * @param [silent=false] {boolean} if true no event will be triggered
      * @fires InCache#beforeRemove
      * @fires InCache#remove
@@ -551,7 +551,7 @@ class InCache {
 
     /**
      * Given a key that has value like an array removes key(s) if `where` is satisfied
-     * @param key {*}
+     * @param key {string}
      * @param where {*}
      * @example
      * inCache.set('myArray', ['hello', 'world']);
@@ -621,7 +621,7 @@ class InCache {
 
     /**
      * Given a key that has value like an array adds value to end of array
-     * @param key {*}
+     * @param key {string}
      * @param value {*}
      * @returns {InCache~record|undefined}
      * @example
@@ -647,7 +647,7 @@ class InCache {
 
     /**
      * Given a key that has value like an array adds value to beginning of array
-     * @param key {*}
+     * @param key {string}
      * @param value {*}
      * @returns {InCache~record|undefined}
      * @example
@@ -675,7 +675,7 @@ class InCache {
 
     /**
      * Given a key that has value like an array updates key(s) if `where` is satisfied
-     * @param key {*}
+     * @param key {string}
      * @param value {*}
      * @param where {*}
      * @example
@@ -859,7 +859,7 @@ class InCache {
 
     /**
      * Check if record is expired
-     * @param key {*}
+     * @param key {string}
      * @returns {boolean}
      */
     expired(key) {
@@ -886,7 +886,7 @@ class InCache {
 
     /**
      * Check if key exists
-     * @param key {*}
+     * @param key {string}
      * @returns {boolean}
      * @example
      * inCache.has('my key');
