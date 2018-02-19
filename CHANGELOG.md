@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.1] - 2018-02-19
+- **Fixed** empty `filePath` issue
+
 ## [7.0.0] - 2018-01-13
 - **Added** `load` support for browser
 - **Added** `save` support for browser
