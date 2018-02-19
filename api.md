@@ -124,7 +124,7 @@ Create instance
     <td>[opts.autoSavePeriod]</td><td><code>number</code></td><td><code>5</code></td><td><p>period in seconds to check for new changes to save on disk. Works only if <code>opts.autoSaveMode</code> is set to &#39;timer&#39; mode.</p>
 </td>
     </tr><tr>
-    <td>[opts.filePath]</td><td><code>string</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path or key (browser scenario)</p>
+    <td>[opts.filePath]</td><td><code>string</code> | <code>*</code></td><td><code>&quot;.incache&quot;</code></td><td><p>cache file path or key. If is a falsy value, <code>load</code> and <code>save</code> will always be solved</p>
 </td>
     </tr><tr>
     <td>[opts.storeName]</td><td><code>string</code></td><td></td><td><p>store name</p>

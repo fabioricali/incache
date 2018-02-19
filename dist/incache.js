@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 7.0.0  
+// [AIV]  InCache Build version: 7.0.1  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1961,7 +1961,7 @@ var InCache = function () {
      * @param [opts.autoSave=false] {boolean} if true saves cache in disk when the process is terminated.
      * @param [opts.autoSaveMode=terminate] {string} there are 2 modes -> "terminate": saves before the process is terminated (server only). "timer": every n seconds checks for new changes and save on disk.
      * @param [opts.autoSavePeriod=5] {number} period in seconds to check for new changes to save on disk. Works only if `opts.autoSaveMode` is set to 'timer' mode.
-     * @param [opts.filePath=.incache] {string} cache file path or key (browser scenario)
+     * @param [opts.filePath=.incache] {string|*} cache file path or key. If is a falsy value, `load` and `save` will always be solved
      * @param [opts.storeName] {string} store name
      * @param [opts.share=false] {boolean} if true, use global object as storage
      * @param [opts.autoRemovePeriod=0] {number} period in seconds to remove expired records. When set, the records will be removed only on check, when 0 it won't run
@@ -2139,7 +2139,8 @@ var InCache = function () {
             var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
 
             return new Promise(function (resolve, reject) {
-                //if (!helper.isServer()) return reject('operation not allowed');
+                if (!path) return resolve(_this2);
+
                 if (_this2._loading) return reject('loading locked');
 
                 /* istanbul ignore else  */
@@ -2184,7 +2185,8 @@ var InCache = function () {
             var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._opts.filePath;
 
             return new Promise(function (resolve, reject) {
-                //if (!helper.isServer()) return reject('operation not allowed');
+                if (!path) return resolve(_this3);
+
                 if (_this3._saving) return reject('saving locked');
 
                 /* istanbul ignore else  */
@@ -2329,7 +2331,7 @@ var InCache = function () {
 
         /**
          * Set/update record
-         * @param key {*}
+         * @param key {string}
          * @param value {*}
          * @param [opts] {Object} options object
          * @param [opts.silent=false] {boolean} if true no event will be triggered. (overwrites global configuration)
@@ -2424,7 +2426,7 @@ var InCache = function () {
 
         /**
          * Get record by key
-         * @param key {*}
+         * @param key {string}
          * @param [onlyValue=true] {boolean} if false get InCache record
          * @returns {InCache~record|*|null|undefined}
          * @example
@@ -2451,7 +2453,7 @@ var InCache = function () {
 
         /**
          * Delete a record
-         * @param key {*}
+         * @param key {string}
          * @param [silent=false] {boolean} if true no event will be triggered
          * @fires InCache#beforeRemove
          * @fires InCache#remove
@@ -2477,7 +2479,7 @@ var InCache = function () {
 
         /**
          * Given a key that has value like an array removes key(s) if `where` is satisfied
-         * @param key {*}
+         * @param key {string}
          * @param where {*}
          * @example
          * inCache.set('myArray', ['hello', 'world']);
@@ -2546,7 +2548,7 @@ var InCache = function () {
 
         /**
          * Given a key that has value like an array adds value to end of array
-         * @param key {*}
+         * @param key {string}
          * @param value {*}
          * @returns {InCache~record|undefined}
          * @example
@@ -2574,7 +2576,7 @@ var InCache = function () {
 
         /**
          * Given a key that has value like an array adds value to beginning of array
-         * @param key {*}
+         * @param key {string}
          * @param value {*}
          * @returns {InCache~record|undefined}
          * @example
@@ -2603,7 +2605,7 @@ var InCache = function () {
 
         /**
          * Given a key that has value like an array updates key(s) if `where` is satisfied
-         * @param key {*}
+         * @param key {string}
          * @param value {*}
          * @param where {*}
          * @example
@@ -2794,7 +2796,7 @@ var InCache = function () {
 
         /**
          * Check if record is expired
-         * @param key {*}
+         * @param key {string}
          * @returns {boolean}
          */
 
@@ -2827,7 +2829,7 @@ var InCache = function () {
 
         /**
          * Check if key exists
-         * @param key {*}
+         * @param key {string}
          * @returns {boolean}
          * @example
          * inCache.has('my key');
@@ -3399,7 +3401,7 @@ helper.defaults = function (opts, defaultOpts) {
         if (defaultOpts.hasOwnProperty(i)) if (!opts.hasOwnProperty(i)) {
             opts[i] = defaultOpts[i];
         } else {
-            if (_typeof(opts[i]) === 'object') {
+            if (_typeof(opts[i]) === 'object' && opts[i] !== null) {
                 helper.defaults(opts[i], defaultOpts[i]);
             }
         }
