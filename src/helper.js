@@ -23,7 +23,7 @@ helper.defaults = (opts, defaultOpts) => {
             if (!opts.hasOwnProperty(i)) {
                 opts[i] = defaultOpts[i];
             } else {
-                if (typeof opts[i] === 'object') {
+                if (typeof opts[i] === 'object' && opts[i] !== null) {
                     helper.defaults(opts[i], defaultOpts[i]);
                 }
             }

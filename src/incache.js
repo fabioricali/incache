@@ -228,7 +228,8 @@ class InCache {
     load(path = this._opts.filePath) {
         return new Promise(
             (resolve, reject) => {
-                //if (!helper.isServer()) return reject('operation not allowed');
+                if (!path) return resolve(this);
+
                 if (this._loading) return reject('loading locked');
 
                 /* istanbul ignore else  */
@@ -269,7 +270,8 @@ class InCache {
     save(path = this._opts.filePath) {
         return new Promise(
             (resolve, reject) => {
-                //if (!helper.isServer()) return reject('operation not allowed');
+                if (!path) return resolve(this);
+
                 if (this._saving) return reject('saving locked');
 
                 /* istanbul ignore else  */
