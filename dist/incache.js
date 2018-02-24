@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 7.0.1  
+// [AIV]  InCache Build version: 7.0.3  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2097,9 +2097,10 @@ var InCache = function () {
     _createClass(InCache, [{
         key: '_checkExceeded',
         value: function _checkExceeded() {
+            if (!this._opts.maxRecordNumber) return;
             var keys = Object.keys(this._memory.data);
             /* istanbul ignore else  */
-            if (this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
+            if (keys.length > this._opts.maxRecordNumber) {
                 var diff = keys.length - this._opts.maxRecordNumber;
                 this._emitter.fire('exceed', diff);
                 this.bulkRemove(keys.slice(0, diff), true);
