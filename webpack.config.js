@@ -12,7 +12,7 @@ const banner = `
 `;
 
 module.exports = {
-    entry: './save.js',
+    entry: './index.js',
     output: {
         filename: './dist/incache.min.js',
         library: 'incache',
