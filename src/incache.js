@@ -187,9 +187,10 @@ class InCache {
     }
 
     _checkExceeded() {
+        if (!this._opts.maxRecordNumber) return;
         let keys = Object.keys(this._memory.data);
         /* istanbul ignore else  */
-        if (this._opts.maxRecordNumber > 0 && keys.length > this._opts.maxRecordNumber) {
+        if (keys.length > this._opts.maxRecordNumber) {
             let diff = keys.length - this._opts.maxRecordNumber;
             this._emitter.fire('exceed', diff);
             this.bulkRemove(keys.slice(0, diff), true);

@@ -46,6 +46,7 @@
         "bejs": "^1.12.2",
         "browser-env": "^3.2.0",
         "coveralls": "^2.13.1",
+        "execution-time": "^1.2.0",
         "istanbul": "^0.4.5",
         "jsdoc-to-markdown": "^3.0.0",
         "koa": "^2.3.0",
