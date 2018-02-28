@@ -5,7 +5,12 @@
     <title>Title</title>
     <script src="../dist/incache.js"></script>
     <script>
-        console.log(incache);
+        const InCache = window.incache;
+        const store = new InCache();
+        store.set('hello', 'world');
+        store.save()
+            .then(() => console.log('save'))
+            .catch(e => console.log(e));
     </script>
 </head>
 <body>
