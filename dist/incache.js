@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 7.0.3  
+// [AIV]  InCache Build version: 7.0.4  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
