@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.4] - 2018-02-28
+- **Improved** `save` method, now create the full path if not exists
+
 ## [7.0.3] - 2018-02-24
 - **Improved** performance for `set` method
 
