@@ -33,17 +33,4 @@ describe('cache-save-param', function () {
 
     });
 
-    it('should return error', (done) => {
-
-        const cache = new InCache({
-            autoSave: false
-        });
-
-        cache.save('z:/t.t').then(()=>{
-            done('error');
-        }).catch(e=>{
-            done();
-        });
-
-    });
 });

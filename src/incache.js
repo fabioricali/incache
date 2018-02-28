@@ -1,6 +1,7 @@
 const helper = require('./helper');
 const Flak = require('flak');
 const fs = require('fs');
+const fsPath = require('fs-path');
 const uuid = require('uuid/v1');
 const clone = require('clone');
 const sizeOf = require('object-sizeof');
@@ -286,7 +287,7 @@ class InCache {
 
                 try {
                     if (helper.isServer())
-                        fs.writeFileSync(path, dataString);
+                        fsPath.writeFileSync(path, dataString);
                     else
                         window.localStorage.setItem(path, dataString);
 
