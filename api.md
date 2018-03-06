@@ -35,7 +35,7 @@
         * [.bulkSet(records, [silent])](#InCache+bulkSet) ⇒ <code>Object</code> \| <code>undefined</code>
         * [.bulkRemove(keys, [silent])](#InCache+bulkRemove)
         * [.clean(key)](#InCache+clean)
-        * [.all()](#InCache+all) ⇒ <code>Array</code>
+        * [.all(asObject)](#InCache+all) ⇒ <code>\*</code>
         * [.count()](#InCache+count) ⇒ <code>Number</code>
         * [.expired(key)](#InCache+expired) ⇒ <code>boolean</code>
         * [.clear()](#InCache+clear)
@@ -515,10 +515,22 @@ inCache.set('/api/users/foo', 'Mario Rossi');inCache.set('/api/users/bar', 'Ant
 ```
 <a name="InCache+all"></a>
 
-### inCache.all() ⇒ <code>Array</code>
+### inCache.all(asObject) ⇒ <code>\*</code>
 Fetch all records
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>asObject</td><td><code>false</code></td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache+count"></a>
 
 ### inCache.count() ⇒ <code>Number</code>
