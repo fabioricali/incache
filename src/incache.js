@@ -348,51 +348,51 @@ class InCache {
 
         /* istanbul ignore else  */
         //if (helper.isServer()) {
-            if (opts.autoLoad)
-                this.load().then().catch((e) => {
-                });
+        if (opts.autoLoad)
+            this.load().then().catch((e) => {
+            });
+
+        /* istanbul ignore else  */
+        if (opts.autoSave || opts.save) {
 
             /* istanbul ignore else  */
-            if (opts.autoSave || opts.save) {
+            if (opts.autoSaveMode === SAVE_MODE.TERMINATE && helper.isServer()) {
+                let self = this;
 
-                /* istanbul ignore else  */
-                if (opts.autoSaveMode === SAVE_MODE.TERMINATE && helper.isServer()) {
-                    let self = this;
-
-                    // Wrap function
-                    function pWrite() {
-                        self.save().then().catch((e) => {
-                        });
-                    }
-
-                    // Remove if event already exists
-                    process.removeListener('exit', pWrite);
-                    process.removeListener('SIGINT', pWrite);
-
-                    //process.stdin.resume();
-                    process.on('exit', pWrite);
-                    process.on('SIGINT', pWrite);
-
-                } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
-                    /* istanbul ignore else  */
-                    if (this._timerSaveCheck) {
-                        clearInterval(this._timerSaveCheck);
-                        this._timerSaveCheck = null;
-                    }
-
-                    /* istanbul ignore else  */
-                    if (opts.autoSavePeriod) {
-                        this._timerSaveCheck = setInterval(() => {
-                            if (this._lastChange !== this._lastChangeDetected) {
-                                this._lastChangeDetected = this._lastChange;
-                                this.save().then().catch(e => {
-                                });
-                            }
-                        }, opts.autoSavePeriod * 1000);
-                    }
+                // Wrap function
+                function pWrite() {
+                    self.save().then().catch((e) => {
+                    });
                 }
 
+                // Remove if event already exists
+                process.removeListener('exit', pWrite);
+                process.removeListener('SIGINT', pWrite);
+
+                //process.stdin.resume();
+                process.on('exit', pWrite);
+                process.on('SIGINT', pWrite);
+
+            } else if (opts.autoSaveMode === SAVE_MODE.TIMER) {
+                /* istanbul ignore else  */
+                if (this._timerSaveCheck) {
+                    clearInterval(this._timerSaveCheck);
+                    this._timerSaveCheck = null;
+                }
+
+                /* istanbul ignore else  */
+                if (opts.autoSavePeriod) {
+                    this._timerSaveCheck = setInterval(() => {
+                        if (this._lastChange !== this._lastChangeDetected) {
+                            this._lastChangeDetected = this._lastChange;
+                            this.save().then().catch(e => {
+                            });
+                        }
+                    }, opts.autoSavePeriod * 1000);
+                }
             }
+
+        }
         //}
 
         /* istanbul ignore else  */
@@ -830,20 +830,25 @@ class InCache {
 
     /**
      * Fetch all records
-     * @returns {Array}
+     * @param asObject
+     * @returns {*}
      */
-    all() {
-        let records = [];
+    all(asObject = false) {
+        let records = asObject ? {} : [];
 
         for (let key in this._memory.data) {
             if (this._memory.data.hasOwnProperty(key)) {
                 if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
                     this.remove(key, true);
                 } else {
-                    records.push({
-                        key: key,
-                        value: this._memory.data[key].value
-                    });
+                    if (Array.isArray(records)) {
+                        records.push({
+                            key: key,
+                            value: this._memory.data[key].value
+                        });
+                    } else {
+                        records[key] = this._memory.data[key].value;
+                    }
                 }
             }
         }

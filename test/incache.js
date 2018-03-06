@@ -137,10 +137,22 @@ describe('cache', function () {
             cache.set('myKey3', 'myValue3');
             cache.set('myKey4', 'myValue4');
             cache.set('myKey5', 'myValue5');
-            result = cache.all();
+            let result = cache.all();
             console.log(result);
             be.err.array(result);
             be.err.equal(result.length, 5);
+        });
+        it('should be return an object of 5 items', ()=>{
+            cache.clear();
+            cache.set('myKey1', 'myValue1');
+            cache.set('myKey2', 'myValue2');
+            cache.set('myKey3', 'myValue3');
+            cache.set('myKey4', 'myValue4');
+            cache.set('myKey5', 'myValue5');
+            let result = cache.all(true);
+            console.log(result);
+            be.err.object(result);
+            be.err.equal(Object.keys(result).length, 5);
         });
         it('with expired, should be return an array of 4 items', (done)=>{
             cache.clear();
