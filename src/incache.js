@@ -54,7 +54,7 @@ const {SAVE_MODE, RECORD} = require('./defined');
 /**
  * @class
  */
-class InCache {
+class InCache extends Flak {
 
     /**
      * Create instance
@@ -87,6 +87,8 @@ class InCache {
      */
     constructor(opts = {}) {
 
+        super();
+
         Object.defineProperties(this, {
             _root: {
                 writable: true,
@@ -99,9 +101,6 @@ class InCache {
             _memory: {
                 writable: true,
                 enumerable: false
-            },
-            _emitter: {
-                value: new Flak()
             },
             _opts: {
                 writable: true,
@@ -194,7 +193,7 @@ class InCache {
         this.on('_change', (by) => {
             this._lastChange = (new Date()).getTime();
             if (!this._opts.silent)
-                this._emitter.fire('change', by);
+                this.fire('change', by);
         });
 
         this.setConfig(opts);
@@ -208,7 +207,7 @@ class InCache {
         /* istanbul ignore else  */
         if (keys.length > this._opts.maxRecordNumber) {
             let diff = keys.length - this._opts.maxRecordNumber;
-            this._emitter.fire('exceed', diff);
+            this.fire('exceed', diff);
             this.bulkRemove(keys.slice(0, diff), true);
         }
     }
@@ -250,7 +249,7 @@ class InCache {
                 if (this._loading) return reject('loading locked');
 
                 /* istanbul ignore else  */
-                if (this._emitter.fireTheFirst('beforeLoad', this) === false) {
+                if (this.fireTheFirst('beforeLoad', this) === false) {
                     return reject();
                 }
 
@@ -265,12 +264,12 @@ class InCache {
                     this._importData(JSON.parse(content.toString()));
                     this._loading = false;
                     resolve(this);
-                    this._emitter.fireAsync('load', null, this);
+                    this.fireAsync('load', null, this);
                 } catch (err) {
                     err = err.message;
                     this._loading = false;
                     reject(err);
-                    this._emitter.fireAsync('load', err, this);
+                    this.fireAsync('load', err, this);
                 }
             }
         )
@@ -292,7 +291,7 @@ class InCache {
                 if (this._saving) return reject('saving locked');
 
                 /* istanbul ignore else  */
-                if (this._emitter.fireTheFirst('beforeSave', this) === false) {
+                if (this.fireTheFirst('beforeSave', this) === false) {
                     return reject();
                 }
 
@@ -309,12 +308,12 @@ class InCache {
                     this._lastSave = (new Date()).getTime();
                     this._saving = false;
                     resolve(this);
-                    this._emitter.fireAsync('save', null, this);
+                    this.fireAsync('save', null, this);
                 } catch (err) {
                     err = err.message;
                     this._saving = false;
                     reject(err);
-                    this._emitter.fireAsync('save', err, this);
+                    this.fireAsync('save', err, this);
                 }
             }
         )
@@ -421,7 +420,7 @@ class InCache {
             this._timerExpiryCheck = setInterval(() => {
                 let expired = this.removeExpired();
                 if (expired.length) {
-                    this._emitter.fire('expired', expired);
+                    this.fire('expired', expired);
                 }
             }, opts.autoRemovePeriod * 1000);
         }
@@ -460,7 +459,7 @@ class InCache {
     set(key, value, opts = {}) {
 
         /* istanbul ignore else  */
-        if (!opts.silent && this._emitter.fireTheFirst('beforeSet', key, value) === false) {
+        if (!opts.silent && this.fireTheFirst('beforeSet', key, value) === false) {
             return;
         }
 
@@ -501,26 +500,26 @@ class InCache {
             record.updatedOn = new Date();
             if (!opts.silent) {
                 this._onUpdated.call(this, key, record);
-                this._emitter.fire('update', key, record);
+                this.fire('update', key, record);
             }
         } else {
             record.id = uuid();
             record.createdOn = new Date();
             if (!opts.silent) {
                 this._onCreated.call(this, key, record);
-                this._emitter.fire('create', key, record);
+                this.fire('create', key, record);
             }
         }
 
         this._memory.data[key] = record;
 
         if (!opts.silent) {
-            this._emitter.fire('set', key, record);
+            this.fire('set', key, record);
         }
 
         this._checkExceeded();
 
-        this._emitter.fire('_change', 'set');
+        this.fire('_change', 'set');
 
         return record;
     }
@@ -589,15 +588,15 @@ class InCache {
      * inCache.remove('my key');
      */
     remove(key, silent = false) {
-        if (!silent && this._emitter.fireTheFirst('beforeRemove', key) === false) {
+        if (!silent && this.fireTheFirst('beforeRemove', key) === false) {
             return;
         }
         delete this._memory.data[key];
         if (!silent) {
             this._onRemoved.call(this, key);
-            this._emitter.fire('remove', key);
+            this.fire('remove', key);
         }
-        this._emitter.fire('_change', 'remove');
+        this.fire('_change', 'remove');
     }
 
     /**
@@ -801,7 +800,7 @@ class InCache {
         if (!helper.is(records, 'array') && !helper.is(records, 'object'))
             throw new Error('records must be an array, e.g. {key: foo, value: bar}');
 
-        if (!silent && this._emitter.fireTheFirst('beforeBulkSet', records) === false) {
+        if (!silent && this.fireTheFirst('beforeBulkSet', records) === false) {
             return;
         }
 
@@ -823,7 +822,7 @@ class InCache {
         }
 
         if (!silent) {
-            this._emitter.fire('bulkSet', records);
+            this.fire('bulkSet', records);
         }
 
         return result;
@@ -842,7 +841,7 @@ class InCache {
         if (!helper.is(keys, 'array'))
             throw new Error('keys must be an array of keys');
 
-        if (!silent && this._emitter.fireTheFirst('beforeBulkRemove', keys) === false) {
+        if (!silent && this.fireTheFirst('beforeBulkRemove', keys) === false) {
             return;
         }
 
@@ -851,7 +850,7 @@ class InCache {
         }
 
         if (!silent) {
-            this._emitter.fire('bulkRemove', keys);
+            this.fire('bulkRemove', keys);
         }
     }
 
@@ -870,7 +869,7 @@ class InCache {
         for (let k in this._memory.data) {
             if (this._memory.data.hasOwnProperty(k) && k.indexOf(key) !== -1) {
                 delete this._memory.data[k];
-                this._emitter.fire('_change', 'clean');
+                this.fire('_change', 'clean');
             }
         }
     }
@@ -937,7 +936,7 @@ class InCache {
          * @ignore
          */
         this._memory.data = {};
-        this._emitter.fire('_change', 'clear');
+        this.fire('_change', 'clear');
     }
 
     /**
@@ -979,10 +978,6 @@ class InCache {
      * @param callback {Function} callback
      * @returns {InCache}
      */
-    on(eventName, callback) {
-        this._emitter.on.call(this._emitter, eventName, callback);
-        return this;
-    }
 
     /**
      * Suspends firing of the named event(s).
@@ -990,10 +985,6 @@ class InCache {
      * @returns {InCache}
      * @since 6.6.0
      */
-    suspendEvent(...eventName) {
-        this._emitter.suspendEvent.call(this._emitter, eventName);
-        return this;
-    }
 
     /**
      * Resumes firing of the named event(s).
@@ -1001,30 +992,18 @@ class InCache {
      * @returns {InCache}
      * @since 6.6.0
      */
-    resumeEvent(...eventName) {
-        this._emitter.resumeEvent.call(this._emitter, eventName);
-        return this;
-    }
 
     /**
      * Suspends all events.
      * @returns {InCache}
      * @since 6.6.0
      */
-    suspendEvents() {
-        this._emitter.suspendEvents.call(this._emitter);
-        return this;
-    }
 
     /**
      * Resume all events.
      * @returns {InCache}
      * @since 6.6.0
      */
-    resumeEvents() {
-        this._emitter.resumeEvents.call(this._emitter);
-        return this;
-    }
 
     /**
      * Check if key can be auto removed
