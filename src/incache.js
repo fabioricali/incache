@@ -552,6 +552,7 @@ class InCache extends Flak {
      * @returns {InCache~recordInfo|*|undefined}
      * @example
      * inCache.info('my key');
+     * @since 7.1.0
      */
     info(key) {
         if (this.has(key)) {
