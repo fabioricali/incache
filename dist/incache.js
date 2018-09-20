@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 7.0.6  
+// [AIV]  InCache Build version: 7.1.0  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2916,19 +2916,10 @@ var InCache = function (_Flak) {
                     return undefined;
                 }
 
-                var record = this._memory.data[key];
+                var record = Object.assign({}, this._memory.data[key]);
+                delete record.value;
 
-                return {
-                    isNew: record.isNew,
-                    hits: record.hits,
-                    lastHit: record.lastHit,
-                    id: record.id,
-                    isPreserved: record.isPreserved,
-                    toDelete: record.toDelete,
-                    createdOn: record.createdOn,
-                    updatedOn: record.updatedOn,
-                    expiresOn: record.expiresOn
-                };
+                return record;
             } else {
                 return undefined;
             }

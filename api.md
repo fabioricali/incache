@@ -26,6 +26,7 @@
         * [.getConfig()](#InCache+getConfig) ⇒ <code>\*</code>
         * [.set(key, value, [opts])](#InCache+set) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code>
         * [.get(key, [onlyValue])](#InCache+get) ⇒ [<code>record</code>](#InCache..record) \| <code>\*</code> \| <code>null</code> \| <code>undefined</code>
+        * [.info(key)](#InCache+info) ⇒ [<code>recordInfo</code>](#InCache..recordInfo) \| <code>\*</code> \| <code>undefined</code>
         * [.remove(key, [silent])](#InCache+remove)
         * [.removeFrom(key, where)](#InCache+removeFrom)
         * [.removeExpired()](#InCache+removeExpired) ⇒ <code>Array</code>
@@ -42,11 +43,7 @@
         * [.has(key)](#InCache+has) ⇒ <code>boolean</code>
         * [.destroy(...args)](#InCache+destroy)
         * [.stats()](#InCache+stats) ⇒ <code>Object</code>
-        * [.on(eventName, callback)](#InCache+on) ⇒ [<code>InCache</code>](#InCache)
-        * [.suspendEvent(...eventName)](#InCache+suspendEvent) ⇒ [<code>InCache</code>](#InCache)
-        * [.resumeEvent(...eventName)](#InCache+resumeEvent) ⇒ [<code>InCache</code>](#InCache)
-        * [.suspendEvents()](#InCache+suspendEvents) ⇒ [<code>InCache</code>](#InCache)
-        * [.resumeEvents()](#InCache+resumeEvents) ⇒ [<code>InCache</code>](#InCache)
+        * [.canBeAutoRemove(key)](#InCache+canBeAutoRemove) ⇒ <code>boolean</code> \| <code>\*</code>
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
         * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
@@ -71,6 +68,7 @@
         * [.isRecord(obj)](#InCache.isRecord) ⇒ <code>boolean</code>
     * _inner_
         * [~record](#InCache..record) : <code>Object</code>
+        * [~recordInfo](#InCache..recordInfo) : <code>Object</code>
         * <del>[~removedCallback](#InCache..removedCallback) : <code>function</code></del>
         * <del>[~createdCallback](#InCache..createdCallback) : <code>function</code></del>
         * <del>[~updatedCallback](#InCache..updatedCallback) : <code>function</code></del>
@@ -295,6 +293,29 @@ Get record by key
 **Example**  
 ```js
 inCache.get('my key');
+```
+<a name="InCache+info"></a>
+
+### inCache.info(key) ⇒ [<code>recordInfo</code>](#InCache..recordInfo) \| <code>\*</code> \| <code>undefined</code>
+Get info record by key
+
+**Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Since**: 7.1.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+inCache.info('my key');
 ```
 <a name="InCache+remove"></a>
 
@@ -610,82 +631,24 @@ Returns stats of storage
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 **Since**: 6.3.0  
-<a name="InCache+on"></a>
+<a name="InCache+canBeAutoRemove"></a>
 
-### inCache.on(eventName, callback) ⇒ [<code>InCache</code>](#InCache)
-Adds listener to instance
+### inCache.canBeAutoRemove(key) ⇒ <code>boolean</code> \| <code>\*</code>
+Check if key can be auto removed
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
 <table>
   <thead>
     <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
+      <th>Param</th>
     </tr>
   </thead>
   <tbody>
 <tr>
-    <td>eventName</td><td><code>string</code></td><td><p>event name</p>
-</td>
-    </tr><tr>
-    <td>callback</td><td><code>function</code></td><td><p>callback</p>
-</td>
+    <td>key</td>
     </tr>  </tbody>
 </table>
 
-<a name="InCache+suspendEvent"></a>
-
-### inCache.suspendEvent(...eventName) ⇒ [<code>InCache</code>](#InCache)
-Suspends firing of the named event(s).
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Since**: 6.6.0  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>...eventName</td><td><code>string</code></td><td><p>multiple event names to suspend</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-<a name="InCache+resumeEvent"></a>
-
-### inCache.resumeEvent(...eventName) ⇒ [<code>InCache</code>](#InCache)
-Resumes firing of the named event(s).
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Since**: 6.6.0  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>...eventName</td><td><code>string</code></td><td><p>multiple event names to resume.</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-<a name="InCache+suspendEvents"></a>
-
-### inCache.suspendEvents() ⇒ [<code>InCache</code>](#InCache)
-Suspends all events.
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Since**: 6.6.0  
-<a name="InCache+resumeEvents"></a>
-
-### inCache.resumeEvents() ⇒ [<code>InCache</code>](#InCache)
-Resume all events.
-
-**Kind**: instance method of [<code>InCache</code>](#InCache)  
-**Since**: 6.6.0  
 <a name="InCache+onRemoved"></a>
 
 ### <del>inCache.onRemoved(callback)</del>
@@ -1178,6 +1141,51 @@ InCache record
 </td>
     </tr><tr>
     <td>value</td><td><code>*</code></td><td><p>record value</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a name="InCache..recordInfo"></a>
+
+### InCache~recordInfo : <code>Object</code>
+InCache recordInfo
+
+**Kind**: inner typedef of [<code>InCache</code>](#InCache)  
+**Properties**
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>id</td><td><code>string</code></td><td><p>uuid</p>
+</td>
+    </tr><tr>
+    <td>isNew</td><td><code>boolean</code></td><td><p>indicates if is a new record</p>
+</td>
+    </tr><tr>
+    <td>isPreserved</td><td><code>boolean</code></td><td><p>indicates if record will no longer be editable once created</p>
+</td>
+    </tr><tr>
+    <td>toDelete</td><td><code>boolean</code></td><td><p>indicates if record will be deleted after expiry</p>
+</td>
+    </tr><tr>
+    <td>hits</td><td><code>number</code></td><td><p>how many times it has been used</p>
+</td>
+    </tr><tr>
+    <td>lastHit</td><td><code>Date</code> | <code>null</code></td><td><p>last usage</p>
+</td>
+    </tr><tr>
+    <td>createdOn</td><td><code>Date</code> | <code>null</code></td><td><p>creation date</p>
+</td>
+    </tr><tr>
+    <td>updatedOn</td><td><code>Date</code> | <code>null</code></td><td><p>update date</p>
+</td>
+    </tr><tr>
+    <td>expiresOn</td><td><code>Date</code> | <code>null</code></td><td><p>expiry date</p>
 </td>
     </tr>  </tbody>
 </table>
