@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.1.0] - 2018-09-20
+- **Added** method `info`, now it's possible retrieve only record info without increase `hits`
+
 ## [7.0.6] - 2018-09-19
 - **Removed** vulnerable library
 

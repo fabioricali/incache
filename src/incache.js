@@ -36,6 +36,21 @@ const {SAVE_MODE, RECORD} = require('./defined');
  * @property {*} value - record value
  */
 
+
+/**
+ * InCache recordInfo
+ * @typedef {Object} InCache~recordInfo
+ * @property {string} id - uuid
+ * @property {boolean} isNew - indicates if is a new record
+ * @property {boolean} isPreserved - indicates if record will no longer be editable once created
+ * @property {boolean} toDelete - indicates if record will be deleted after expiry
+ * @property {number} hits - how many times it has been used
+ * @property {Date|null} lastHit - last usage
+ * @property {Date|null} createdOn - creation date
+ * @property {Date|null} updatedOn - update date
+ * @property {Date|null} expiresOn - expiry date
+ */
+
 /**
  * @class
  */
@@ -520,7 +535,7 @@ class InCache {
      */
     get(key, onlyValue = true) {
         if (this.has(key)) {
-            if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
+            if (this.canBeAutoRemove(key)) {
                 this.remove(key, true);
                 return (this._opts.nullIfNotFound ? null : undefined);
             }
@@ -529,6 +544,38 @@ class InCache {
             return onlyValue ? this._memory.data[key].value : this._memory.data[key];
         } else {
             return (this._opts.nullIfNotFound ? null : undefined);
+        }
+    }
+
+    /**
+     * Get info record by key
+     * @param key {string}
+     * @returns {InCache~recordInfo|*|undefined}
+     * @example
+     * inCache.info('my key');
+     */
+    info(key) {
+        if (this.has(key)) {
+            if (this.canBeAutoRemove(key)) {
+                this.remove(key, true);
+                return undefined;
+            }
+
+            const record = this._memory.data[key];
+
+            return {
+                isNew: record.isNew,
+                hits: record.hits,
+                lastHit: record.lastHit,
+                id: record.id,
+                isPreserved: record.isPreserved,
+                toDelete: record.toDelete,
+                createdOn: record.createdOn,
+                updatedOn: record.updatedOn,
+                expiresOn: record.expiresOn
+            };
+        } else {
+            return undefined;
         }
     }
 
@@ -838,7 +885,7 @@ class InCache {
 
         for (let key in this._memory.data) {
             if (this._memory.data.hasOwnProperty(key)) {
-                if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
+                if (this.canBeAutoRemove(key)) {
                     this.remove(key, true);
                 } else {
                     if (Array.isArray(records)) {
@@ -977,6 +1024,15 @@ class InCache {
     resumeEvents() {
         this._emitter.resumeEvents.call(this._emitter);
         return this;
+    }
+
+    /**
+     * Check if key can be auto removed
+     * @param key
+     * @returns {boolean|*}
+     */
+    canBeAutoRemove(key) {
+        return !this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete
     }
 
     /**
