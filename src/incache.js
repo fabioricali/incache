@@ -540,6 +540,9 @@ class InCache extends Flak {
             }
             this._memory.data[key].hits += 1;
             this._memory.data[key].lastHit = new Date();
+
+            this.fire('get', key, this._memory.data[key]);
+
             return onlyValue ? this._memory.data[key].value : this._memory.data[key];
         } else {
             return (this._opts.nullIfNotFound ? null : undefined);
@@ -965,6 +968,15 @@ class InCache extends Flak {
     }
 
     /**
+     * Check if key can be auto removed
+     * @param key
+     * @returns {boolean|*}
+     */
+    canBeAutoRemove(key) {
+        return !this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete
+    }
+
+    /**
      * Adds listener to instance
      * @param eventName {string} event name
      * @param callback {Function} callback
@@ -998,13 +1010,12 @@ class InCache extends Flak {
      */
 
     /**
-     * Check if key can be auto removed
-     * @param key
-     * @returns {boolean|*}
+     * Triggered after get
+     * @event InCache#get
+     * @param key {string} key
+     * @param record {InCache~record} record object
+     * @since 7.1.1
      */
-    canBeAutoRemove(key) {
-        return !this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete
-    }
 
     /**
      * Triggered before set
