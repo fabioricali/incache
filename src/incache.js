@@ -561,19 +561,10 @@ class InCache extends Flak {
                 return undefined;
             }
 
-            const record = this._memory.data[key];
+            const record = Object.assign({}, this._memory.data[key]);
+            delete record.value;
 
-            return {
-                isNew: record.isNew,
-                hits: record.hits,
-                lastHit: record.lastHit,
-                id: record.id,
-                isPreserved: record.isPreserved,
-                toDelete: record.toDelete,
-                createdOn: record.createdOn,
-                updatedOn: record.updatedOn,
-                expiresOn: record.expiresOn
-            };
+            return record;
         } else {
             return undefined;
         }

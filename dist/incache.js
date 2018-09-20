@@ -2328,6 +2328,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var helper = __webpack_require__(8);
 var Flak = __webpack_require__(9);
 var fs = __webpack_require__(2);
@@ -2370,11 +2374,26 @@ var _require = __webpack_require__(21),
  */
 
 /**
+ * InCache recordInfo
+ * @typedef {Object} InCache~recordInfo
+ * @property {string} id - uuid
+ * @property {boolean} isNew - indicates if is a new record
+ * @property {boolean} isPreserved - indicates if record will no longer be editable once created
+ * @property {boolean} toDelete - indicates if record will be deleted after expiry
+ * @property {number} hits - how many times it has been used
+ * @property {Date|null} lastHit - last usage
+ * @property {Date|null} createdOn - creation date
+ * @property {Date|null} updatedOn - update date
+ * @property {Date|null} expiresOn - expiry date
+ */
+
+/**
  * @class
  */
 
 
-var InCache = function () {
+var InCache = function (_Flak) {
+    _inherits(InCache, _Flak);
 
     /**
      * Create instance
@@ -2406,13 +2425,13 @@ var InCache = function () {
      * @returns {InCache}
      */
     function InCache() {
-        var _this = this;
-
         var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
         _classCallCheck(this, InCache);
 
-        Object.defineProperties(this, {
+        var _this = _possibleConstructorReturn(this, (InCache.__proto__ || Object.getPrototypeOf(InCache)).call(this));
+
+        Object.defineProperties(_this, {
             _root: {
                 writable: true,
                 enumerable: false
@@ -2424,9 +2443,6 @@ var InCache = function () {
             _memory: {
                 writable: true,
                 enumerable: false
-            },
-            _emitter: {
-                value: new Flak()
             },
             _opts: {
                 writable: true,
@@ -2478,13 +2494,13 @@ var InCache = function () {
          * @type {string}
          * @ignore
          */
-        this.GLOBAL_KEY = '___InCache___storage___global___key___';
+        _this.GLOBAL_KEY = '___InCache___storage___global___key___';
 
         /**
          * InCache default configuration
          * @ignore
          */
-        this.DEFAULT_CONFIG = {
+        _this.DEFAULT_CONFIG = {
             storeName: '',
             autoLoad: true,
             autoSave: false,
@@ -2509,18 +2525,19 @@ var InCache = function () {
         };
 
         // Defines callback private
-        this._onRemoved = function () {};
-        this._onCreated = function () {};
-        this._onUpdated = function () {};
+        _this._onRemoved = function () {};
+        _this._onCreated = function () {};
+        _this._onUpdated = function () {};
 
-        this.on('_change', function (by) {
+        _this.on('_change', function (by) {
             _this._lastChange = new Date().getTime();
-            if (!_this._opts.silent) _this._emitter.fire('change', by);
+            if (!_this._opts.silent) _this.fire('change', by);
         });
 
-        this.setConfig(opts);
+        _this.setConfig(opts);
 
         //return this;
+        return _this;
     }
 
     _createClass(InCache, [{
@@ -2531,7 +2548,7 @@ var InCache = function () {
             /* istanbul ignore else  */
             if (keys.length > this._opts.maxRecordNumber) {
                 var diff = keys.length - this._opts.maxRecordNumber;
-                this._emitter.fire('exceed', diff);
+                this.fire('exceed', diff);
                 this.bulkRemove(keys.slice(0, diff), true);
             }
         }
@@ -2574,7 +2591,7 @@ var InCache = function () {
                 if (_this2._loading) return reject('loading locked');
 
                 /* istanbul ignore else  */
-                if (_this2._emitter.fireTheFirst('beforeLoad', _this2) === false) {
+                if (_this2.fireTheFirst('beforeLoad', _this2) === false) {
                     return reject();
                 }
 
@@ -2588,12 +2605,12 @@ var InCache = function () {
                     _this2._importData(JSON.parse(content.toString()));
                     _this2._loading = false;
                     resolve(_this2);
-                    _this2._emitter.fireAsync('load', null, _this2);
+                    _this2.fireAsync('load', null, _this2);
                 } catch (err) {
                     err = err.message;
                     _this2._loading = false;
                     reject(err);
-                    _this2._emitter.fireAsync('load', err, _this2);
+                    _this2.fireAsync('load', err, _this2);
                 }
             });
         }
@@ -2620,7 +2637,7 @@ var InCache = function () {
                 if (_this3._saving) return reject('saving locked');
 
                 /* istanbul ignore else  */
-                if (_this3._emitter.fireTheFirst('beforeSave', _this3) === false) {
+                if (_this3.fireTheFirst('beforeSave', _this3) === false) {
                     return reject();
                 }
 
@@ -2634,12 +2651,12 @@ var InCache = function () {
                     _this3._lastSave = new Date().getTime();
                     _this3._saving = false;
                     resolve(_this3);
-                    _this3._emitter.fireAsync('save', null, _this3);
+                    _this3.fireAsync('save', null, _this3);
                 } catch (err) {
                     err = err.message;
                     _this3._saving = false;
                     reject(err);
-                    _this3._emitter.fireAsync('save', err, _this3);
+                    _this3.fireAsync('save', err, _this3);
                 }
             });
         }
@@ -2742,7 +2759,7 @@ var InCache = function () {
                 this._timerExpiryCheck = setInterval(function () {
                     var expired = _this4.removeExpired();
                     if (expired.length) {
-                        _this4._emitter.fire('expired', expired);
+                        _this4.fire('expired', expired);
                     }
                 }, opts.autoRemovePeriod * 1000);
             }
@@ -2789,7 +2806,7 @@ var InCache = function () {
 
 
             /* istanbul ignore else  */
-            if (!opts.silent && this._emitter.fireTheFirst('beforeSet', key, value) === false) {
+            if (!opts.silent && this.fireTheFirst('beforeSet', key, value) === false) {
                 return;
             }
 
@@ -2830,26 +2847,26 @@ var InCache = function () {
                 record.updatedOn = new Date();
                 if (!opts.silent) {
                     this._onUpdated.call(this, key, record);
-                    this._emitter.fire('update', key, record);
+                    this.fire('update', key, record);
                 }
             } else {
                 record.id = uuid();
                 record.createdOn = new Date();
                 if (!opts.silent) {
                     this._onCreated.call(this, key, record);
-                    this._emitter.fire('create', key, record);
+                    this.fire('create', key, record);
                 }
             }
 
             this._memory.data[key] = record;
 
             if (!opts.silent) {
-                this._emitter.fire('set', key, record);
+                this.fire('set', key, record);
             }
 
             this._checkExceeded();
 
-            this._emitter.fire('_change', 'set');
+            this.fire('_change', 'set');
 
             return record;
         }
@@ -2869,7 +2886,7 @@ var InCache = function () {
             var onlyValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
             if (this.has(key)) {
-                if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
+                if (this.canBeAutoRemove(key)) {
                     this.remove(key, true);
                     return this._opts.nullIfNotFound ? null : undefined;
                 }
@@ -2878,6 +2895,42 @@ var InCache = function () {
                 return onlyValue ? this._memory.data[key].value : this._memory.data[key];
             } else {
                 return this._opts.nullIfNotFound ? null : undefined;
+            }
+        }
+
+        /**
+         * Get info record by key
+         * @param key {string}
+         * @returns {InCache~recordInfo|*|undefined}
+         * @example
+         * inCache.info('my key');
+         * @since 7.1.0
+         */
+
+    }, {
+        key: 'info',
+        value: function info(key) {
+            if (this.has(key)) {
+                if (this.canBeAutoRemove(key)) {
+                    this.remove(key, true);
+                    return undefined;
+                }
+
+                var record = this._memory.data[key];
+
+                return {
+                    isNew: record.isNew,
+                    hits: record.hits,
+                    lastHit: record.lastHit,
+                    id: record.id,
+                    isPreserved: record.isPreserved,
+                    toDelete: record.toDelete,
+                    createdOn: record.createdOn,
+                    updatedOn: record.updatedOn,
+                    expiresOn: record.expiresOn
+                };
+            } else {
+                return undefined;
             }
         }
 
@@ -2896,15 +2949,15 @@ var InCache = function () {
         value: function remove(key) {
             var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-            if (!silent && this._emitter.fireTheFirst('beforeRemove', key) === false) {
+            if (!silent && this.fireTheFirst('beforeRemove', key) === false) {
                 return;
             }
             delete this._memory.data[key];
             if (!silent) {
                 this._onRemoved.call(this, key);
-                this._emitter.fire('remove', key);
+                this.fire('remove', key);
             }
-            this._emitter.fire('_change', 'remove');
+            this.fire('_change', 'remove');
         }
 
         /**
@@ -3110,7 +3163,7 @@ var InCache = function () {
 
             if (!helper.is(records, 'array') && !helper.is(records, 'object')) throw new Error('records must be an array, e.g. {key: foo, value: bar}');
 
-            if (!silent && this._emitter.fireTheFirst('beforeBulkSet', records) === false) {
+            if (!silent && this.fireTheFirst('beforeBulkSet', records) === false) {
                 return;
             }
 
@@ -3129,7 +3182,7 @@ var InCache = function () {
             }
 
             if (!silent) {
-                this._emitter.fire('bulkSet', records);
+                this.fire('bulkSet', records);
             }
 
             return result;
@@ -3150,7 +3203,7 @@ var InCache = function () {
         value: function bulkRemove(keys, silent) {
             if (!helper.is(keys, 'array')) throw new Error('keys must be an array of keys');
 
-            if (!silent && this._emitter.fireTheFirst('beforeBulkRemove', keys) === false) {
+            if (!silent && this.fireTheFirst('beforeBulkRemove', keys) === false) {
                 return;
             }
 
@@ -3159,7 +3212,7 @@ var InCache = function () {
             }
 
             if (!silent) {
-                this._emitter.fire('bulkRemove', keys);
+                this.fire('bulkRemove', keys);
             }
         }
 
@@ -3180,7 +3233,7 @@ var InCache = function () {
             for (var k in this._memory.data) {
                 if (this._memory.data.hasOwnProperty(k) && k.indexOf(key) !== -1) {
                     delete this._memory.data[k];
-                    this._emitter.fire('_change', 'clean');
+                    this.fire('_change', 'clean');
                 }
             }
         }
@@ -3200,7 +3253,7 @@ var InCache = function () {
 
             for (var key in this._memory.data) {
                 if (this._memory.data.hasOwnProperty(key)) {
-                    if (!this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete) {
+                    if (this.canBeAutoRemove(key)) {
                         this.remove(key, true);
                     } else {
                         if (Array.isArray(records)) {
@@ -3261,7 +3314,7 @@ var InCache = function () {
              * @ignore
              */
             this._memory.data = {};
-            this._emitter.fire('_change', 'clear');
+            this.fire('_change', 'clear');
         }
 
         /**
@@ -3317,30 +3370,12 @@ var InCache = function () {
          * @returns {InCache}
          */
 
-    }, {
-        key: 'on',
-        value: function on(eventName, callback) {
-            this._emitter.on.call(this._emitter, eventName, callback);
-            return this;
-        }
-
         /**
          * Suspends firing of the named event(s).
          * @param eventName {...string} multiple event names to suspend
          * @returns {InCache}
          * @since 6.6.0
          */
-
-    }, {
-        key: 'suspendEvent',
-        value: function suspendEvent() {
-            for (var _len2 = arguments.length, eventName = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                eventName[_key2] = arguments[_key2];
-            }
-
-            this._emitter.suspendEvent.call(this._emitter, eventName);
-            return this;
-        }
 
         /**
          * Resumes firing of the named event(s).
@@ -3349,29 +3384,11 @@ var InCache = function () {
          * @since 6.6.0
          */
 
-    }, {
-        key: 'resumeEvent',
-        value: function resumeEvent() {
-            for (var _len3 = arguments.length, eventName = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-                eventName[_key3] = arguments[_key3];
-            }
-
-            this._emitter.resumeEvent.call(this._emitter, eventName);
-            return this;
-        }
-
         /**
          * Suspends all events.
          * @returns {InCache}
          * @since 6.6.0
          */
-
-    }, {
-        key: 'suspendEvents',
-        value: function suspendEvents() {
-            this._emitter.suspendEvents.call(this._emitter);
-            return this;
-        }
 
         /**
          * Resume all events.
@@ -3379,11 +3396,16 @@ var InCache = function () {
          * @since 6.6.0
          */
 
+        /**
+         * Check if key can be auto removed
+         * @param key
+         * @returns {boolean|*}
+         */
+
     }, {
-        key: 'resumeEvents',
-        value: function resumeEvents() {
-            this._emitter.resumeEvents.call(this._emitter);
-            return this;
+        key: 'canBeAutoRemove',
+        value: function canBeAutoRemove(key) {
+            return !this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete;
         }
 
         /**
@@ -3601,7 +3623,7 @@ var InCache = function () {
     }]);
 
     return InCache;
-}();
+}(Flak);
 
 /**
  * Expose module

@@ -29,6 +29,7 @@ describe('cache-info', function () {
 
         console.log(record);
         be.err.equal(record.hits, 1);
+        be.err.undefined(record.value);
     });
 
 });
