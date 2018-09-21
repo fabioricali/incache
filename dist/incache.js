@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 7.1.1  
+// [AIV]  InCache Build version: 7.2.0  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2876,6 +2876,8 @@ var InCache = function (_Flak) {
          * @param key {string}
          * @param [onlyValue=true] {boolean} if false get InCache record
          * @returns {InCache~record|*|null|undefined}
+         * @fires InCache#get
+         * @fires InCache#beforeGet
          * @example
          * inCache.get('my key');
          */
@@ -2890,6 +2892,12 @@ var InCache = function (_Flak) {
                     this.remove(key, true);
                     return this._opts.nullIfNotFound ? null : undefined;
                 }
+
+                /* istanbul ignore else  */
+                if (this.fireTheFirst('beforeGet', key, this._memory.data[key]) === false) {
+                    return;
+                }
+
                 this._memory.data[key].hits += 1;
                 this._memory.data[key].lastHit = new Date();
 
@@ -3403,11 +3411,19 @@ var InCache = function (_Flak) {
          */
 
         /**
+         * Triggered before get
+         * @event InCache#beforeGet
+         * @param key {string} key
+         * @param record {InCache~record} record object
+         * @since 7.2.0
+         */
+
+        /**
          * Triggered after get
          * @event InCache#get
          * @param key {string} key
          * @param record {InCache~record} record object
-         * @since 7.1.1
+         * @since 7.2.0
          */
 
         /**

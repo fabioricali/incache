@@ -47,6 +47,7 @@
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
         * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
+        * ["beforeGet" (key, record)](#InCache+event_beforeGet)
         * ["get" (key, record)](#InCache+event_get)
         * ["beforeSet" (key, value)](#InCache+event_beforeSet)
         * ["set" (key, record)](#InCache+event_set)
@@ -276,6 +277,7 @@ inCache.set('my key', 'my value');inCache.set('my object', {a: 1, b: 2});inCac
 Get record by key
 
 **Kind**: instance method of [<code>InCache</code>](#InCache)  
+**Emits**: [<code>get</code>](#InCache+event_get), [<code>beforeGet</code>](#InCache+event_beforeGet)  
 <table>
   <thead>
     <tr>
@@ -725,13 +727,36 @@ Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('u
 ```js
 inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
+<a name="InCache+event_beforeGet"></a>
+
+### "beforeGet" (key, record)
+Triggered before get
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 7.2.0  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key</p>
+</td>
+    </tr><tr>
+    <td>record</td><td><code><a href="#InCache..record">record</a></code></td><td><p>record object</p>
+</td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache+event_get"></a>
 
 ### "get" (key, record)
 Triggered after get
 
 **Kind**: event emitted by [<code>InCache</code>](#InCache)  
-**Since**: 7.1.1  
+**Since**: 7.2.0  
 <table>
   <thead>
     <tr>
