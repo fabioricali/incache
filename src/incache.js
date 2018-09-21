@@ -529,6 +529,8 @@ class InCache extends Flak {
      * @param key {string}
      * @param [onlyValue=true] {boolean} if false get InCache record
      * @returns {InCache~record|*|null|undefined}
+     * @fires InCache#get
+     * @fires InCache#beforeGet
      * @example
      * inCache.get('my key');
      */
@@ -538,6 +540,12 @@ class InCache extends Flak {
                 this.remove(key, true);
                 return (this._opts.nullIfNotFound ? null : undefined);
             }
+
+            /* istanbul ignore else  */
+            if (this.fireTheFirst('beforeGet', key, this._memory.data[key]) === false) {
+                return;
+            }
+
             this._memory.data[key].hits += 1;
             this._memory.data[key].lastHit = new Date();
 
@@ -1010,11 +1018,19 @@ class InCache extends Flak {
      */
 
     /**
+     * Triggered before get
+     * @event InCache#beforeGet
+     * @param key {string} key
+     * @param record {InCache~record} record object
+     * @since 7.2.0
+     */
+
+    /**
      * Triggered after get
      * @event InCache#get
      * @param key {string} key
      * @param record {InCache~record} record object
-     * @since 7.1.1
+     * @since 7.2.0
      */
 
     /**

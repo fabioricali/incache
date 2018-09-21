@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [7.1.1] - 2018-09-20
+## [7.2.0] - 2018-09-21
 - **Added** event `get`
+- **Added** event `beforeGet`
 
 ## [7.1.0] - 2018-09-20
 - **Added** method `info`, now it's possible retrieve only record info without increase `hits`
