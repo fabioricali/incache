@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 7.1.0  
+// [AIV]  InCache Build version: 7.1.1  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2892,6 +2892,9 @@ var InCache = function (_Flak) {
                 }
                 this._memory.data[key].hits += 1;
                 this._memory.data[key].lastHit = new Date();
+
+                this.fire('get', key, this._memory.data[key]);
+
                 return onlyValue ? this._memory.data[key].value : this._memory.data[key];
             } else {
                 return this._opts.nullIfNotFound ? null : undefined;
@@ -3355,6 +3358,18 @@ var InCache = function (_Flak) {
         }
 
         /**
+         * Check if key can be auto removed
+         * @param key
+         * @returns {boolean|*}
+         */
+
+    }, {
+        key: 'canBeAutoRemove',
+        value: function canBeAutoRemove(key) {
+            return !this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete;
+        }
+
+        /**
          * Adds listener to instance
          * @param eventName {string} event name
          * @param callback {Function} callback
@@ -3388,16 +3403,12 @@ var InCache = function (_Flak) {
          */
 
         /**
-         * Check if key can be auto removed
-         * @param key
-         * @returns {boolean|*}
+         * Triggered after get
+         * @event InCache#get
+         * @param key {string} key
+         * @param record {InCache~record} record object
+         * @since 7.1.1
          */
-
-    }, {
-        key: 'canBeAutoRemove',
-        value: function canBeAutoRemove(key) {
-            return !this._opts.autoRemovePeriod && this.expired(key) && this._memory.data[key].toDelete;
-        }
 
         /**
          * Triggered before set

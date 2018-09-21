@@ -47,6 +47,7 @@
         * <del>[.onRemoved(callback)](#InCache+onRemoved)</del>
         * <del>[.onCreated(callback)](#InCache+onCreated)</del>
         * <del>[.onUpdated(callback)](#InCache+onUpdated)</del>
+        * ["get" (key, record)](#InCache+event_get)
         * ["beforeSet" (key, value)](#InCache+event_beforeSet)
         * ["set" (key, record)](#InCache+event_set)
         * ["create" (key, record)](#InCache+event_create)
@@ -724,6 +725,29 @@ Triggered when a record has been updated. **Deprecated since 5.0.0:** use `on('u
 ```js
 inCache.onUpdated((key, record)=>{     console.log('updated', key, record);});
 ```
+<a name="InCache+event_get"></a>
+
+### "get" (key, record)
+Triggered after get
+
+**Kind**: event emitted by [<code>InCache</code>](#InCache)  
+**Since**: 7.1.1  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>key</td><td><code>string</code></td><td><p>key</p>
+</td>
+    </tr><tr>
+    <td>record</td><td><code><a href="#InCache..record">record</a></code></td><td><p>record object</p>
+</td>
+    </tr>  </tbody>
+</table>
+
 <a name="InCache+event_beforeSet"></a>
 
 ### "beforeSet" (key, value)
