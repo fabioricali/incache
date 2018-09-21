@@ -203,6 +203,23 @@ describe('cache-events', function () {
                 cache.remove('myKeyBBB');
             });
         });
+        describe('beforeGet', function () {
+            it('should be return done', (done)=>{
+                const cache = new InCache({
+                    save: false,
+                    share: false
+                });
+
+                cache.on('beforeGet', (key, record)=>{
+                    console.log('beforeGet', key, record);
+                    return false;
+                });
+
+                cache.set('myKeyBBB', 'myValue');
+                if (cache.get('myKeyBBB') === undefined)
+                    done();
+ì            });
+        });
         describe('get', function () {
             it('should be return done', (done)=>{
                 const cache = new InCache({
