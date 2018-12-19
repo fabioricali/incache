@@ -1,4 +1,4 @@
-// [AIV]  InCache Build version: 7.2.0  
+// [AIV]  InCache Build version: 7.2.1  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2734,6 +2734,10 @@ var InCache = function (_Flak) {
                         clearInterval(this._timerSaveCheck);
                         this._timerSaveCheck = null;
                     }
+
+                    process.on('SIGINT', function () {
+                        process.exit();
+                    });
 
                     /* istanbul ignore else  */
                     if (opts.autoSavePeriod) {
