@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.2.1] - 2018-12-19
+- **Fixed** process don't exit if SAVE MODE is TIMER
+
 ## [7.2.0] - 2018-09-21
 - **Added** event `get`
 - **Added** event `beforeGet`

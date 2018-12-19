@@ -394,6 +394,10 @@ class InCache extends Flak {
                     this._timerSaveCheck = null;
                 }
 
+                process.on('SIGINT', ()=>{
+                    process.exit();
+                });
+
                 /* istanbul ignore else  */
                 if (opts.autoSavePeriod) {
                     this._timerSaveCheck = setInterval(() => {
